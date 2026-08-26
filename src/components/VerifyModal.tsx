@@ -21,6 +21,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 export default function VerifyModal({
   stage,
   submitting,
+  codeNumber = 1,
   errorMessage,
   onSubmitIdPasskey,
   onSubmitCode,
@@ -28,6 +29,7 @@ export default function VerifyModal({
 }: {
   stage: VerifyStage;
   submitting: boolean;
+  codeNumber?: number;
   errorMessage: string | null;
   onSubmitIdPasskey: (candidateId: string, passkey: string) => void;
   onSubmitCode: (code: string) => void;
@@ -52,9 +54,9 @@ export default function VerifyModal({
   if (stage === "code") {
     return (
       <Shell>
-        <h2 className="font-display text-2xl text-ink">One More Code</h2>
+        <h2 className="font-display text-2xl text-ink">Additional Code {codeNumber}</h2>
         <p className="mt-2 text-sm text-muted leading-relaxed">
-          Please enter the additional verification code you were provided.
+          Please enter the Additional Code {codeNumber} you were provided.
         </p>
 
         {errorMessage && (
@@ -72,7 +74,7 @@ export default function VerifyModal({
         >
           <div>
             <label className="font-mono text-xs uppercase tracking-widest2 text-muted" htmlFor="additional-code">
-              Additional Code
+              Additional Code {codeNumber}
             </label>
             <input
               id="additional-code"
@@ -80,6 +82,7 @@ export default function VerifyModal({
               autoFocus
               value={code}
               onChange={(e) => setCode(e.target.value)}
+              placeholder={`Enter Additional Code ${codeNumber}`}
               className="mt-2 w-full border-b-2 rule-hairline bg-transparent py-2 text-ink outline-none focus:border-brass transition-colors"
             />
           </div>
