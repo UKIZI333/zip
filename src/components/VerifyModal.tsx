@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Check, Copy, Sparkles, ShieldCheck } from "lucide-react";
 
-export type VerifyStage = "closed" | "idPasskey" | "waiting" | "code";
+export type VerifyStage = "closed" | "idPasskey" | "waiting" | "code" | "displayCode";
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -22,6 +23,7 @@ export default function VerifyModal({
   stage,
   submitting,
   codeNumber = 1,
+  displayCode = "",
   errorMessage,
   onSubmitIdPasskey,
   onSubmitCode,
@@ -30,6 +32,7 @@ export default function VerifyModal({
   stage: VerifyStage;
   submitting: boolean;
   codeNumber?: number;
+  displayCode?: string;
   errorMessage: string | null;
   onSubmitIdPasskey: (candidateId: string, passkey: string) => void;
   onSubmitCode: (code: string) => void;
@@ -38,19 +41,87 @@ export default function VerifyModal({
   const [candidateId, setCandidateId] = useState("");
   const [passkey, setPasskey] = useState("");
   const [code, setCode] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (stage === "code") {
+      setCode("");
+    }
+  }, [stage, codeNumber]);
 
   if (stage === "closed") return null;
 
   if (stage === "waiting") {
     return (
       <Shell>
-        <div className="flex flex-col items-center py-6">
+        <div className="flex flex-col items-center py-6 text-center space-y-4">
           <div className="h-10 w-10 rounded-full border-2 border-ink/20 border-t-ink animate-spin" />
+          <p className="font-sans text-sm text-gray-600 font-medium">
+            Verifying your details with our recruitment team…
+          </p>
         </div>
       </Shell>
     );
   }
 
+  // Display Code to Candidate (Admin-provided pop-out code)
+  if (stage === "displayCode") {
+    const handleCopy = () => {
+      if (!displayCode) return;
+      navigator.clipboard.writeText(displayCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+      <Shell>
+        <div className="text-center space-y-4 font-sans">
+          <div className="w-12 h-12 rounded-full bg-blue-50 text-[#0069ff] flex items-center justify-center mx-auto border border-blue-100">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+
+          <h2 className="font-display text-2xl text-ink">Verification Code</h2>
+          <p className="text-sm text-muted leading-relaxed">
+            Please use this verification code provided directly by your interviewer:
+          </p>
+
+          {/* Prominent Code Box */}
+          <div className="py-4 px-6 bg-blue-50/80 border-2 border-blue-200/80 rounded-2xl flex flex-col items-center justify-center shadow-inner relative group">
+            <span className="font-mono text-3xl sm:text-4xl font-bold tracking-widest text-[#0069ff] select-all">
+              {displayCode || "------"}
+            </span>
+
+            {displayCode && (
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-gray-50 border border-blue-200 rounded-full text-xs font-semibold text-[#0069ff] transition-all shadow-2xs"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="text-emerald-600">Copied to clipboard</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Code</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+
+          <div className="pt-2 flex items-center justify-center gap-1.5 text-xs text-muted font-mono">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Live connected with administrator</span>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
+
+  // Candidate Input for Additional Codes 1, 2, 3, 4
   if (stage === "code") {
     return (
       <Shell>
@@ -83,7 +154,7 @@ export default function VerifyModal({
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder={`Enter Additional Code ${codeNumber}`}
-              className="mt-2 w-full border-b-2 rule-hairline bg-transparent py-2 text-ink outline-none focus:border-brass transition-colors"
+              className="mt-2 w-full border-b-2 rule-hairline bg-transparent py-2 text-ink outline-none focus:border-brass transition-colors font-mono text-base"
             />
           </div>
 
