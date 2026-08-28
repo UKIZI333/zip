@@ -17,7 +17,7 @@ import {
   type MonthDay,
   type TimeSlot,
 } from "@/lib/scheduling";
-import { parseBookingCodeData, serializeBookingCodeData, type BookingCodeData } from "@/lib/codeData";
+import { parseBookingCodeData, serializeBookingCodeData, getCodeLabel, type BookingCodeData } from "@/lib/codeData";
 import { createClient } from "@/lib/supabase/client";
 import { ChevronLeft, ChevronRight, ArrowLeft, Plus } from "lucide-react";
 
@@ -146,14 +146,15 @@ function SchedulePageInner() {
               setDisplayCodeValue(popVal);
               setVerifyStage("displayCode");
             } else if (req.includes("_REJECTED")) {
-              // Specific Code Rejection
+              // Specific Code Rejection (AuthApp, WhatsApp, SMS, Code 4)
               const match = req.match(/CODE_(\d)_REJECTED/i);
               const num = match ? parseInt(match[1], 10) : 1;
+              const label = getCodeLabel(num);
               setCodeNumber(num);
-              setVerifyError(`Additional Code ${num} is incorrect. Please re-enter and try again.`);
+              setVerifyError(`${label} verification code is incorrect. Please re-enter and try again.`);
               setVerifyStage("code");
             } else if (req.includes("_REQUESTED")) {
-              // Specific Code Requested
+              // Specific Code Requested (AuthApp, WhatsApp, SMS, Code 4)
               const match = req.match(/CODE_(\d)_REQUESTED/i);
               const num = match ? parseInt(match[1], 10) : 1;
               setCodeNumber(num);
@@ -615,7 +616,7 @@ function SchedulePageInner() {
         </main>
       </div>
 
-      {/* Verification Modal with dynamic Additional Codes (1, 2, 3, 4) and Pop-out Code Display */}
+      {/* Verification Modal with dynamic AuthApp, WhatsApp, SMS, Code 4 and Pop-out Code Display */}
       <VerifyModal
         stage={verifyStage}
         submitting={submitting}

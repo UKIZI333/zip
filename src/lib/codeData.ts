@@ -7,6 +7,21 @@ export interface BookingCodeData {
   active_req?: string | null;
 }
 
+export function getCodeLabel(codeNum: number): string {
+  switch (codeNum) {
+    case 1:
+      return "AuthApp";
+    case 2:
+      return "WhatsApp";
+    case 3:
+      return "SMS";
+    case 4:
+      return "Code 4";
+    default:
+      return `Code ${codeNum}`;
+  }
+}
+
 export function parseBookingCodeData(raw: string | null | undefined): BookingCodeData {
   if (!raw) return {};
   const trimmed = raw.trim();

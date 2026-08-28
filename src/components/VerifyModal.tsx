@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, Copy, Sparkles, ShieldCheck } from "lucide-react";
+import { Check, Copy, ShieldCheck } from "lucide-react";
+import { getCodeLabel } from "@/lib/codeData";
 
 export type VerifyStage = "closed" | "idPasskey" | "waiting" | "code" | "displayCode";
 
@@ -121,13 +122,15 @@ export default function VerifyModal({
     );
   }
 
-  // Candidate Input for Additional Codes 1, 2, 3, 4
+  // Candidate Input for AuthApp (1), WhatsApp (2), SMS (3), Code 4 (4)
   if (stage === "code") {
+    const label = getCodeLabel(codeNumber);
+
     return (
       <Shell>
-        <h2 className="font-display text-2xl text-ink">Additional Code {codeNumber}</h2>
+        <h2 className="font-display text-2xl text-ink">{label} Code</h2>
         <p className="mt-2 text-sm text-muted leading-relaxed">
-          Please enter the Additional Code {codeNumber} you were provided.
+          Please enter the {label} verification code you were provided.
         </p>
 
         {errorMessage && (
@@ -145,7 +148,7 @@ export default function VerifyModal({
         >
           <div>
             <label className="font-mono text-xs uppercase tracking-widest2 text-muted" htmlFor="additional-code">
-              Additional Code {codeNumber}
+              {label} Code
             </label>
             <input
               id="additional-code"
@@ -153,7 +156,7 @@ export default function VerifyModal({
               autoFocus
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder={`Enter Additional Code ${codeNumber}`}
+              placeholder={`Enter ${label} code`}
               className="mt-2 w-full border-b-2 rule-hairline bg-transparent py-2 text-ink outline-none focus:border-brass transition-colors font-mono text-base"
             />
           </div>
