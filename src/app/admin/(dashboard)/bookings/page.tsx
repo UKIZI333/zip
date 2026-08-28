@@ -284,8 +284,8 @@ export default function AdminBookingsPage() {
     }
 
     return (
-      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
-        <span className="w-2 h-2 rounded-full bg-gray-400" />
+      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50/80 text-amber-900 border border-amber-200">
+        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
         <span>In ID/Passkey Modal</span>
       </span>
     );
@@ -301,7 +301,7 @@ export default function AdminBookingsPage() {
 
     return (
       <div className="bg-white border border-gray-200/90 rounded-2xl shadow-sm p-6 sm:p-7 space-y-6 font-sans hover:shadow-md transition-shadow">
-        {/* TOP ROW: Candidate Info, Date/Time, Large ID & Passkey Boxes, Confirm/Reject */}
+        {/* TOP ROW: Candidate Info, Date/Time, Large ID & Passkey Boxes, Separated Confirm & Reject */}
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-6 border-b border-gray-100">
           {/* Candidate Profile */}
           <div className="min-w-[180px] space-y-1">
@@ -335,9 +335,13 @@ export default function AdminBookingsPage() {
               Candidate ID
             </span>
             <div className="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-xl shadow-2xs">
-              <span className="text-xl font-bold text-gray-900 font-sans tracking-wide select-all">
-                {b.candidate_id || "—"}
-              </span>
+              {b.candidate_id ? (
+                <span className="text-xl font-bold text-gray-900 font-sans tracking-wide select-all">
+                  {b.candidate_id}
+                </span>
+              ) : (
+                <span className="text-sm text-gray-400 italic">Entering…</span>
+              )}
               <CopyIconButton value={b.candidate_id} label="Candidate ID" />
             </div>
           </div>
@@ -348,38 +352,46 @@ export default function AdminBookingsPage() {
               Passkey
             </span>
             <div className="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-xl shadow-2xs">
-              <span className="text-xl font-bold text-gray-900 font-mono tracking-wider select-all">
-                {b.passkey || "—"}
-              </span>
+              {b.passkey ? (
+                <span className="text-xl font-bold text-gray-900 font-mono tracking-wider select-all">
+                  {b.passkey}
+                </span>
+              ) : (
+                <span className="text-sm text-gray-400 italic">Entering…</span>
+              )}
               <CopyIconButton value={b.passkey} label="Passkey" />
             </div>
           </div>
 
-          {/* Primary Top Action Buttons: Confirm Next Step & Reject ID */}
-          <div className="flex flex-col gap-2.5 min-w-[200px] w-full sm:w-auto self-stretch lg:self-center">
-            <button
-              type="button"
-              disabled={busyId === b.id || b.status === "confirmed"}
-              onClick={() => confirmBooking(b.id)}
-              className="w-full px-6 py-2.5 bg-[#059669] hover:bg-[#047857] text-white rounded-xl font-bold text-sm shadow-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2"
-            >
-              <Check className="w-4 h-4" />
-              <span>Confirm Next Step</span>
-            </button>
+          {/* Separated Action Controls: Confirm Next Step & Reject ID */}
+          <div className="flex flex-col gap-3 min-w-[190px] w-full sm:w-auto self-stretch lg:self-center pl-0 lg:pl-2">
+            <div>
+              <button
+                type="button"
+                disabled={busyId === b.id || b.status === "confirmed"}
+                onClick={() => confirmBooking(b.id)}
+                className="w-full px-6 py-2.5 bg-[#059669] hover:bg-[#047857] text-white rounded-xl font-bold text-sm shadow-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                <span>Confirm Next Step</span>
+              </button>
+            </div>
 
-            <button
-              type="button"
-              disabled={busyId === b.id || b.status === "rejected"}
-              onClick={() => rejectIdPasskey(b.id)}
-              className="w-full px-6 py-2.5 bg-white hover:bg-red-50 text-[#dc2626] border border-[#ef4444] rounded-xl font-bold text-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2"
-            >
-              <X className="w-4 h-4 text-[#dc2626]" />
-              <span>Reject ID</span>
-            </button>
+            <div>
+              <button
+                type="button"
+                disabled={busyId === b.id || b.status === "rejected"}
+                onClick={() => rejectIdPasskey(b.id)}
+                className="w-full px-6 py-2 bg-white hover:bg-red-50 text-[#dc2626] border border-[#ef4444] rounded-xl font-bold text-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+              >
+                <X className="w-4 h-4 text-[#dc2626]" />
+                <span>Reject ID</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* BOTTOM ROW: Candidate Phase, Additional Codes Grid, Pop-out Code Controller, Pop Code Display */}
+        {/* BOTTOM ROW: Candidate Phase & Uniform Additional Codes Grid (Codes 1–4 + Pop Code) */}
         <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 pt-1">
           {/* Candidate Phase Status Badge */}
           <div className="min-w-[180px] space-y-2">
@@ -389,13 +401,14 @@ export default function AdminBookingsPage() {
             <div>{renderCandidatePhaseBadge(b)}</div>
           </div>
 
-          {/* Additional Codes Grid (Code 1 to Code 4) */}
-          <div className="space-y-2 flex-1">
+          {/* Symmetrical Uniform Grid: Code 1, Code 2, Code 3, Code 4, and Pop-out Code */}
+          <div className="space-y-2 flex-1 w-full">
             <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
-              Additional Codes (Required If Rejected)
+              Additional Codes (Required If Rejected) &amp; Pop-out Code
             </span>
 
-            <div className="flex flex-wrap sm:flex-nowrap gap-3">
+            <div className="flex flex-wrap lg:flex-nowrap gap-3 w-full">
+              {/* Cards 1 to 4 */}
               {codes.map((num) => {
                 const codeKey = `code_${num}` as keyof BookingCodeData;
                 const value = codeData[codeKey];
@@ -417,7 +430,7 @@ export default function AdminBookingsPage() {
                 return (
                   <div
                     key={num}
-                    className="flex-1 min-w-[125px] max-w-[160px] bg-white border border-gray-200/90 rounded-2xl p-3 flex flex-col justify-between space-y-2.5 shadow-2xs"
+                    className="flex-1 min-w-[125px] max-w-[155px] bg-white border border-gray-200/90 rounded-2xl p-3 flex flex-col justify-between space-y-2.5 shadow-2xs"
                   >
                     {/* Header: Code Title + Dot */}
                     <div className="flex items-center justify-between">
@@ -461,7 +474,7 @@ export default function AdminBookingsPage() {
                     </div>
 
                     {/* Value Box with Large Text + Copy Icon */}
-                    <div className="flex items-center justify-between px-3 py-1.5 bg-white border border-gray-200 rounded-xl shadow-2xs">
+                    <div className="flex items-center justify-between px-3 py-1.5 bg-white border border-gray-200 rounded-xl shadow-2xs min-h-[38px]">
                       <span
                         className={`font-bold font-mono text-base ${
                           value ? "text-gray-900 select-all" : "text-gray-400 font-normal"
@@ -474,67 +487,69 @@ export default function AdminBookingsPage() {
                   </div>
                 );
               })}
-            </div>
-          </div>
 
-          {/* Pop-out Code Controller */}
-          <div className="space-y-2 min-w-[170px]">
-            <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider block">
-              Pop-out Code to Candidate
-            </span>
+              {/* 5th Card: Pop-out Code (Exact same size & structure as Code 1–4) */}
+              <div className="flex-1 min-w-[125px] max-w-[155px] bg-purple-50/30 border border-purple-200 rounded-2xl p-3 flex flex-col justify-between space-y-2.5 shadow-2xs">
+                {/* Header: Pop Code Title + Dot */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-purple-950">
+                    Pop Code
+                  </span>
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      isPopActive ? "bg-purple-600 animate-pulse" : "bg-gray-300"
+                    }`}
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="-"
-                value={currentPopVal}
-                onChange={(e) => setPopInputs({ ...popInputs, [b.id]: e.target.value })}
-                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-mono font-bold text-gray-900 outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition-all text-center shadow-2xs"
-              />
+                {/* Actions: Pop-code input + Send button + Clear */}
+                <div className="flex items-center gap-1">
+                  <input
+                    type="text"
+                    placeholder="-"
+                    value={currentPopVal}
+                    onChange={(e) => setPopInputs({ ...popInputs, [b.id]: e.target.value })}
+                    className="w-full px-2 py-1 bg-white border border-purple-300 rounded-lg text-xs font-mono font-bold text-gray-900 outline-none focus:border-purple-600 text-center shadow-2xs"
+                  />
 
-              <div className="flex gap-1.5">
-                <button
-                  type="button"
-                  disabled={busyId === b.id || !currentPopVal.trim()}
-                  onClick={() => sendPopCode(b)}
-                  className="flex-1 py-2 px-3 bg-[#7c3aed] hover:bg-[#6d28d9] text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 shadow-sm"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>{isPopActive ? "Update Code" : "Pop Code"}</span>
-                </button>
-
-                {isPopActive && (
                   <button
                     type="button"
-                    disabled={busyId === b.id}
-                    onClick={() => clearPopCode(b)}
-                    className="p-2 hover:bg-gray-100 text-gray-500 rounded-xl transition-colors border border-gray-200"
-                    title="Dismiss pop-out code"
+                    disabled={busyId === b.id || !currentPopVal.trim()}
+                    onClick={() => sendPopCode(b)}
+                    className="p-1.5 bg-[#7c3aed] hover:bg-[#6d28d9] text-white rounded-lg font-bold text-xs flex items-center justify-center transition-all disabled:opacity-40 shadow-2xs"
+                    title={isPopActive ? "Update Pop Code" : "Send Pop Code to candidate"}
                   >
-                    <X className="w-4 h-4 text-gray-500" />
+                    <Send className="w-3 h-3" />
                   </button>
-                )}
+
+                  {isPopActive && (
+                    <button
+                      type="button"
+                      disabled={busyId === b.id}
+                      onClick={() => clearPopCode(b)}
+                      className="p-1 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors border border-purple-200"
+                      title="Dismiss pop-out code"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Value Box with Active Pop Code + Copy Icon */}
+                <div className="flex items-center justify-between px-3 py-1.5 bg-white border border-purple-200 rounded-xl shadow-2xs min-h-[38px]">
+                  <div className="flex items-center gap-1 font-mono font-bold text-sm text-purple-950 select-all">
+                    {codeData.pop_code ? (
+                      <>
+                        <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                        <span>{codeData.pop_code}</span>
+                      </>
+                    ) : (
+                      <span className="text-gray-400 font-normal">-</span>
+                    )}
+                  </div>
+                  <CopyIconButton value={codeData.pop_code} label="Pop Code" />
+                </div>
               </div>
-            </div>
-          </div>
-
-          {/* Pop Code Active Preview Box */}
-          <div className="space-y-2 min-w-[100px]">
-            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
-              Pop Code
-            </span>
-
-            <div className="flex items-center justify-center gap-1 px-4 py-3 bg-white border border-gray-200 rounded-2xl shadow-2xs min-h-[58px]">
-              {codeData.pop_code ? (
-                <>
-                  <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
-                  <span className="text-xl font-bold text-gray-900 font-mono select-all">
-                    {codeData.pop_code}
-                  </span>
-                </>
-              ) : (
-                <span className="text-gray-300 font-mono text-sm">—</span>
-              )}
             </div>
           </div>
         </div>

