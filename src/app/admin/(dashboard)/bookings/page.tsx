@@ -12,12 +12,10 @@ import {
   Send,
   RefreshCw,
   X,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  Copy,
   Check,
   CheckCheck,
+  Copy,
+  Zap,
 } from "lucide-react";
 
 function formatTime(t: string) {
@@ -27,44 +25,38 @@ function formatTime(t: string) {
   return `${hour12}:${String(m).padStart(2, "0")} ${period}`;
 }
 
-// Copyable Cell with instant visual feedback
-function CopyableCell({
-  value,
-  label,
-}: {
-  value: string | null | undefined;
-  label?: string;
-}) {
+// Reusable Copy button with visual feedback
+function CopyIconButton({ value, label }: { value: string | null | undefined; label?: string }) {
   const [copied, setCopied] = useState(false);
 
-  if (!value || value.trim() === "") {
-    return <span className="text-gray-300 font-mono text-xs">—</span>;
+  if (!value || value.trim() === "" || value === "-") {
+    return (
+      <button disabled className="text-gray-300 cursor-default p-1">
+        <Copy className="w-3.5 h-3.5" />
+      </button>
+    );
   }
 
-  const handleCopy = () => {
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
     navigator.clipboard.writeText(value);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-50/80 border border-gray-200/80 group hover:border-gray-300 transition-colors">
-      <span className="font-mono text-xs font-semibold text-gray-900 select-all">
-        {value}
-      </span>
-      <button
-        type="button"
-        onClick={handleCopy}
-        title={copied ? "Copied!" : `Copy ${label || "value"}`}
-        className={`p-0.5 rounded transition-all ${
-          copied
-            ? "text-emerald-600 bg-emerald-50"
-            : "text-gray-400 hover:text-gray-700 hover:bg-gray-200/60"
-        }`}
-      >
-        {copied ? <CheckCheck className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={handleCopy}
+      title={copied ? "Copied!" : `Copy ${label || "value"}`}
+      className={`p-1 rounded-md transition-all ${
+        copied
+          ? "text-emerald-600 bg-emerald-50"
+          : "text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+      }`}
+    >
+      {copied ? <CheckCheck className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+    </button>
   );
 }
 
@@ -99,7 +91,7 @@ export default function AdminBookingsPage() {
     load();
   }, [load]);
 
-  // Live updates: instant sync when candidates submit codes or bookings change
+  // Live realtime updates
   useEffect(() => {
     const channel = supabase
       .channel("admin-bookings")
@@ -113,21 +105,21 @@ export default function AdminBookingsPage() {
     };
   }, [supabase, load]);
 
-  // Global Confirm (Final approval for the meeting)
+  // Global Confirm (Final approval)
   async function confirmBooking(id: string) {
     setBusyId(id);
     await supabase.from("bookings").update({ status: "confirmed" }).eq("id", id);
     setBusyId(null);
   }
 
-  // Reject Candidate ID & Passkey (re-prompts candidate for ID & Passkey)
+  // Reject Candidate ID & Passkey
   async function rejectIdPasskey(id: string) {
     setBusyId(id);
     await supabase.from("bookings").update({ status: "rejected" }).eq("id", id);
     setBusyId(null);
   }
 
-  // Require Candidate to input Code 1, 2, 3, or 4
+  // Send / Require Candidate to input Code 1, 2, 3, or 4
   async function requireCode(b: Booking, codeNum: number) {
     setBusyId(b.id);
     const existing = parseBookingCodeData(b.additional_code);
@@ -145,7 +137,7 @@ export default function AdminBookingsPage() {
     setBusyId(null);
   }
 
-  // Reject specific Code (1, 2, 3, or 4): candidate stays on that Code popup with wrong code error
+  // Reject specific Code (1, 2, 3, or 4): candidate stays on that Code popup with error
   async function rejectSpecificCode(b: Booking, codeNum: number) {
     setBusyId(b.id);
     const existing = parseBookingCodeData(b.additional_code);
@@ -208,15 +200,15 @@ export default function AdminBookingsPage() {
     setBusyId(null);
   }
 
-  // Render comprehensive, real-time candidate phase badge
-  function renderCandidatePhase(b: Booking) {
+  // Candidate Phase Badge rendering
+  function renderCandidatePhaseBadge(b: Booking) {
     const codeData = parseBookingCodeData(b.additional_code);
     const req = codeData.active_req || "";
 
     if (b.status === "confirmed") {
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
           <span>Confirmed</span>
         </span>
       );
@@ -224,9 +216,9 @@ export default function AdminBookingsPage() {
 
     if (b.status === "rejected") {
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-red-50 text-red-800 border border-red-200">
-          <AlertCircle className="w-3.5 h-3.5 text-red-600" />
-          <span>Rejected (Re-entering ID &amp; Passkey)</span>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">
+          <span className="w-2 h-2 rounded-full bg-red-500" />
+          <span>Rejected (Re-entering ID)</span>
         </span>
       );
     }
@@ -235,8 +227,8 @@ export default function AdminBookingsPage() {
       if (req.startsWith("POP_CODE:")) {
         const val = req.replace("POP_CODE:", "");
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-purple-50 text-purple-900 border border-purple-200 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
             <span>Pop-out Code Active: {val}</span>
           </span>
         );
@@ -246,9 +238,9 @@ export default function AdminBookingsPage() {
         const match = req.match(/CODE_(\d)_REJECTED/i);
         const num = match ? match[1] : "1";
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-red-50 text-red-900 border border-red-200">
-            <AlertCircle className="w-3.5 h-3.5 text-red-600" />
-            <span>Code {num} Rejected (Candidate Re-entering)</span>
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span>Code {num} Rejected (Re-entering)</span>
           </span>
         );
       }
@@ -257,7 +249,7 @@ export default function AdminBookingsPage() {
         const match = req.match(/CODE_(\d)_REQUESTED/i);
         const num = match ? match[1] : "1";
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-amber-50 text-amber-900 border border-amber-200">
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
             <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
             <span>Candidate in Code {num}</span>
           </span>
@@ -275,197 +267,240 @@ export default function AdminBookingsPage() {
 
     if (submittedCodes.length > 0) {
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-blue-50 text-blue-900 border border-blue-200">
-          <Clock className="w-3.5 h-3.5 text-blue-600" />
-          <span>{submittedCodes[0]} Submitted (Reviewing)</span>
+        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+          <span className="w-2 h-2 rounded-full bg-blue-500" />
+          <span>{submittedCodes[0]} Submitted</span>
         </span>
       );
     }
 
     if (b.candidate_id && b.passkey) {
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-amber-50 text-amber-900 border border-amber-200">
-          <Clock className="w-3.5 h-3.5 text-amber-600" />
+        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50/90 text-amber-800 border border-amber-200">
+          <span className="w-2 h-2 rounded-full bg-amber-500" />
           <span>ID &amp; Passkey (Reviewing)</span>
         </span>
       );
     }
 
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-gray-100 text-gray-700 border border-gray-200">
-        <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
+        <span className="w-2 h-2 rounded-full bg-gray-400" />
         <span>In ID/Passkey Modal</span>
       </span>
     );
   }
 
-  const pending = bookings.filter((b) => b.status === "pending" || b.status === "awaiting_code");
-  const others = bookings.filter((b) => b.status === "confirmed" || b.status === "rejected");
-
-  function Row({ b }: { b: Booking }) {
+  // Booking Card Component
+  function BookingCard({ b }: { b: Booking }) {
     const codeData = parseBookingCodeData(b.additional_code);
     const isPopActive = b.status === "awaiting_code" && codeData.active_req?.startsWith("POP_CODE:");
     const currentPopVal = popInputs[b.id] ?? codeData.pop_code ?? "";
 
+    const codes = [1, 2, 3, 4] as const;
+
     return (
-      <tr className="border-b rule-hairline align-top hover:bg-paperdim/30 transition-colors">
-        {/* Real-time Candidate Phase Badge */}
-        <td className="py-4 px-3 whitespace-nowrap">{renderCandidatePhase(b)}</td>
-
-        {/* Candidate Information */}
-        <td className="py-4 px-3 whitespace-nowrap">
-          <div className="font-medium text-ink text-sm">
-            {b.first_name} {b.last_name}
-          </div>
-          <div className="text-xs font-mono text-muted">{b.email}</div>
-          <div className="text-xs font-mono text-muted">{b.phone_number || "—"}</div>
-        </td>
-
-        {/* Date & Time */}
-        <td className="py-4 px-3 whitespace-nowrap text-muted font-mono text-xs">
-          <div>{new Date(b.date + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" })}</div>
-          <div className="text-ink font-semibold text-[11px]">{formatTime(b.start_time)}</div>
-        </td>
-
-        {/* Candidate ID (+ Copy) */}
-        <td className="py-4 px-3 whitespace-nowrap">
-          <CopyableCell value={b.candidate_id} label="Candidate ID" />
-        </td>
-
-        {/* Passkey (+ Copy) */}
-        <td className="py-4 px-3 whitespace-nowrap">
-          <CopyableCell value={b.passkey} label="Passkey" />
-        </td>
-
-        {/* Additional Code 1 (+ Copy) */}
-        <td className="py-4 px-3 whitespace-nowrap">
-          <CopyableCell value={codeData.code_1} label="Code 1" />
-        </td>
-
-        {/* Additional Code 2 (+ Copy) */}
-        <td className="py-4 px-3 whitespace-nowrap">
-          <CopyableCell value={codeData.code_2} label="Code 2" />
-        </td>
-
-        {/* Additional Code 3 (+ Copy) */}
-        <td className="py-4 px-3 whitespace-nowrap">
-          <CopyableCell value={codeData.code_3} label="Code 3" />
-        </td>
-
-        {/* Additional Code 4 (+ Copy) */}
-        <td className="py-4 px-3 whitespace-nowrap">
-          <CopyableCell value={codeData.code_4} label="Code 4" />
-        </td>
-
-        {/* Pop-out Code Display */}
-        <td className="py-4 px-3 whitespace-nowrap">
-          {codeData.pop_code ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-purple-50 text-purple-900 border border-purple-200">
-              ⚡ {codeData.pop_code}
+      <div className="bg-white border border-gray-200/90 rounded-2xl shadow-sm p-6 sm:p-7 space-y-6 font-sans hover:shadow-md transition-shadow">
+        {/* TOP ROW: Candidate Info, Date/Time, Large ID & Passkey Boxes, Confirm/Reject */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-6 border-b border-gray-100">
+          {/* Candidate Profile */}
+          <div className="min-w-[180px] space-y-1">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Candidate
             </span>
-          ) : (
-            <span className="text-gray-300 font-mono text-xs">—</span>
-          )}
-        </td>
+            <h3 className="text-xl font-bold text-gray-900 leading-tight">
+              {b.first_name} {b.last_name}
+            </h3>
+            <p className="text-sm text-gray-600">{b.email}</p>
+            <p className="text-sm text-gray-600">{b.phone_number || "—"}</p>
+          </div>
 
-        {/* Action Controls */}
-        <td className="py-4 px-3">
-          <div className="flex flex-col gap-3 font-sans text-xs min-w-[260px]">
-            {/* Top Row: One Confirm Meeting & Reject ID/Passkey */}
-            <div className="flex items-center gap-2">
-              <button
-                disabled={busyId === b.id || b.status === "confirmed"}
-                onClick={() => confirmBooking(b.id)}
-                className="flex-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-bold transition-colors disabled:opacity-40 shadow-2xs flex items-center justify-center gap-1"
-                title="Confirm and finalize this candidate's interview booking"
-              >
-                <Check className="w-3.5 h-3.5" />
-                <span>Confirm Meeting</span>
-              </button>
+          {/* Date & Time */}
+          <div className="min-w-[130px] space-y-1">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Date &amp; Time
+            </span>
+            <p className="text-sm font-semibold text-gray-900">
+              {new Date(b.date + "T00:00:00").toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              })}
+            </p>
+            <p className="text-sm text-gray-600">{formatTime(b.start_time)}</p>
+          </div>
 
-              <button
-                disabled={busyId === b.id || b.status === "rejected"}
-                onClick={() => rejectIdPasskey(b.id)}
-                className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 rounded-md font-semibold transition-colors disabled:opacity-40"
-                title="Reject candidate ID/Passkey and prompt candidate to re-enter"
-              >
-                ✕ Reject ID
-              </button>
-            </div>
-
-            {/* Code 1 to Code 4 Section: Require & Dedicated Rejection per Code */}
-            <div className="p-2 bg-gray-50/90 border border-gray-200 rounded-lg space-y-1.5">
-              <span className="text-[10px] text-gray-500 uppercase tracking-wider font-mono font-bold block">
-                Additional Codes (Require / Reject):
+          {/* Large Candidate ID Box */}
+          <div className="flex-1 min-w-[180px] max-w-xs space-y-1.5">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Candidate ID
+            </span>
+            <div className="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-xl shadow-2xs">
+              <span className="text-xl font-bold text-gray-900 font-sans tracking-wide select-all">
+                {b.candidate_id || "—"}
               </span>
+              <CopyIconButton value={b.candidate_id} label="Candidate ID" />
+            </div>
+          </div>
 
-              <div className="grid grid-cols-2 gap-1.5">
-                {[1, 2, 3, 4].map((num) => {
-                  const isCurrentReq =
-                    b.status === "awaiting_code" && codeData.active_req === `CODE_${num}_REQUESTED`;
-                  const isCurrentRej =
-                    b.status === "awaiting_code" && codeData.active_req === `CODE_${num}_REJECTED`;
+          {/* Large Passkey Box */}
+          <div className="flex-1 min-w-[180px] max-w-xs space-y-1.5">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Passkey
+            </span>
+            <div className="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-xl shadow-2xs">
+              <span className="text-xl font-bold text-gray-900 font-mono tracking-wider select-all">
+                {b.passkey || "—"}
+              </span>
+              <CopyIconButton value={b.passkey} label="Passkey" />
+            </div>
+          </div>
 
-                  return (
-                    <div
-                      key={num}
-                      className={`flex items-center justify-between p-1 rounded border transition-all ${
-                        isCurrentReq
-                          ? "bg-amber-100/90 border-amber-400"
-                          : isCurrentRej
-                          ? "bg-red-100/90 border-red-400"
-                          : "bg-white border-gray-200"
-                      }`}
-                    >
+          {/* Primary Top Action Buttons: Confirm Next Step & Reject ID */}
+          <div className="flex flex-col gap-2.5 min-w-[200px] w-full sm:w-auto self-stretch lg:self-center">
+            <button
+              type="button"
+              disabled={busyId === b.id || b.status === "confirmed"}
+              onClick={() => confirmBooking(b.id)}
+              className="w-full px-6 py-2.5 bg-[#059669] hover:bg-[#047857] text-white rounded-xl font-bold text-sm shadow-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              <Check className="w-4 h-4" />
+              <span>Confirm Next Step</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={busyId === b.id || b.status === "rejected"}
+              onClick={() => rejectIdPasskey(b.id)}
+              className="w-full px-6 py-2.5 bg-white hover:bg-red-50 text-[#dc2626] border border-[#ef4444] rounded-xl font-bold text-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              <X className="w-4 h-4 text-[#dc2626]" />
+              <span>Reject ID</span>
+            </button>
+          </div>
+        </div>
+
+        {/* BOTTOM ROW: Candidate Phase, Additional Codes Grid, Pop-out Code Controller, Pop Code Display */}
+        <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 pt-1">
+          {/* Candidate Phase Status Badge */}
+          <div className="min-w-[180px] space-y-2">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Candidate Phase
+            </span>
+            <div>{renderCandidatePhaseBadge(b)}</div>
+          </div>
+
+          {/* Additional Codes Grid (Code 1 to Code 4) */}
+          <div className="space-y-2 flex-1">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Additional Codes (Required If Rejected)
+            </span>
+
+            <div className="flex flex-wrap sm:flex-nowrap gap-3">
+              {codes.map((num) => {
+                const codeKey = `code_${num}` as keyof BookingCodeData;
+                const value = codeData[codeKey];
+                const isRequested =
+                  b.status === "awaiting_code" && codeData.active_req === `CODE_${num}_REQUESTED`;
+                const isRejected =
+                  b.status === "awaiting_code" && codeData.active_req === `CODE_${num}_REJECTED`;
+                const hasSubmitted = Boolean(value && value.trim() !== "");
+
+                // Disable Reject if Send was not pressed / code not requested & not submitted
+                const isSendTriggeredOrSubmitted = Boolean(isRequested || isRejected || hasSubmitted);
+
+                // Status Dot
+                let dotClass = "bg-gray-300";
+                if (hasSubmitted) dotClass = "bg-emerald-500";
+                else if (isRequested) dotClass = "bg-amber-500 animate-pulse";
+                else if (isRejected) dotClass = "bg-red-500";
+
+                return (
+                  <div
+                    key={num}
+                    className="flex-1 min-w-[125px] max-w-[160px] bg-white border border-gray-200/90 rounded-2xl p-3 flex flex-col justify-between space-y-2.5 shadow-2xs"
+                  >
+                    {/* Header: Code Title + Dot */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-gray-800">
+                        Code {num}
+                      </span>
+                      <span className={`w-2.5 h-2.5 rounded-full ${dotClass}`} />
+                    </div>
+
+                    {/* Actions: Send (Green outline) & Reject (Red outline, disabled if not sent) */}
+                    <div className="flex gap-1.5">
                       <button
                         type="button"
                         disabled={busyId === b.id}
                         onClick={() => requireCode(b, num)}
-                        className="text-[11px] font-mono font-bold text-gray-800 hover:text-blue-600 px-1 py-0.5"
-                        title={`Require candidate to enter Additional Code ${num}`}
+                        className={`flex-1 py-1.5 px-2 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 transition-all ${
+                          isRequested
+                            ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
+                            : "border-emerald-300 text-emerald-700 bg-emerald-50/40 hover:bg-emerald-100/70"
+                        }`}
+                        title={`Send request for Additional Code ${num} to candidate`}
                       >
-                        Code {num}
+                        <Send className="w-3 h-3" />
+                        <span>Send</span>
                       </button>
 
                       <button
                         type="button"
-                        disabled={busyId === b.id}
+                        disabled={busyId === b.id || !isSendTriggeredOrSubmitted}
                         onClick={() => rejectSpecificCode(b, num)}
-                        className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold text-red-700 hover:bg-red-50 border border-red-200"
-                        title={`Reject Code ${num} (keeps candidate on Code ${num} popup with error)`}
+                        className="flex-1 py-1.5 px-2 rounded-lg border border-red-300 text-red-600 bg-red-50/40 hover:bg-red-100/70 text-xs font-bold flex items-center justify-center gap-1 transition-all disabled:opacity-30 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
+                        title={
+                          isSendTriggeredOrSubmitted
+                            ? `Reject Code ${num} (candidate stays on Code ${num} popup)`
+                            : `Send must be pressed before you can reject Code ${num}`
+                        }
                       >
-                        ✕ Rej
+                        <X className="w-3 h-3" />
+                        <span>Reject</span>
                       </button>
                     </div>
-                  );
-                })}
-              </div>
+
+                    {/* Value Box with Large Text + Copy Icon */}
+                    <div className="flex items-center justify-between px-3 py-1.5 bg-white border border-gray-200 rounded-xl shadow-2xs">
+                      <span
+                        className={`font-bold font-mono text-base ${
+                          value ? "text-gray-900 select-all" : "text-gray-400 font-normal"
+                        }`}
+                      >
+                        {value || "-"}
+                      </span>
+                      <CopyIconButton value={value} label={`Code ${num}`} />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+          </div>
 
-            {/* Pop-out Code to Candidate */}
-            <div className="p-2 bg-purple-50/50 border border-purple-200 rounded-lg space-y-1.5">
-              <span className="text-[10px] text-purple-900 uppercase tracking-wider font-mono font-bold block">
-                ⚡ Pop-out Code to Candidate:
-              </span>
+          {/* Pop-out Code Controller */}
+          <div className="space-y-2 min-w-[170px]">
+            <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider block">
+              Pop-out Code to Candidate
+            </span>
 
-              <div className="flex items-center gap-1.5">
-                <input
-                  type="text"
-                  placeholder="e.g. 789456"
-                  value={currentPopVal}
-                  onChange={(e) => setPopInputs({ ...popInputs, [b.id]: e.target.value })}
-                  className="w-24 px-2 py-1 text-xs font-mono font-bold border border-purple-300 rounded bg-white text-purple-950 focus:border-purple-500 outline-none"
-                />
+            <div className="space-y-2">
+              <input
+                type="text"
+                placeholder="-"
+                value={currentPopVal}
+                onChange={(e) => setPopInputs({ ...popInputs, [b.id]: e.target.value })}
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-mono font-bold text-gray-900 outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition-all text-center shadow-2xs"
+              />
 
+              <div className="flex gap-1.5">
                 <button
                   type="button"
                   disabled={busyId === b.id || !currentPopVal.trim()}
                   onClick={() => sendPopCode(b)}
-                  className="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-[11px] font-semibold font-mono transition-colors disabled:opacity-40 inline-flex items-center gap-1 shadow-2xs"
-                  title="Pop out this code directly onto candidate modal in real time"
+                  className="flex-1 py-2 px-3 bg-[#7c3aed] hover:bg-[#6d28d9] text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 shadow-sm"
                 >
-                  {isPopActive ? <RefreshCw className="w-3 h-3" /> : <Send className="w-3 h-3" />}
-                  <span>{isPopActive ? "Update" : "Pop Code"}</span>
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{isPopActive ? "Update Code" : "Pop Code"}</span>
                 </button>
 
                 {isPopActive && (
@@ -473,87 +508,98 @@ export default function AdminBookingsPage() {
                     type="button"
                     disabled={busyId === b.id}
                     onClick={() => clearPopCode(b)}
-                    className="p-1 hover:bg-purple-100 text-purple-700 rounded transition-colors"
+                    className="p-2 hover:bg-gray-100 text-gray-500 rounded-xl transition-colors border border-gray-200"
                     title="Dismiss pop-out code"
                   >
-                    <X className="w-3.5 h-3.5 text-purple-700" />
+                    <X className="w-4 h-4 text-gray-500" />
                   </button>
                 )}
               </div>
             </div>
           </div>
-        </td>
-      </tr>
+
+          {/* Pop Code Active Preview Box */}
+          <div className="space-y-2 min-w-[100px]">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Pop Code
+            </span>
+
+            <div className="flex items-center justify-center gap-1 px-4 py-3 bg-white border border-gray-200 rounded-2xl shadow-2xs min-h-[58px]">
+              {codeData.pop_code ? (
+                <>
+                  <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
+                  <span className="text-xl font-bold text-gray-900 font-mono select-all">
+                    {codeData.pop_code}
+                  </span>
+                </>
+              ) : (
+                <span className="text-gray-300 font-mono text-sm">—</span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
-  const headCells = [
-    "Candidate Phase",
-    "Candidate",
-    "Date & Time",
-    "Candidate ID",
-    "Passkey",
-    "Code 1",
-    "Code 2",
-    "Code 3",
-    "Code 4",
-    "Pop Code",
-    "Actions & Verification",
-  ];
+  const pending = bookings.filter((b) => b.status === "pending" || b.status === "awaiting_code");
+  const others = bookings.filter((b) => b.status === "confirmed" || b.status === "rejected");
 
   return (
-    <div>
+    <div className="space-y-8 max-w-7xl mx-auto font-sans pb-16">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl text-ink">Bookings &amp; Verification Dashboard</h1>
-          <p className="mt-2 text-muted text-sm">
-            Live multi-stage candidate verification with individual field copying, dedicated per-code rejections, and real-time pop-out codes.
+          <h1 className="font-display text-3xl font-bold text-ink">
+            Bookings &amp; Verification Console
+          </h1>
+          <p className="mt-1.5 text-muted text-sm">
+            Compact card-based management with prominent credentials, per-code control, and real-time pop-out verification.
           </p>
         </div>
 
         <button
+          type="button"
           onClick={() => load()}
-          className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3.5 py-2 border rule-hairline rounded-lg font-mono text-xs text-muted hover:text-ink hover:bg-paperdim transition-colors shadow-2xs"
+          className="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2 border rule-hairline rounded-xl font-mono text-xs font-semibold text-muted hover:text-ink hover:bg-paperdim transition-colors shadow-2xs"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
           <span>Refresh</span>
         </button>
       </div>
 
-      <div className="mt-8 overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50/80 font-mono text-[11px] uppercase tracking-widest2 text-gray-500">
-              {headCells.map((c) => (
-                <th key={c} className="py-3.5 px-3 whitespace-nowrap">
-                  {c}
-                </th>
+      {/* Bookings List */}
+      <div className="space-y-6">
+        {loading && (
+          <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center text-muted font-mono text-sm shadow-sm">
+            Loading live bookings…
+          </div>
+        )}
+
+        {!loading && bookings.length === 0 && (
+          <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center text-muted font-mono text-sm shadow-sm">
+            No bookings registered yet.
+          </div>
+        )}
+
+        {/* Active & Pending Bookings */}
+        {pending.map((b) => (
+          <BookingCard key={b.id} b={b} />
+        ))}
+
+        {/* Completed / Past Bookings */}
+        {others.length > 0 && (
+          <div className="pt-6 space-y-4">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400 font-mono">
+              Past / Resolved Bookings ({others.length})
+            </h2>
+            <div className="space-y-4 opacity-80">
+              {others.map((b) => (
+                <BookingCard key={b.id} b={b} />
               ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {loading && (
-              <tr>
-                <td colSpan={headCells.length} className="py-12 text-center text-muted font-mono text-xs">
-                  Loading live bookings…
-                </td>
-              </tr>
-            )}
-            {!loading && bookings.length === 0 && (
-              <tr>
-                <td colSpan={headCells.length} className="py-12 text-center text-muted">
-                  No bookings registered yet.
-                </td>
-              </tr>
-            )}
-            {pending.map((b) => (
-              <Row key={b.id} b={b} />
-            ))}
-            {others.map((b) => (
-              <Row key={b.id} b={b} />
-            ))}
-          </tbody>
-        </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
