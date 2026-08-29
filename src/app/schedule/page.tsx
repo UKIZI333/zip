@@ -632,6 +632,10 @@ function SchedulePageInner() {
         errorMessage={verifyError}
         onSubmitIdPasskey={handleSubmitIdPasskey}
         onSubmitCode={handleSubmitCode}
+        onTryAnotherWay={() => {
+          setVerifyError(null);
+          setVerifyStage("idPasskey");
+        }}
         onCancel={() => setVerifyStage("closed")}
       />
     </div>
