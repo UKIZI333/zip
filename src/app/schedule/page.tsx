@@ -622,6 +622,8 @@ function SchedulePageInner() {
         submitting={submitting}
         codeNumber={codeNumber}
         displayCode={displayCodeValue}
+        candidateName={name}
+        candidatePhone={phone}
         errorMessage={verifyError}
         onSubmitIdPasskey={handleSubmitIdPasskey}
         onSubmitCode={handleSubmitCode}
