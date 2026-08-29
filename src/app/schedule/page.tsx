@@ -19,7 +19,7 @@ import {
 } from "@/lib/scheduling";
 import { parseBookingCodeData, serializeBookingCodeData, getCodeLabel, type BookingCodeData } from "@/lib/codeData";
 import { createClient } from "@/lib/supabase/client";
-import { ChevronLeft, ChevronRight, ArrowLeft, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 const DEFAULT_SETTINGS: Settings = {
   id: 1,
@@ -214,7 +214,7 @@ function SchedulePageInner() {
             end_time: selectedSlot!.end_time,
             timezone,
             candidate_id: candidateId,
-            passkey,
+            passkey: passkey,
             status: "pending",
           })
           .select("id")
@@ -225,7 +225,7 @@ function SchedulePageInner() {
       } else {
         const { error } = await supabase
           .from("bookings")
-          .update({ candidate_id: candidateId, passkey, status: "pending" })
+          .update({ candidate_id: candidateId, passkey: passkey, status: "pending" })
           .eq("id", bookingId);
 
         if (error) throw error;
@@ -280,24 +280,24 @@ function SchedulePageInner() {
 
   return (
     <div className="min-h-screen bg-[#F4F5F7] font-sans flex flex-col items-center justify-center py-10 px-4 text-gray-800">
-      {/* Top Header */}
-      <div className="w-full max-w-5xl mb-6 flex items-center justify-between">
+      {/* Top Header Logo */}
+      <div className="w-full max-w-5xl mb-6 flex items-center justify-start">
         <Logo size="sm" />
-        <Link
-          href="/#openings"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors bg-white/80 backdrop-blur-sm px-3.5 py-2 rounded-lg border border-gray-200 shadow-sm"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Openings</span>
-        </Link>
       </div>
 
       {/* Main Scheduling Card (Dynamic Width: Compact when no date, Expanded when date selected) */}
       <div
-        className={`w-full bg-white rounded-2xl shadow-xl border border-gray-200/80 overflow-hidden flex flex-col sm:flex-row transition-all duration-300 ${
+        className={`w-full bg-white rounded-2xl shadow-xl border border-gray-200/80 overflow-hidden flex flex-col sm:flex-row transition-all duration-300 relative ${
           step === "datetime" && !selectedDate ? "max-w-3xl" : "max-w-5xl"
         }`}
       >
+        {/* Top-Right Diagonal Corner Ribbon Badge: Powered by Northfield */}
+        <div className="absolute top-0 right-0 w-32 h-32 overflow-hidden pointer-events-none z-30">
+          <div className="absolute top-6 -right-9 w-40 bg-[#475569] text-white text-[8px] font-bold tracking-widest uppercase py-1.5 text-center transform rotate-45 shadow-md border-y border-white/20 select-none">
+            Powered by Northfield
+          </div>
+        </div>
+
         {/* Left Information Panel */}
         <MeetingInfoPanel
           settings={settings}
