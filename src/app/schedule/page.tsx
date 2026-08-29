@@ -291,10 +291,15 @@ function SchedulePageInner() {
           step === "datetime" && !selectedDate ? "max-w-3xl" : "max-w-5xl"
         }`}
       >
-        {/* Top-Right Diagonal Corner Ribbon Badge: Powered by Northfield */}
-        <div className="absolute top-0 right-0 w-32 h-32 overflow-hidden pointer-events-none z-30">
-          <div className="absolute top-6 -right-9 w-40 bg-[#475569] text-white text-[8px] font-bold tracking-widest uppercase py-1.5 text-center transform rotate-45 shadow-md border-y border-white/20 select-none">
-            Powered by Northfield
+        {/* Top-Right Diagonal Corner Ribbon Badge: POWER BY NORTHFIELD */}
+        <div className="absolute top-0 right-0 w-36 h-36 overflow-hidden pointer-events-none z-30">
+          <div className="absolute top-7 -right-10 w-48 bg-[#475569] text-white py-2 text-center transform rotate-45 shadow-lg border-y border-white/20 select-none flex flex-col items-center justify-center leading-tight">
+            <span className="text-[9px] font-bold tracking-widest uppercase text-gray-200">
+              POWER BY
+            </span>
+            <span className="text-[11px] font-extrabold tracking-wider uppercase text-white">
+              NORTHFIELD
+            </span>
           </div>
         </div>
 

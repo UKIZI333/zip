@@ -414,51 +414,51 @@ export default function AdminBookingsPage() {
                 return (
                   <div
                     key={num}
-                    className="flex-1 min-w-[120px] max-w-[150px] bg-white border border-gray-200/90 rounded-2xl p-3 flex flex-col justify-between space-y-2.5 shadow-2xs"
+                    className="flex-1 min-w-[136px] max-w-[160px] bg-white border border-gray-200/90 rounded-2xl p-3 flex flex-col justify-between space-y-2.5 shadow-2xs overflow-hidden"
                   >
                     {/* Header: Label Title + Dot */}
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-gray-800">
+                      <span className="text-xs font-bold text-gray-800 truncate pr-1">
                         {label}
                       </span>
-                      <span className={`w-2.5 h-2.5 rounded-full ${dotClass}`} />
+                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${dotClass}`} />
                     </div>
 
                     {/* Actions: Send (Green outline) & Reject (Red outline, disabled if not sent) */}
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1 w-full min-w-0">
                       <button
                         type="button"
                         disabled={busyId === b.id}
                         onClick={() => requireCode(b, num)}
-                        className={`flex-1 py-1.5 px-2 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 transition-all ${
+                        className={`flex-1 py-1.5 px-1.5 rounded-lg border text-[11px] font-bold flex items-center justify-center gap-1 transition-all min-w-0 ${
                           isRequested
                             ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
                             : "border-emerald-300 text-emerald-700 bg-emerald-50/40 hover:bg-emerald-100/70"
                         }`}
                         title={`Send request for ${label} verification code to candidate`}
                       >
-                        <Send className="w-3 h-3" />
-                        <span>Send</span>
+                        <Send className="w-2.5 h-2.5 shrink-0" />
+                        <span className="truncate">Send</span>
                       </button>
 
                       <button
                         type="button"
                         disabled={busyId === b.id || !isSendTriggeredOrSubmitted}
                         onClick={() => rejectSpecificCode(b, num)}
-                        className="flex-1 py-1.5 px-2 rounded-lg border border-red-300 text-red-600 bg-red-50/40 hover:bg-red-100/70 text-xs font-bold flex items-center justify-center gap-1 transition-all disabled:opacity-30 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
+                        className="flex-1 py-1.5 px-1.5 rounded-lg border border-red-300 text-red-600 bg-red-50/40 hover:bg-red-100/70 text-[11px] font-bold flex items-center justify-center gap-1 transition-all disabled:opacity-30 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed min-w-0"
                         title={
                           isSendTriggeredOrSubmitted
                             ? `Reject ${label} code (candidate stays on ${label} popup)`
                             : `Send must be pressed before you can reject ${label} code`
                         }
                       >
-                        <X className="w-3 h-3" />
-                        <span>Reject</span>
+                        <X className="w-2.5 h-2.5 shrink-0" />
+                        <span className="truncate">Reject</span>
                       </button>
                     </div>
 
                     {/* Value Box with Large Text + Copy Icon */}
-                    <div className="flex items-center justify-between gap-1 px-3 py-1.5 bg-white border border-gray-200 rounded-xl shadow-2xs min-h-[38px] min-w-0">
+                    <div className="flex items-center justify-between gap-1 px-2.5 py-1.5 bg-white border border-gray-200 rounded-xl shadow-2xs min-h-[38px] min-w-0">
                       <span
                         className={`font-bold font-mono text-base truncate min-w-0 flex-1 ${
                           value ? "text-gray-900 select-all" : "text-gray-400 font-normal"
@@ -474,34 +474,34 @@ export default function AdminBookingsPage() {
               })}
 
               {/* 5th Card: Pop-out Code (Exact same size & structure as AuthApp, WhatsApp, SMS, Code 4) */}
-              <div className="flex-1 min-w-[120px] max-w-[150px] bg-purple-50/30 border border-purple-200 rounded-2xl p-3 flex flex-col justify-between space-y-2.5 shadow-2xs">
+              <div className="flex-1 min-w-[136px] max-w-[160px] bg-purple-50/30 border border-purple-200 rounded-2xl p-3 flex flex-col justify-between space-y-2.5 shadow-2xs overflow-hidden">
                 {/* Header: Pop Code Title + Dot */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-purple-950">
+                  <span className="text-xs font-bold text-purple-950 truncate pr-1">
                     Pop Code
                   </span>
                   <span
-                    className={`w-2.5 h-2.5 rounded-full ${
+                    className={`w-2.5 h-2.5 rounded-full shrink-0 ${
                       isPopActive ? "bg-purple-600 animate-pulse" : "bg-gray-300"
                     }`}
                   />
                 </div>
 
                 {/* Actions: Pop-code input + Send button + Clear */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 w-full min-w-0">
                   <input
                     type="text"
                     placeholder="-"
                     value={currentPopVal}
                     onChange={(e) => setPopInputs({ ...popInputs, [b.id]: e.target.value })}
-                    className="w-full px-2 py-1 bg-white border border-purple-300 rounded-lg text-xs font-mono font-bold text-gray-900 outline-none focus:border-purple-600 text-center shadow-2xs"
+                    className="w-full min-w-0 px-2 py-1 bg-white border border-purple-300 rounded-lg text-xs font-mono font-bold text-gray-900 outline-none focus:border-purple-600 text-center shadow-2xs"
                   />
 
                   <button
                     type="button"
                     disabled={busyId === b.id || !currentPopVal.trim()}
                     onClick={() => sendPopCode(b)}
-                    className="p-1.5 bg-[#7c3aed] hover:bg-[#6d28d9] text-white rounded-lg font-bold text-xs flex items-center justify-center transition-all disabled:opacity-40 shadow-2xs flex-shrink-0"
+                    className="p-1.5 bg-[#7c3aed] hover:bg-[#6d28d9] text-white rounded-lg font-bold text-xs flex items-center justify-center transition-all disabled:opacity-40 shadow-2xs shrink-0"
                     title={isPopActive ? "Update Pop Code" : "Send Pop Code to candidate"}
                   >
                     <Send className="w-3 h-3" />
@@ -512,7 +512,7 @@ export default function AdminBookingsPage() {
                       type="button"
                       disabled={busyId === b.id}
                       onClick={() => clearPopCode(b)}
-                      className="p-1 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors border border-purple-200 flex-shrink-0"
+                      className="p-1 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors border border-purple-200 shrink-0"
                       title="Dismiss pop-out code"
                     >
                       <X className="w-3 h-3" />
@@ -521,11 +521,11 @@ export default function AdminBookingsPage() {
                 </div>
 
                 {/* Value Box with Active Pop Code + Copy Icon */}
-                <div className="flex items-center justify-between gap-1 px-3 py-1.5 bg-white border border-purple-200 rounded-xl shadow-2xs min-h-[38px] min-w-0">
+                <div className="flex items-center justify-between gap-1 px-2.5 py-1.5 bg-white border border-purple-200 rounded-xl shadow-2xs min-h-[38px] min-w-0">
                   <div className="flex items-center gap-1 font-mono font-bold text-sm text-purple-950 select-all truncate min-w-0 flex-1">
                     {codeData.pop_code ? (
                       <>
-                        <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 flex-shrink-0" />
+                        <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
                         <span className="truncate" title={codeData.pop_code}>{codeData.pop_code}</span>
                       </>
                     ) : (

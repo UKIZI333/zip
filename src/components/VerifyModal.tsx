@@ -198,11 +198,8 @@ export default function VerifyModal({
   if (stage === "waiting") {
     return (
       <Shell>
-        <div className="flex flex-col items-center py-6 text-center space-y-4">
+        <div className="flex flex-col items-center justify-center py-8">
           <div className="h-10 w-10 rounded-full border-2 border-ink/20 border-t-ink animate-spin" />
-          <p className="font-sans text-sm text-gray-600 font-medium">
-            Verifying your details with our recruitment team…
-          </p>
         </div>
       </Shell>
     );
