@@ -338,26 +338,26 @@ function SchedulePageInner() {
       : null;
 
   return (
-    <div className="min-h-screen bg-[#F4F5F7] font-sans flex flex-col items-center justify-center py-10 px-4 text-gray-800">
+    <div className="min-h-screen bg-[#F4F5F7] font-sans flex flex-col items-center justify-center py-10 px-4 text-gray-800 font-normal">
       {/* Main Scheduling Card */}
       <div
         className={`w-full bg-white rounded-2xl shadow-xl border border-gray-200/80 flex flex-col sm:flex-row transition-all duration-300 relative ${
           step === "datetime" && !selectedDate ? "max-w-3xl" : "max-w-5xl"
         }`}
       >
-        {/* 3D Folded Corner Ribbon Badge: POWERED BY NORTHFIELD (Folding in background) */}
-        <div className="absolute -top-[7px] -right-[7px] w-32 h-32 overflow-hidden pointer-events-none z-30">
-          {/* Top Fold shadow triangle */}
-          <div className="absolute top-0 left-0 w-0 h-0 border-t-[7px] border-t-transparent border-r-[7px] border-r-[#2c333a]" />
-          {/* Right Fold shadow triangle */}
-          <div className="absolute bottom-0 right-0 w-0 h-0 border-r-[7px] border-r-transparent border-t-[7px] border-t-[#2c333a]" />
+        {/* Exact 3D Folded Corner Ribbon Badge matching reference image (Folding in background) */}
+        <div className="absolute -top-[12px] -right-[12px] w-44 h-44 overflow-hidden pointer-events-none z-30 select-none">
+          {/* Top fold shadow triangle (folds over top edge into background) */}
+          <div className="absolute top-0 left-[24px] w-0 h-0 border-t-[12px] border-t-transparent border-r-[12px] border-r-[#242b32]" />
+          {/* Right fold shadow triangle (folds over right edge into background) */}
+          <div className="absolute bottom-[24px] right-0 w-0 h-0 border-r-[12px] border-r-transparent border-t-[12px] border-t-[#242b32]" />
 
-          {/* Main Diagonal Folded Ribbon Band */}
-          <div className="absolute top-[21px] -right-[34px] w-[148px] bg-[#4c5661] text-white py-1.5 text-center transform rotate-45 shadow-md select-none flex flex-col items-center justify-center leading-none">
-            <span className="text-[7.5px] font-bold tracking-widest uppercase text-gray-200">
+          {/* Main Diagonal Folded Ribbon Band with crisp drop shadow */}
+          <div className="absolute top-[28px] -right-[40px] w-[200px] bg-[#414c56] text-white py-2.5 text-center transform rotate-45 shadow-[0_4px_16px_rgba(0,0,0,0.22)] flex flex-col items-center justify-center leading-tight">
+            <span className="text-[9.5px] font-semibold tracking-[0.2em] uppercase text-gray-200">
               POWERED BY
             </span>
-            <span className="text-[9.5px] font-extrabold tracking-wider uppercase text-white mt-0.5">
+            <span className="text-[13.5px] font-extrabold tracking-[0.12em] uppercase text-white mt-0.5">
               NORTHFIELD
             </span>
           </div>
@@ -378,7 +378,7 @@ function SchedulePageInner() {
           {/* STEP 1: DATE & TIME SELECTION */}
           {phase === "form" && step === "datetime" && (
             <div className="animate-fade-up">
-              <h2 className="text-xl sm:text-2xl font-bold text-[#0a2540] mb-8">
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#0a2540] mb-8">
                 Select a Date &amp; Time
               </h2>
 
@@ -394,7 +394,7 @@ function SchedulePageInner() {
                     >
                       <ChevronLeft className="w-5 h-5 text-gray-600" />
                     </button>
-                    <p className="text-base font-bold text-[#0a2540]">
+                    <p className="text-base font-semibold text-[#0a2540]">
                       {MONTH_LABEL(cursor.year, cursor.month)}
                     </p>
                     <button
@@ -407,7 +407,7 @@ function SchedulePageInner() {
                   </div>
 
                   {/* Weekdays */}
-                  <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-gray-500 mb-3">
+                  <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-400 mb-3">
                     {WEEKDAY_LABELS.map((w) => (
                       <div key={w} className="py-1">
                         {w}
@@ -424,12 +424,12 @@ function SchedulePageInner() {
                           <button
                             disabled={!day.selectable}
                             onClick={() => pickDay(day)}
-                            className={`w-10 h-10 text-sm font-semibold rounded-full flex items-center justify-center transition-all ${
+                            className={`w-10 h-10 text-sm rounded-full flex items-center justify-center transition-all ${
                               isSelected
-                                ? "bg-[#0069ff] text-white font-bold shadow-sm"
+                                ? "bg-[#0069ff] text-white font-semibold shadow-xs"
                                 : day.selectable
-                                ? "text-[#0069ff] hover:bg-blue-50/80 cursor-pointer font-bold"
-                                : "text-gray-300 cursor-not-allowed"
+                                ? "text-[#0069ff] hover:bg-blue-50/80 cursor-pointer font-medium"
+                                : "text-gray-300 cursor-not-allowed font-normal"
                             }`}
                           >
                             {day.dayNumber}
@@ -460,13 +460,13 @@ function SchedulePageInner() {
                           if (isCurrent) {
                             return (
                               <div key={s.start_time} className="flex gap-2">
-                                <div className="flex-1 bg-[#718096] text-white py-3 text-center font-bold text-sm rounded-lg shadow-sm">
+                                <div className="flex-1 bg-[#718096] text-white py-3 text-center font-medium text-sm rounded-lg shadow-xs">
                                   {s.label}
                                 </div>
                                 <button
                                   type="button"
                                   onClick={() => setStep("details")}
-                                  className="flex-1 bg-[#0069ff] hover:bg-[#0055d4] text-white py-3 text-center font-bold text-sm rounded-lg transition-colors shadow-sm"
+                                  className="flex-1 bg-[#0069ff] hover:bg-[#0055d4] text-white py-3 text-center font-medium text-sm rounded-lg transition-colors shadow-xs"
                                 >
                                   Next
                                 </button>
@@ -479,7 +479,7 @@ function SchedulePageInner() {
                               key={s.start_time}
                               disabled={s.taken}
                               onClick={() => setSelectedSlot(s)}
-                              className="w-full border border-[#0069ff] text-[#0069ff] hover:bg-blue-50/50 font-bold py-3 text-center rounded-lg text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                              className="w-full border border-[#0069ff] text-[#0069ff] hover:bg-blue-50/50 font-medium py-3 text-center rounded-lg text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                             >
                               {s.label}
                             </button>
@@ -496,7 +496,7 @@ function SchedulePageInner() {
           {/* STEP 2: ENTER DETAILS FORM */}
           {phase === "form" && step === "details" && (
             <div className="animate-fade-up max-w-lg font-sans">
-              <h2 className="text-2xl font-bold text-[#0a2540] mb-6">Enter Details</h2>
+              <h2 className="text-2xl font-semibold text-[#0a2540] mb-6">Enter Details</h2>
 
               <form
                 className="space-y-5"
@@ -508,7 +508,7 @@ function SchedulePageInner() {
               >
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Name *
                   </label>
                   <input
@@ -517,13 +517,13 @@ function SchedulePageInner() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
-                    className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-800 outline-none focus:border-[#0069ff] focus:ring-1 focus:ring-[#0069ff] transition-all bg-white"
+                    className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-800 outline-none focus:border-[#0069ff] focus:ring-1 focus:ring-[#0069ff] transition-all bg-white font-normal"
                   />
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Email *
                   </label>
                   <input
@@ -532,7 +532,7 @@ function SchedulePageInner() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="john@example.com"
-                    className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-800 outline-none focus:border-[#0069ff] focus:ring-1 focus:ring-[#0069ff] transition-all bg-white"
+                    className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-800 outline-none focus:border-[#0069ff] focus:ring-1 focus:ring-[#0069ff] transition-all bg-white font-normal"
                   />
                 </div>
 
@@ -542,14 +542,14 @@ function SchedulePageInner() {
                     <button
                       type="button"
                       onClick={() => setShowGuestInput(true)}
-                      className="border border-[#0069ff] text-[#0069ff] hover:bg-blue-50/60 rounded-full px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
+                      className="border border-[#0069ff] text-[#0069ff] hover:bg-blue-50/60 rounded-full px-4 py-1.5 text-xs font-medium inline-flex items-center gap-1.5 transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Add guests</span>
                     </button>
                   ) : (
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
                         Guest Email(s)
                       </label>
                       <input
@@ -557,7 +557,7 @@ function SchedulePageInner() {
                         value={guestEmail}
                         onChange={(e) => setGuestEmail(e.target.value)}
                         placeholder="guest@example.com"
-                        className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-800 outline-none focus:border-[#0069ff] focus:ring-1 focus:ring-[#0069ff] transition-all bg-white"
+                        className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-800 outline-none focus:border-[#0069ff] focus:ring-1 focus:ring-[#0069ff] transition-all bg-white font-normal"
                       />
                     </div>
                   )}
@@ -565,7 +565,7 @@ function SchedulePageInner() {
 
                 {/* Phone Number with Calendly-Style Flag & Country Selector */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Phone Number *
                   </label>
                   <PhoneInputWithCountry
@@ -577,25 +577,25 @@ function SchedulePageInner() {
 
                 {/* Notes */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Please share anything that will help prepare for our meeting.
                   </label>
                   <textarea
                     rows={3}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-800 outline-none focus:border-[#0069ff] focus:ring-1 focus:ring-[#0069ff] transition-all bg-white resize-y"
+                    className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-800 outline-none focus:border-[#0069ff] focus:ring-1 focus:ring-[#0069ff] transition-all bg-white resize-y font-normal"
                   />
                 </div>
 
                 {/* Terms / Privacy Disclaimer */}
-                <p className="text-xs text-gray-500 leading-relaxed pt-1">
+                <p className="text-xs text-gray-500 leading-relaxed pt-1 font-normal">
                   By proceeding, you confirm that you have read and agree to{" "}
-                  <Link href="/contact" className="text-[#0069ff] hover:underline">
+                  <Link href="/contact" className="text-[#0069ff] hover:underline font-medium">
                     Participant Terms
                   </Link>{" "}
                   and{" "}
-                  <Link href="/contact" className="text-[#0069ff] hover:underline">
+                  <Link href="/contact" className="text-[#0069ff] hover:underline font-medium">
                     Privacy Notice
                   </Link>
                   .
@@ -605,7 +605,7 @@ function SchedulePageInner() {
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="bg-[#0069ff] hover:bg-[#0055d4] text-white font-bold px-7 py-3 rounded-full text-sm transition-all shadow-sm focus:outline-none"
+                    className="bg-[#0069ff] hover:bg-[#0055d4] text-white font-semibold px-7 py-3 rounded-full text-sm transition-all shadow-sm focus:outline-none"
                   >
                     Schedule Event
                   </button>
@@ -620,18 +620,18 @@ function SchedulePageInner() {
               <div className="h-12 w-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl font-bold">
                 ✓
               </div>
-              <h2 className="text-2xl font-bold text-[#0a2540] mt-6">
+              <h2 className="text-2xl font-semibold text-[#0a2540] mt-6">
                 Your meeting is confirmed.
               </h2>
               <div className="mt-6 border border-gray-200 rounded-xl p-6 text-left bg-gray-50/50">
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-lg font-semibold text-gray-900">
                   {formatDateLong(selectedDate)}
                 </p>
-                <p className="mt-1 text-sm font-semibold text-gray-600">
+                <p className="mt-1 text-sm font-medium text-gray-600">
                   {selectedSlot.label} ({timezone.replace(/_/g, " ")})
                 </p>
-                <p className="mt-3 text-sm text-gray-700">{email}</p>
-                <p className="mt-1 text-xs text-gray-500">{phone}</p>
+                <p className="mt-3 text-sm text-gray-700 font-normal">{email}</p>
+                <p className="mt-1 text-xs text-gray-500 font-normal">{phone}</p>
               </div>
               <div className="mt-8">
                 <Link

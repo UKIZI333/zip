@@ -12,7 +12,7 @@ const display = Fraunces({
 const sans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const mono = IBM_Plex_Mono({
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable} scroll-smooth`}>
-      <body className="font-sans antialiased bg-paper text-ink selection:bg-brass selection:text-paper min-h-screen">
+      <body className="font-sans antialiased bg-paper text-ink selection:bg-brass selection:text-paper min-h-screen font-normal">
         {children}
       </body>
     </html>

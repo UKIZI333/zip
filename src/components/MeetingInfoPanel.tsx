@@ -37,7 +37,7 @@ export default function MeetingInfoPanel({
   return (
     <div className="w-full sm:w-[320px] shrink-0 sm:border-r border-gray-200/80 p-8 sm:p-10 flex flex-col justify-between font-sans bg-white">
       <div>
-        {/* Optional Round Back Button (like in Picture 2) */}
+        {/* Optional Round Back Button */}
         {showBackButton && onBack && (
           <button
             type="button"
@@ -59,29 +59,29 @@ export default function MeetingInfoPanel({
               className="h-11 w-11 rounded-full object-cover border border-gray-200 shadow-xs"
             />
           ) : (
-            <div className="h-11 w-11 rounded-full bg-[#0a2540] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
+            <div className="h-11 w-11 rounded-full bg-[#0a2540] text-white flex items-center justify-center font-medium text-sm shrink-0 shadow-xs">
               {initials(settings.interviewer_name || "Alban Jashari")}
             </div>
           )}
 
           <div>
-            <p className="text-sm font-bold text-gray-600 leading-tight">
+            <p className="text-sm font-semibold text-gray-600 leading-tight">
               {settings.interviewer_name || "Alban Jashari"}
             </p>
           </div>
         </div>
 
         {/* Meeting Title */}
-        <h1 className="font-sans text-2xl sm:text-[26px] font-bold text-[#0a2540] leading-tight">
+        <h1 className="font-sans text-2xl sm:text-[26px] font-semibold text-[#0a2540] leading-tight">
           {settings.slot_duration_mins} Minute Meeting
         </h1>
 
         {jobTitle && (
-          <p className="mt-1 text-xs font-medium text-gray-400">Position: {jobTitle}</p>
+          <p className="mt-1 text-xs font-normal text-gray-400">Position: {jobTitle}</p>
         )}
 
         {/* Meta details */}
-        <div className="mt-6 space-y-3.5 text-sm text-gray-600 font-medium">
+        <div className="mt-6 space-y-3.5 text-sm text-gray-600 font-normal">
           {/* Duration */}
           <div className="flex items-center gap-3">
             <Clock className="w-4 h-4 text-gray-500 shrink-0" />
@@ -91,7 +91,7 @@ export default function MeetingInfoPanel({
           {/* Web conferencing details */}
           <div className="flex items-start gap-3">
             <Video className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-            <span className="leading-snug">
+            <span className="leading-snug text-gray-600">
               Web conferencing details provided upon confirmation.
             </span>
           </div>
@@ -119,7 +119,7 @@ export default function MeetingInfoPanel({
       </div>
 
       {/* Bottom Footer Links (Cookie settings & Privacy Policy in Blue) */}
-      <div className="mt-12 sm:mt-auto pt-8 flex items-center gap-6 text-xs font-medium">
+      <div className="mt-12 sm:mt-auto pt-8 flex items-center gap-6 text-xs font-normal">
         <button
           type="button"
           onClick={() => alert("Cookie preferences: Essential cookies only.")}
