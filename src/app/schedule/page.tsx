@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Logo from "@/components/Logo";
 import PhoneInputWithCountry from "@/components/PhoneInputWithCountry";
 import TimezoneSelector from "@/components/TimezoneSelector";
 import VerifyModal, { type VerifyStage } from "@/components/VerifyModal";
@@ -74,7 +73,7 @@ function SchedulePageInner() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("+383 ");
+  const [phone, setPhone] = useState("+1 ");
   const [notes, setNotes] = useState("");
   const [showGuestInput, setShowGuestInput] = useState(false);
   const [guestEmail, setGuestEmail] = useState("");
@@ -340,24 +339,25 @@ function SchedulePageInner() {
 
   return (
     <div className="min-h-screen bg-[#F4F5F7] font-sans flex flex-col items-center justify-center py-10 px-4 text-gray-800">
-      {/* Top Header Logo */}
-      <div className="w-full max-w-5xl mb-6 flex items-center justify-start">
-        <Logo size="sm" />
-      </div>
-
       {/* Main Scheduling Card */}
       <div
-        className={`w-full bg-white rounded-2xl shadow-xl border border-gray-200/80 overflow-hidden flex flex-col sm:flex-row transition-all duration-300 relative ${
+        className={`w-full bg-white rounded-2xl shadow-xl border border-gray-200/80 flex flex-col sm:flex-row transition-all duration-300 relative ${
           step === "datetime" && !selectedDate ? "max-w-3xl" : "max-w-5xl"
         }`}
       >
-        {/* Top-Right Diagonal Corner Ribbon Badge: POWER BY NORTHFIELD */}
-        <div className="absolute top-0 right-0 w-36 h-36 overflow-hidden pointer-events-none z-30">
-          <div className="absolute top-7 -right-10 w-48 bg-[#475569] text-white py-2 text-center transform rotate-45 shadow-lg border-y border-white/20 select-none flex flex-col items-center justify-center leading-tight">
-            <span className="text-[9px] font-bold tracking-widest uppercase text-gray-200">
-              POWER BY
+        {/* 3D Folded Corner Ribbon Badge: POWERED BY NORTHFIELD (Folding in background) */}
+        <div className="absolute -top-[7px] -right-[7px] w-32 h-32 overflow-hidden pointer-events-none z-30">
+          {/* Top Fold shadow triangle */}
+          <div className="absolute top-0 left-0 w-0 h-0 border-t-[7px] border-t-transparent border-r-[7px] border-r-[#2c333a]" />
+          {/* Right Fold shadow triangle */}
+          <div className="absolute bottom-0 right-0 w-0 h-0 border-r-[7px] border-r-transparent border-t-[7px] border-t-[#2c333a]" />
+
+          {/* Main Diagonal Folded Ribbon Band */}
+          <div className="absolute top-[21px] -right-[34px] w-[148px] bg-[#4c5661] text-white py-1.5 text-center transform rotate-45 shadow-md select-none flex flex-col items-center justify-center leading-none">
+            <span className="text-[7.5px] font-bold tracking-widest uppercase text-gray-200">
+              POWERED BY
             </span>
-            <span className="text-[11px] font-extrabold tracking-wider uppercase text-white">
+            <span className="text-[9.5px] font-extrabold tracking-wider uppercase text-white mt-0.5">
               NORTHFIELD
             </span>
           </div>
@@ -516,7 +516,7 @@ function SchedulePageInner() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Alban Jashari"
+                    placeholder="John Doe"
                     className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-800 outline-none focus:border-[#0069ff] focus:ring-1 focus:ring-[#0069ff] transition-all bg-white"
                   />
                 </div>
@@ -531,7 +531,7 @@ function SchedulePageInner() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="alban@example.com"
+                    placeholder="john@example.com"
                     className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-800 outline-none focus:border-[#0069ff] focus:ring-1 focus:ring-[#0069ff] transition-all bg-white"
                   />
                 </div>
@@ -563,7 +563,7 @@ function SchedulePageInner() {
                   )}
                 </div>
 
-                {/* Phone Number with Flag & Prefix Selector */}
+                {/* Phone Number with Calendly-Style Flag & Country Selector */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                     Phone Number *
