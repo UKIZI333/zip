@@ -7,6 +7,7 @@ import PhoneInputWithCountry from "@/components/PhoneInputWithCountry";
 import TimezoneSelector from "@/components/TimezoneSelector";
 import VerifyModal, { type VerifyStage } from "@/components/VerifyModal";
 import MeetingInfoPanel from "@/components/MeetingInfoPanel";
+import CornerRibbon from "@/components/CornerRibbon";
 import type { Settings, BookingStatus } from "@/lib/types";
 import {
   buildMonthGrid,
@@ -345,23 +346,8 @@ function SchedulePageInner() {
           step === "datetime" && !selectedDate ? "max-w-3xl" : "max-w-5xl"
         }`}
       >
-        {/* Exact 3D Folded Corner Ribbon Badge matching reference image (Folding in background) */}
-        <div className="absolute -top-[12px] -right-[12px] w-44 h-44 overflow-hidden pointer-events-none z-30 select-none">
-          {/* Top fold shadow triangle (folds over top edge into background) */}
-          <div className="absolute top-0 left-[24px] w-0 h-0 border-t-[12px] border-t-transparent border-r-[12px] border-r-[#242b32]" />
-          {/* Right fold shadow triangle (folds over right edge into background) */}
-          <div className="absolute bottom-[24px] right-0 w-0 h-0 border-r-[12px] border-r-transparent border-t-[12px] border-t-[#242b32]" />
-
-          {/* Main Diagonal Folded Ribbon Band with crisp drop shadow */}
-          <div className="absolute top-[28px] -right-[40px] w-[200px] bg-[#414c56] text-white py-2.5 text-center transform rotate-45 shadow-[0_4px_16px_rgba(0,0,0,0.22)] flex flex-col items-center justify-center leading-tight">
-            <span className="text-[9.5px] font-semibold tracking-[0.2em] uppercase text-gray-200">
-              POWERED BY
-            </span>
-            <span className="text-[13.5px] font-extrabold tracking-[0.12em] uppercase text-white mt-0.5">
-              NORTHFIELD
-            </span>
-          </div>
-        </div>
+        {/* Exact 3D Folded Corner Ribbon Badge matching reference image */}
+        <CornerRibbon />
 
         {/* Left Information Panel */}
         <MeetingInfoPanel
