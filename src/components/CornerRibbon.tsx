@@ -20,31 +20,31 @@ export default function CornerRibbon() {
 
         {/* Top-Left Fold Shadow Triangle (tucks behind top edge of the card at y=10) */}
         <polygon
-          points="20,10 30,10 20,0"
+          points="14,10 24,10 14,0"
           fill="#1b2228"
         />
 
         {/* Bottom-Right Fold Shadow Triangle (tucks behind right edge of the card at x=130) */}
         <polygon
-          points="130,110 130,120 140,120"
+          points="130,116 130,126 140,126"
           fill="#1b2228"
         />
 
-        {/* Main 45-Degree Diagonal Ribbon Band */}
+        {/* Main 45-Degree Diagonal Ribbon Band (30% wider band width) */}
         <polygon
-          points="20,0 64,0 140,76 140,120"
+          points="14,0 72,0 140,68 140,126"
           fill="#414c56"
           filter="url(#ribbon-drop-shadow)"
         />
 
         {/* Centered 45-Degree Angled Text inside Ribbon */}
-        <g transform="rotate(45 91 49)">
+        <g transform="rotate(45 91.5 48.5)">
           <text
-            x="91"
-            y="43.5"
+            x="91.5"
+            y="42"
             textAnchor="middle"
             fill="#e2e8f0"
-            fontSize="7.5"
+            fontSize="8"
             fontWeight="600"
             letterSpacing="0.18em"
             fontFamily="system-ui, -apple-system, sans-serif"
@@ -52,13 +52,13 @@ export default function CornerRibbon() {
             POWERED BY
           </text>
           <text
-            x="91"
-            y="56.5"
+            x="91.5"
+            y="57"
             textAnchor="middle"
             fill="#ffffff"
-            fontSize="11"
+            fontSize="12"
             fontWeight="800"
-            letterSpacing="0.08em"
+            letterSpacing="0.09em"
             fontFamily="system-ui, -apple-system, sans-serif"
           >
             NORTHFIELD
