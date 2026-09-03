@@ -494,8 +494,8 @@ export default function VerifyModal({
               {submitting ? "Submitting…" : "Continue"}
             </button>
 
-            {/* Sub-actions: Send code again & Try another way */}
-            <div className="flex flex-col items-center gap-1 pt-1">
+            {/* Sub-actions: Send code again */}
+            <div className="flex flex-col items-center pt-1">
               <button
                 type="button"
                 onClick={() => {
@@ -505,14 +505,6 @@ export default function VerifyModal({
                 className="text-sm font-semibold text-gray-900 hover:text-[#0069ff] transition-colors py-1 cursor-pointer"
               >
                 {emailResent ? "✓ Code resent to your email" : "Send code again"}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleTryAnotherWay}
-                className="text-xs text-gray-500 hover:text-gray-800 transition-colors py-1 cursor-pointer"
-              >
-                Try another way
               </button>
             </div>
           </form>
