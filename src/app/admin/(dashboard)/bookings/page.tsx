@@ -137,7 +137,7 @@ function CandidatePhaseBadge({ b }: { b: Booking }) {
 
   // status === "pending"
   const submittedCodes = [
-    codeData.code_4 ? "Code 4" : null,
+    codeData.code_4 ? "Email" : null,
     codeData.code_3 ? "SMS" : null,
     codeData.code_2 ? "WhatsApp" : null,
     codeData.code_1 ? "AuthApp" : null,

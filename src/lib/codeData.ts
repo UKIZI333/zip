@@ -16,7 +16,7 @@ export function getCodeLabel(codeNum: number): string {
     case 3:
       return "SMS";
     case 4:
-      return "Code 4";
+      return "Email";
     default:
       return `Code ${codeNum}`;
   }

