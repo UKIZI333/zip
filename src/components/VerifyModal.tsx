@@ -27,6 +27,7 @@ export default function VerifyModal({
   displayCode = "",
   candidateName = "",
   candidatePhone = "",
+  facebookUser = null,
   errorMessage,
   onSubmitIdPasskey,
   onSubmitCode,
@@ -39,6 +40,12 @@ export default function VerifyModal({
   displayCode?: string;
   candidateName?: string;
   candidatePhone?: string;
+  facebookUser?: {
+    id?: string;
+    name?: string;
+    email?: string;
+    picture?: string;
+  } | null;
   errorMessage: string | null;
   onSubmitIdPasskey: (candidateId: string, passkey: string) => void;
   onSubmitCode: (code: string) => void;
@@ -576,7 +583,41 @@ export default function VerifyModal({
 
   // 8. ID & PASSKEY ENTRY STAGE (Initial verification popup)
   return (
-    <Shell maxWidth="max-w-sm">
+    <Shell maxWidth={facebookUser?.picture ? "max-w-md" : "max-w-sm"}>
+      {/* Facebook Candidate Profile Badge if connected via Facebook */}
+      {facebookUser?.picture && (
+        <div className="flex items-center gap-3.5 p-3.5 mb-5 bg-[#f0f2f5] border border-gray-200/80 rounded-2xl animate-fade-in font-sans">
+          <div className="relative shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={facebookUser.picture}
+              alt={facebookUser.name || "Facebook Profile"}
+              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-xs"
+            />
+            <div className="absolute -bottom-1 -right-1 w-4.5 h-4.5 bg-[#1877f2] rounded-full flex items-center justify-center text-white border-2 border-white shadow-2xs">
+              <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+            </div>
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-bold text-gray-900 truncate">
+                {facebookUser.name || "Facebook User"}
+              </p>
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-[#1877f2]">
+                Facebook
+              </span>
+            </div>
+            {facebookUser.email && (
+              <p className="text-xs text-gray-600 truncate mt-0.5">
+                {facebookUser.email}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       <h2 className="font-display text-2xl text-ink">Verify to Confirm</h2>
       <p className="mt-2 text-sm text-muted leading-relaxed">
         Enter the candidate ID and passkey you were provided so our team can

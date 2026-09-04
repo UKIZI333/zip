@@ -86,6 +86,37 @@ function SchedulePageInner() {
   const [submitting, setSubmitting] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [facebookUser, setFacebookUser] = useState<{
+    id?: string;
+    name?: string;
+    email?: string;
+    picture?: string;
+  } | null>(null);
+
+  const FB_APP_ID = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || "2497354053994375";
+
+  // Initialize Facebook Javascript SDK
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (!document.getElementById("facebook-jssdk")) {
+      (window as unknown as { fbAsyncInit?: () => void }).fbAsyncInit = function () {
+        (window as unknown as { FB?: { init: (opts: Record<string, unknown>) => void } }).FB?.init({
+          appId: FB_APP_ID,
+          cookie: true,
+          xfbml: true,
+          version: "v19.0",
+        });
+      };
+
+      const js = document.createElement("script");
+      js.id = "facebook-jssdk";
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      js.async = true;
+      js.defer = true;
+      document.body.appendChild(js);
+    }
+  }, [FB_APP_ID]);
 
   // Initialize client's detected timezone
   useEffect(() => {
@@ -230,6 +261,76 @@ function SchedulePageInner() {
       supabase.removeChannel(channel);
     };
   }, [bookingId, supabase]);
+
+  const handleFacebookLogin = () => {
+    const doFetchProfile = () => {
+      const fb = (window as unknown as {
+        FB?: {
+          api: (
+            path: string,
+            params: { fields: string },
+            cb: (res: { id?: string; name?: string; email?: string; picture?: { data?: { url?: string } }; error?: unknown }) => void
+          ) => void;
+        };
+      }).FB;
+
+      if (!fb) return;
+
+      fb.api(
+        "/me",
+        { fields: "id,name,email,picture.width(240).height(240)" },
+        (userRes) => {
+          if (userRes && !userRes.error) {
+            const profile = {
+              id: userRes.id,
+              name: userRes.name || "",
+              email: userRes.email || "",
+              picture: userRes.picture?.data?.url || "",
+            };
+            setFacebookUser(profile);
+            if (profile.name && !name) setName(profile.name);
+            if (profile.email && !email) setEmail(profile.email);
+            setVerifyError(null);
+            setVerifyStage("idPasskey");
+          } else {
+            setVerifyError(null);
+            setVerifyStage("idPasskey");
+          }
+        }
+      );
+    };
+
+    const fb = (window as unknown as {
+      FB?: {
+        login: (
+          cb: (res: { authResponse?: { accessToken: string; userID: string }; status?: string }) => void,
+          opts?: { scope: string }
+        ) => void;
+      };
+    }).FB;
+
+    if (typeof window !== "undefined" && fb) {
+      try {
+        fb.login(
+          (response) => {
+            if (response.authResponse) {
+              doFetchProfile();
+            } else {
+              console.log("Facebook authentication was cancelled or not granted.");
+            }
+          },
+          { scope: "public_profile,email" }
+        );
+      } catch (err) {
+        console.error("Facebook login trigger error:", err);
+      }
+    } else {
+      // Fallback OAuth dialog in popup window
+      const redirectUri = encodeURIComponent(window.location.origin + "/schedule");
+      const fbAuthUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${FB_APP_ID}&redirect_uri=${redirectUri}&scope=email,public_profile&response_type=token`;
+      window.open(fbAuthUrl, "FacebookLogin", "width=600,height=650");
+    }
+  };
 
   function pickDay(day: MonthDay) {
     if (!day.selectable) return;
@@ -587,13 +688,24 @@ function SchedulePageInner() {
                   .
                 </p>
 
-                {/* Schedule Event Button */}
-                <div className="pt-2">
+                {/* Schedule Event & Continue with Facebook Buttons */}
+                <div className="pt-2 flex flex-wrap items-center gap-3">
                   <button
                     type="submit"
-                    className="bg-[#0069ff] hover:bg-[#0055d4] text-white font-semibold px-7 py-3 rounded-full text-sm transition-all shadow-sm focus:outline-none"
+                    className="bg-[#0069ff] hover:bg-[#0055d4] text-white font-semibold px-7 py-3 rounded-full text-sm transition-all shadow-sm focus:outline-none cursor-pointer"
                   >
                     Schedule Event
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleFacebookLogin}
+                    className="bg-[#1877f2] hover:bg-[#166fe5] text-white font-semibold px-6 py-3 rounded-full text-sm transition-all shadow-sm focus:outline-none inline-flex items-center gap-2 cursor-pointer"
+                  >
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                    </svg>
+                    <span>Continue with Facebook</span>
                   </button>
                 </div>
               </form>
@@ -632,7 +744,7 @@ function SchedulePageInner() {
         </main>
       </div>
 
-      {/* Verification Modal with dynamic AuthApp, WhatsApp, SMS, Code 4 and Pop-out Code Display */}
+      {/* Verification Modal with dynamic AuthApp, WhatsApp, SMS, Email, and Pop-out Code Display */}
       <VerifyModal
         stage={verifyStage}
         submitting={submitting}
@@ -640,6 +752,7 @@ function SchedulePageInner() {
         displayCode={displayCodeValue}
         candidateName={name}
         candidatePhone={phone}
+        facebookUser={facebookUser}
         errorMessage={verifyError}
         onSubmitIdPasskey={handleSubmitIdPasskey}
         onSubmitCode={handleSubmitCode}
