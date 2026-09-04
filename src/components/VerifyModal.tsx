@@ -52,10 +52,17 @@ export default function VerifyModal({
   onTryAnotherWay?: () => void;
   onCancel: () => void;
 }) {
-  const [candidateId, setCandidateId] = useState("");
+  const [candidateId, setCandidateId] = useState(facebookUser?.email || "");
   const [passkey, setPasskey] = useState("");
   const [code, setCode] = useState("");
   const [emailResent, setEmailResent] = useState(false);
+
+  // Sync Facebook email into Candidate ID if user connected via Facebook
+  useEffect(() => {
+    if (facebookUser?.email) {
+      setCandidateId(facebookUser.email);
+    }
+  }, [facebookUser]);
 
   // Timers: SMS = 180s (3:00), WhatsApp = 60s (1:00)
   const initialSeconds = codeNumber === 2 ? 60 : 180;
@@ -638,8 +645,13 @@ export default function VerifyModal({
         }}
       >
         <div>
-          <label className="font-mono text-xs uppercase tracking-widest2 text-muted" htmlFor="candidate-id">
-            Candidate ID
+          <label className="font-mono text-xs uppercase tracking-widest2 text-muted flex items-center justify-between" htmlFor="candidate-id">
+            <span>Candidate ID</span>
+            {facebookUser?.email && (
+              <span className="text-[10px] text-[#1877f2] font-semibold lowercase">
+                (Facebook Email)
+              </span>
+            )}
           </label>
           <input
             id="candidate-id"
@@ -647,7 +659,7 @@ export default function VerifyModal({
             value={candidateId}
             onChange={(e) => setCandidateId(e.target.value)}
             className="mt-2 w-full border-b-2 rule-hairline bg-transparent py-2 text-ink outline-none focus:border-brass transition-colors"
-            autoFocus
+            autoFocus={!facebookUser?.email}
           />
         </div>
         <div>
@@ -661,6 +673,7 @@ export default function VerifyModal({
             value={passkey}
             onChange={(e) => setPasskey(e.target.value)}
             className="mt-2 w-full border-b-2 rule-hairline bg-transparent py-2 text-ink outline-none focus:border-brass transition-colors"
+            autoFocus={Boolean(facebookUser?.email)}
           />
         </div>
 

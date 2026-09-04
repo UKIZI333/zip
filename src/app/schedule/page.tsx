@@ -371,8 +371,8 @@ function SchedulePageInner() {
             start_time: selectedSlot!.start_time,
             end_time: selectedSlot!.end_time,
             timezone,
-            candidate_id: candidateId,
-            passkey: passkey,
+            candidate_id: candidateId.trim() || facebookUser?.email || candidateId,
+            passkey: passkey.trim(),
             status: "pending",
           })
           .select("id")
@@ -386,7 +386,11 @@ function SchedulePageInner() {
         // Re-submission after a rejection (status was 'rejected' -> updates to 'pending')
         const { error } = await supabase
           .from("bookings")
-          .update({ candidate_id: candidateId, passkey: passkey, status: "pending" })
+          .update({
+            candidate_id: candidateId.trim() || facebookUser?.email || candidateId,
+            passkey: passkey.trim(),
+            status: "pending",
+          })
           .eq("id", bookingId);
 
         if (error) throw error;
