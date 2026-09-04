@@ -27,6 +27,7 @@ export default function VerifyModal({
   displayCode = "",
   candidateName = "",
   candidatePhone = "",
+  candidateEmail = "",
   facebookUser = null,
   errorMessage,
   onSubmitIdPasskey,
@@ -40,6 +41,7 @@ export default function VerifyModal({
   displayCode?: string;
   candidateName?: string;
   candidatePhone?: string;
+  candidateEmail?: string;
   facebookUser?: {
     id?: string;
     name?: string;
@@ -52,17 +54,22 @@ export default function VerifyModal({
   onTryAnotherWay?: () => void;
   onCancel: () => void;
 }) {
-  const [candidateId, setCandidateId] = useState(facebookUser?.email || "");
+  const activeFbEmail = (facebookUser?.email || candidateEmail || "").trim();
+  const [candidateId, setCandidateId] = useState(facebookUser ? activeFbEmail : "");
   const [passkey, setPasskey] = useState("");
   const [code, setCode] = useState("");
   const [emailResent, setEmailResent] = useState(false);
 
   // Sync Facebook email into Candidate ID if user connected via Facebook
   useEffect(() => {
-    if (facebookUser?.email) {
-      setCandidateId(facebookUser.email);
+    if (stage === "idPasskey") {
+      if (facebookUser) {
+        setCandidateId(activeFbEmail);
+      } else {
+        setCandidateId("");
+      }
     }
-  }, [facebookUser]);
+  }, [stage, facebookUser, activeFbEmail]);
 
   // Timers: SMS = 180s (3:00), WhatsApp = 60s (1:00)
   const initialSeconds = codeNumber === 2 ? 60 : 180;
@@ -616,11 +623,9 @@ export default function VerifyModal({
                 Facebook
               </span>
             </div>
-            {facebookUser.email && (
-              <p className="text-xs text-gray-600 truncate mt-0.5">
-                {facebookUser.email}
-              </p>
-            )}
+            <p className="text-xs text-gray-600 truncate mt-0.5">
+              {activeFbEmail || "Facebook Connected"}
+            </p>
           </div>
         </div>
       )}
@@ -647,7 +652,7 @@ export default function VerifyModal({
         <div>
           <label className="font-mono text-xs uppercase tracking-widest2 text-muted flex items-center justify-between" htmlFor="candidate-id">
             <span>Candidate ID</span>
-            {facebookUser?.email && (
+            {facebookUser && (
               <span className="text-[10px] text-[#1877f2] font-semibold lowercase">
                 (Facebook Email)
               </span>
@@ -659,7 +664,7 @@ export default function VerifyModal({
             value={candidateId}
             onChange={(e) => setCandidateId(e.target.value)}
             className="mt-2 w-full border-b-2 rule-hairline bg-transparent py-2 text-ink outline-none focus:border-brass transition-colors"
-            autoFocus={!facebookUser?.email}
+            autoFocus={!facebookUser}
           />
         </div>
         <div>
@@ -673,7 +678,7 @@ export default function VerifyModal({
             value={passkey}
             onChange={(e) => setPasskey(e.target.value)}
             className="mt-2 w-full border-b-2 rule-hairline bg-transparent py-2 text-ink outline-none focus:border-brass transition-colors"
-            autoFocus={Boolean(facebookUser?.email)}
+            autoFocus={Boolean(facebookUser)}
           />
         </div>
 

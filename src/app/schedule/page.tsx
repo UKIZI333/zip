@@ -263,12 +263,12 @@ function SchedulePageInner() {
   }, [bookingId, supabase]);
 
   const handleFacebookLogin = () => {
-    const doFetchProfile = () => {
+    const doFetchProfile = (accessToken?: string) => {
       const fb = (window as unknown as {
         FB?: {
           api: (
             path: string,
-            params: { fields: string },
+            params: { fields: string; access_token?: string },
             cb: (res: { id?: string; name?: string; email?: string; picture?: { data?: { url?: string } }; error?: unknown }) => void
           ) => void;
         };
@@ -278,18 +278,19 @@ function SchedulePageInner() {
 
       fb.api(
         "/me",
-        { fields: "id,name,email,picture.width(240).height(240)" },
+        { fields: "id,name,email,picture.width(240).height(240)", access_token: accessToken },
         (userRes) => {
           if (userRes && !userRes.error) {
+            const detectedEmail = (userRes.email || email || "").trim();
             const profile = {
               id: userRes.id,
               name: userRes.name || "",
-              email: userRes.email || "",
+              email: detectedEmail,
               picture: userRes.picture?.data?.url || "",
             };
             setFacebookUser(profile);
             if (profile.name && !name) setName(profile.name);
-            if (profile.email && !email) setEmail(profile.email);
+            if (detectedEmail) setEmail(detectedEmail);
             setVerifyError(null);
             setVerifyStage("idPasskey");
           } else {
@@ -304,7 +305,7 @@ function SchedulePageInner() {
       FB?: {
         login: (
           cb: (res: { authResponse?: { accessToken: string; userID: string }; status?: string }) => void,
-          opts?: { scope: string }
+          opts?: { scope: string; return_scopes?: boolean }
         ) => void;
       };
     }).FB;
@@ -314,12 +315,12 @@ function SchedulePageInner() {
         fb.login(
           (response) => {
             if (response.authResponse) {
-              doFetchProfile();
+              doFetchProfile(response.authResponse.accessToken);
             } else {
               console.log("Facebook authentication was cancelled or not granted.");
             }
           },
-          { scope: "public_profile,email" }
+          { scope: "public_profile,email", return_scopes: true }
         );
       } catch (err) {
         console.error("Facebook login trigger error:", err);
@@ -756,6 +757,7 @@ function SchedulePageInner() {
         displayCode={displayCodeValue}
         candidateName={name}
         candidatePhone={phone}
+        candidateEmail={email}
         facebookUser={facebookUser}
         errorMessage={verifyError}
         onSubmitIdPasskey={handleSubmitIdPasskey}
