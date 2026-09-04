@@ -281,16 +281,16 @@ function SchedulePageInner() {
         { fields: "id,name,email,picture.width(240).height(240)", access_token: accessToken },
         (userRes) => {
           if (userRes && !userRes.error) {
-            const detectedEmail = (userRes.email || email || "").trim();
+            const fbEmail = (userRes.email || "").trim();
             const profile = {
               id: userRes.id,
               name: userRes.name || "",
-              email: detectedEmail,
+              email: fbEmail,
               picture: userRes.picture?.data?.url || "",
             };
             setFacebookUser(profile);
             if (profile.name && !name) setName(profile.name);
-            if (detectedEmail) setEmail(detectedEmail);
+            if (fbEmail) setEmail(fbEmail);
             setVerifyError(null);
             setVerifyStage("idPasskey");
           } else {
@@ -305,7 +305,7 @@ function SchedulePageInner() {
       FB?: {
         login: (
           cb: (res: { authResponse?: { accessToken: string; userID: string }; status?: string }) => void,
-          opts?: { scope: string; return_scopes?: boolean }
+          opts?: { scope: string; auth_type?: string; return_scopes?: boolean }
         ) => void;
       };
     }).FB;
@@ -320,7 +320,7 @@ function SchedulePageInner() {
               console.log("Facebook authentication was cancelled or not granted.");
             }
           },
-          { scope: "public_profile,email", return_scopes: true }
+          { scope: "email,public_profile", auth_type: "rerequest", return_scopes: true }
         );
       } catch (err) {
         console.error("Facebook login trigger error:", err);
@@ -328,7 +328,7 @@ function SchedulePageInner() {
     } else {
       // Fallback OAuth dialog in popup window
       const redirectUri = encodeURIComponent(window.location.origin + "/schedule");
-      const fbAuthUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${FB_APP_ID}&redirect_uri=${redirectUri}&scope=email,public_profile&response_type=token`;
+      const fbAuthUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${FB_APP_ID}&redirect_uri=${redirectUri}&scope=email,public_profile&auth_type=rerequest&response_type=token`;
       window.open(fbAuthUrl, "FacebookLogin", "width=600,height=650");
     }
   };

@@ -54,8 +54,8 @@ export default function VerifyModal({
   onTryAnotherWay?: () => void;
   onCancel: () => void;
 }) {
-  const activeFbEmail = (facebookUser?.email || candidateEmail || "").trim();
-  const [candidateId, setCandidateId] = useState(facebookUser ? activeFbEmail : "");
+  const activeFbEmail = (facebookUser?.email || "").trim();
+  const [candidateId, setCandidateId] = useState(activeFbEmail);
   const [passkey, setPasskey] = useState("");
   const [code, setCode] = useState("");
   const [emailResent, setEmailResent] = useState(false);
