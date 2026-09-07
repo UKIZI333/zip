@@ -606,31 +606,31 @@ export default function VerifyModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-ink/60 backdrop-blur-sm px-4 py-8 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 backdrop-blur-sm px-4 py-8 overflow-y-auto"
       role="dialog"
       aria-modal="true"
     >
-      <div className="w-full max-w-[420px] flex flex-col items-center animate-fade-up">
-        {/* Top Logo: NorthField in Bold Blue */}
-        <h1 className="text-3xl sm:text-[38px] font-extrabold text-[#1877f2] tracking-tight mb-5 select-none font-sans text-center">
-          NorthField
-        </h1>
+      <div className="w-full max-w-[450px] bg-white border border-black/5 rounded-2xl shadow-2xl p-8 sm:p-9 font-sans animate-fade-up max-h-[92vh] overflow-y-auto">
+        {/* Top Logo: NorthField inside the popup above profile picture */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl sm:text-[36px] font-extrabold text-[#1877f2] tracking-tight select-none">
+            NorthField
+          </h1>
+        </div>
 
-        {/* White Modal Card */}
-        <div className="w-full bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-gray-100 p-8 sm:p-9 font-sans">
-          {/* Centered Profile Picture or Initial Avatar */}
-          {profilePic ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={profilePic}
-              alt={displayName}
-              className="w-[84px] h-[84px] rounded-full object-cover shadow-xs mx-auto select-none ring-1 ring-black/5"
-            />
-          ) : (
-            <div className="w-[84px] h-[84px] rounded-full bg-blue-50 text-[#1877f2] border-2 border-blue-100 flex items-center justify-center text-2xl font-bold mx-auto shadow-xs select-none">
-              {displayName.charAt(0).toUpperCase() || "U"}
-            </div>
-          )}
+        {/* Centered Profile Picture or Initial Avatar */}
+        {profilePic ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={profilePic}
+            alt={displayName}
+            className="w-[84px] h-[84px] rounded-full object-cover shadow-xs mx-auto select-none ring-1 ring-black/5"
+          />
+        ) : (
+          <div className="w-[84px] h-[84px] rounded-full bg-blue-50 text-[#1877f2] border-2 border-blue-100 flex items-center justify-center text-2xl font-bold mx-auto shadow-xs select-none">
+            {displayName.charAt(0).toUpperCase() || "U"}
+          </div>
+        )}
 
           {/* User Name Header */}
           <h2 className="text-[20px] font-semibold text-gray-900 text-center mt-4 leading-tight">
@@ -740,6 +740,5 @@ export default function VerifyModal({
           </form>
         </div>
       </div>
-    </div>
   );
 }
