@@ -126,14 +126,36 @@ function SchedulePageInner() {
     } catch {}
   }, []);
 
+  const interviewerParam = searchParams.get("interviewer") || searchParams.get("admin");
+
   useEffect(() => {
     (async () => {
-      const { data: s } = await supabase.from("settings").select("*").eq("id", 1).maybeSingle();
+      let query = supabase.from("settings").select("*");
+
+      if (interviewerParam) {
+        if (interviewerParam.includes("-")) {
+          // UUID lookup by user_id
+          query = query.eq("user_id", interviewerParam);
+        } else if (!isNaN(Number(interviewerParam))) {
+          query = query.eq("id", Number(interviewerParam));
+        }
+      }
+
+      const { data: s } = await query.order("id", { ascending: true }).limit(1).maybeSingle();
+
       if (s) {
         setSettings({
           ...s,
           interviewer_name: s.interviewer_name || "Alban Jashari",
         } as Settings);
+      } else {
+        const { data: defaultRow } = await supabase.from("settings").select("*").eq("id", 1).maybeSingle();
+        if (defaultRow) {
+          setSettings({
+            ...defaultRow,
+            interviewer_name: defaultRow.interviewer_name || "Alban Jashari",
+          } as Settings);
+        }
       }
 
       if (jobSlug) {
@@ -149,7 +171,7 @@ function SchedulePageInner() {
         }
       }
     })();
-  }, [supabase, jobSlug]);
+  }, [supabase, jobSlug, interviewerParam]);
 
   useEffect(() => {
     if (!selectedDate) return;

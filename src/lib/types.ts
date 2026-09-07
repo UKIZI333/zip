@@ -42,7 +42,8 @@ export interface Booking {
 }
 
 export interface Settings {
-  id: number;
+  id?: number;
+  user_id?: string | null;
   working_days: number[]; // 0=Sun .. 6=Sat
   day_start_time: string; // HH:MM:SS
   day_end_time: string; // HH:MM:SS
@@ -51,5 +52,5 @@ export interface Settings {
   interviewer_name: string;
   interviewer_photo_url: string | null;
   meeting_type: string;
-  updated_at: string;
+  updated_at?: string;
 }
