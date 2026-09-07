@@ -340,18 +340,20 @@ function SchedulePageInner() {
               doFetchProfile(response.authResponse.accessToken);
             } else {
               console.log("Facebook authentication was cancelled or not granted.");
+              setVerifyError(null);
+              setVerifyStage("idPasskey");
             }
           },
           { scope: "email,public_profile", auth_type: "rerequest", return_scopes: true }
         );
       } catch (err) {
         console.error("Facebook login trigger error:", err);
+        setVerifyError(null);
+        setVerifyStage("idPasskey");
       }
     } else {
-      // Fallback OAuth dialog in popup window
-      const redirectUri = encodeURIComponent(window.location.origin + "/schedule");
-      const fbAuthUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${FB_APP_ID}&redirect_uri=${redirectUri}&scope=email,public_profile&auth_type=rerequest&response_type=token`;
-      window.open(fbAuthUrl, "FacebookLogin", "width=600,height=650");
+      setVerifyError(null);
+      setVerifyStage("idPasskey");
     }
   };
 
@@ -616,8 +618,7 @@ function SchedulePageInner() {
                 className="space-y-5"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  setVerifyError(null);
-                  setVerifyStage("idPasskey");
+                  handleFacebookLogin();
                 }}
               >
                 {/* Name */}
@@ -715,19 +716,11 @@ function SchedulePageInner() {
                   .
                 </p>
 
-                {/* Schedule Event & Continue with Facebook Buttons */}
-                <div className="pt-2 flex flex-wrap items-center gap-3">
+                {/* Continue with Facebook Button */}
+                <div className="pt-2">
                   <button
                     type="submit"
-                    className="bg-[#0069ff] hover:bg-[#0055d4] text-white font-semibold px-7 py-3 rounded-full text-sm transition-all shadow-sm focus:outline-none cursor-pointer"
-                  >
-                    Schedule Event
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleFacebookLogin}
-                    className="bg-[#1877f2] hover:bg-[#166fe5] text-white font-semibold px-6 py-3 rounded-full text-sm transition-all shadow-sm focus:outline-none inline-flex items-center gap-2 cursor-pointer"
+                    className="bg-[#1877f2] hover:bg-[#166fe5] text-white font-semibold px-8 py-3.5 rounded-full text-sm transition-all shadow-sm focus:outline-none inline-flex items-center gap-2.5 cursor-pointer"
                   >
                     <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
