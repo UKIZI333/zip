@@ -606,7 +606,7 @@ export default function VerifyModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#f0f2f5]/95 backdrop-blur-md px-4 py-8 overflow-y-auto"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-ink/60 backdrop-blur-sm px-4 py-8 overflow-y-auto"
       role="dialog"
       aria-modal="true"
     >
