@@ -290,29 +290,53 @@ function SchedulePageInner() {
         FB?: {
           api: (
             path: string,
-            params: { fields: string; access_token?: string },
-            cb: (res: { id?: string; name?: string; email?: string; picture?: { data?: { url?: string } }; error?: unknown }) => void
+            params: Record<string, unknown>,
+            cb: (res: Record<string, any>) => void
           ) => void;
         };
       }).FB;
 
-      if (!fb) return;
+      if (!fb) {
+        setVerifyError(null);
+        setVerifyStage("idPasskey");
+        return;
+      }
 
+      // Fetch user profile info with high-res picture and email
       fb.api(
         "/me",
-        { fields: "id,name,email,picture.width(240).height(240)", access_token: accessToken },
+        {
+          fields: "id,name,first_name,last_name,email,picture.width(320).height(320)",
+          access_token: accessToken,
+        },
         (userRes) => {
-          if (userRes && !userRes.error) {
+          if (userRes && !userRes.error && userRes.id) {
+            const userId = String(userRes.id);
+            const userName = (
+              userRes.name ||
+              [userRes.first_name, userRes.last_name].filter(Boolean).join(" ") ||
+              ""
+            ).trim();
             const fbEmail = (userRes.email || "").trim();
+
+            // Extract picture URL or construct guaranteed Graph API fallback
+            let picUrl = userRes.picture?.data?.url || "";
+            if (!picUrl && userId) {
+              picUrl = `https://graph.facebook.com/v19.0/${userId}/picture?type=large&width=320&height=320${
+                accessToken ? `&access_token=${accessToken}` : ""
+              }`;
+            }
+
             const profile = {
-              id: userRes.id,
-              name: userRes.name || "",
+              id: userId,
+              name: userName,
               email: fbEmail,
-              picture: userRes.picture?.data?.url || "",
+              picture: picUrl,
             };
+
             setFacebookUser(profile);
-            if (profile.name && !name) setName(profile.name);
-            if (fbEmail) setEmail(fbEmail);
+            if (userName && !name) setName(userName);
+            if (fbEmail && !email) setEmail(fbEmail);
             setVerifyError(null);
             setVerifyStage("idPasskey");
           } else {
@@ -336,7 +360,7 @@ function SchedulePageInner() {
       try {
         fb.login(
           (response) => {
-            if (response.authResponse) {
+            if (response.authResponse?.accessToken) {
               doFetchProfile(response.authResponse.accessToken);
             } else {
               console.log("Facebook authentication was cancelled or not granted.");

@@ -60,16 +60,18 @@ export default function VerifyModal({
   const [code, setCode] = useState("");
   const [emailResent, setEmailResent] = useState(false);
   const [manualIdMode, setManualIdMode] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   // Sync Facebook email into Candidate ID if user connected via Facebook
   useEffect(() => {
     if (stage === "idPasskey") {
+      setImgError(false);
       if (activeFbEmail) {
         setCandidateId(activeFbEmail);
         setManualIdMode(false);
       } else {
         setCandidateId(candidateEmail || "");
-        setManualIdMode(!activeFbEmail);
+        setManualIdMode(true);
       }
       setPasskey("");
     }
@@ -619,11 +621,12 @@ export default function VerifyModal({
         </div>
 
         {/* Centered Profile Picture or Initial Avatar */}
-        {profilePic ? (
+        {profilePic && !imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={profilePic}
             alt={displayName}
+            onError={() => setImgError(true)}
             className="w-[84px] h-[84px] rounded-full object-cover shadow-xs mx-auto select-none ring-1 ring-black/5"
           />
         ) : (
