@@ -36,19 +36,19 @@ export default function ContactPage() {
     },
     {
       q: "What should I prepare for the initial 30-minute meeting?",
-      a: "Our initial screening is a two-way discovery conversation. Be prepared to share key technical or creative accomplishments, your career trajectory, and questions about Northfield's team culture and upcoming roadmap.",
+      a: "Our initial screening is a two-way discovery conversation. Be prepared to share key technical or creative accomplishments, your career trajectory, and questions about Northfield's team culture, American clients, and compensation.",
     },
     {
       q: "How do I reschedule or cancel an existing booking?",
       a: "If an unexpected conflict arises, send a quick note to careers@northfield.com with your original booking details, or use the direct scheduling page to reserve an updated time slot.",
     },
     {
-      q: "Do you hire remotely outside Kosovo?",
-      a: "Yes! While our central hub is based in Prishtina, Kosovo, we support flexible remote arrangements for candidates based across compatible European time zones (CET ± 2h).",
+      q: "Do you hire remotely across all US time zones?",
+      a: "Yes! While our primary headquarters is in New York, NY, we support flexible, fully remote arrangements for candidates across all US time zones (EST, CST, MST, PST).",
     },
     {
       q: "What is the typical turnaround time after an interview?",
-      a: "We pride ourselves on speed and respect. You will receive clear, constructive feedback or next-step scheduling from our hiring lead within 48 to 72 hours.",
+      a: "We pride ourselves on speed and respect. You will receive clear, constructive feedback or next-step scheduling from our hiring lead within 24 to 48 business hours.",
     },
   ];
 
@@ -95,7 +95,7 @@ export default function ContactPage() {
                     Contact Channels
                   </h2>
                   <p className="text-sm text-muted leading-relaxed">
-                    Our talent team operates Monday through Friday, 09:00 to 17:00 CET.
+                    Our talent team operates Monday through Friday, 09:00 to 17:00 EST.
                   </p>
                 </div>
 
@@ -117,11 +117,11 @@ export default function ContactPage() {
                     <div className="flex items-center gap-2 text-brass">
                       <MapPin className="w-5 h-5" />
                       <span className="font-mono text-xs uppercase tracking-widest2 font-semibold">
-                        Innovation Center
+                        US Headquarters
                       </span>
                     </div>
-                    <p className="text-sm text-ink font-medium">Prishtina, Kosovo</p>
-                    <p className="text-xs text-muted">Bulevardi Nënë Tereza · Tech Hub</p>
+                    <p className="text-sm text-ink font-medium">New York, NY, USA</p>
+                    <p className="text-xs text-muted">444 Madison Avenue · Suite 1800, New York, NY 10022</p>
                   </div>
 
                   {/* Card 3: Direct Scheduling Shortcut */}
@@ -181,7 +181,7 @@ export default function ContactPage() {
                             required
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            placeholder="e.g. Elena Hoxha"
+                            placeholder="e.g. Sarah Jenkins"
                             className="w-full border rule-hairline bg-paperdim/30 px-3.5 py-3 rounded-lg text-sm text-ink outline-none focus:border-brass focus:bg-paper transition-all"
                           />
                         </div>
@@ -194,7 +194,7 @@ export default function ContactPage() {
                             required
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            placeholder="elena@example.com"
+                            placeholder="sarah.jenkins@example.com"
                             className="w-full border rule-hairline bg-paperdim/30 px-3.5 py-3 rounded-lg text-sm text-ink outline-none focus:border-brass focus:bg-paper transition-all"
                           />
                         </div>

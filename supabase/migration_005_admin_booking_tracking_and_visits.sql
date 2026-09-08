@@ -16,7 +16,7 @@ create table if not exists public.schedule_visits (
   admin_user_id uuid references auth.users(id) on delete set null,
   admin_email text,
   interviewer_name text,
-  timezone text default 'Europe/Belgrade',
+  timezone text default 'America/New_York',
   user_agent text,
   referrer text,
   created_at timestamptz not null default now()

@@ -27,8 +27,8 @@ const DEFAULT_SETTINGS: Settings = {
   day_start_time: "09:00",
   day_end_time: "17:00",
   slot_duration_mins: 30,
-  timezone: "Europe/Belgrade",
-  interviewer_name: "Alban Jashari",
+  timezone: "America/New_York",
+  interviewer_name: "Sarah Jenkins",
   interviewer_photo_url: null,
   meeting_type: "Web Conference",
   updated_at: "",
@@ -64,7 +64,7 @@ function SchedulePageInner() {
   const now = new Date();
   const [cursor, setCursor] = useState({ year: now.getFullYear(), month: now.getMonth() });
   const monthGrid = useMemo(() => buildMonthGrid(cursor.year, cursor.month, settings), [cursor, settings]);
-  const [timezone, setTimezone] = useState<string>("Europe/Belgrade");
+  const [timezone, setTimezone] = useState<string>("America/New_York");
 
   const [step, setStep] = useState<Step>("datetime");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -146,14 +146,14 @@ function SchedulePageInner() {
       if (s) {
         setSettings({
           ...s,
-          interviewer_name: s.interviewer_name || "Alban Jashari",
+          interviewer_name: s.interviewer_name || "Sarah Jenkins",
         } as Settings);
       } else {
         const { data: defaultRow } = await supabase.from("settings").select("*").eq("id", 1).maybeSingle();
         if (defaultRow) {
           setSettings({
             ...defaultRow,
-            interviewer_name: defaultRow.interviewer_name || "Alban Jashari",
+            interviewer_name: defaultRow.interviewer_name || "Sarah Jenkins",
           } as Settings);
         }
       }
@@ -197,7 +197,7 @@ function SchedulePageInner() {
             admin_user_id: settings.user_id || null,
             admin_email: settings.admin_email || null,
             interviewer_name: settings.interviewer_name || null,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Belgrade",
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York",
             user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
             referrer: typeof document !== "undefined" ? document.referrer || null : null,
           });

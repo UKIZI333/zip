@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { USA_JOBS_LIST } from "@/lib/mockJobs";
 import type { Job } from "@/lib/types";
 import {
   Calendar,
@@ -47,9 +48,12 @@ export default async function JobDetailPage({ params }: { params: { slug: string
     .eq("status", "published")
     .maybeSingle();
 
-  if (!job) notFound();
+  // Find from DB or fallback list
+  const resolvedJob = (job as Job) || USA_JOBS_LIST.find((j) => j.slug === params.slug);
 
-  const j = job as Job;
+  if (!resolvedJob) notFound();
+
+  const j = resolvedJob;
 
   return (
     <div className="min-h-screen flex flex-col bg-paper text-ink selection:bg-brass selection:text-paper">
@@ -92,7 +96,7 @@ export default async function JobDetailPage({ params }: { params: { slug: string
             <span aria-hidden className="text-rule">·</span>
             <span className="inline-flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-brass" />
-              30-min Screening
+              30-min Fast-Track Screening
             </span>
           </div>
         </section>
@@ -114,7 +118,7 @@ export default async function JobDetailPage({ params }: { params: { slug: string
               <div className="border-t rule-hairline pt-8">
                 <List heading="Key Responsibilities" items={j.responsibilities} />
                 <List heading="Requirements &amp; Experience" items={j.requirements} />
-                <List heading="What We Offer &amp; Benefits" items={j.benefits} />
+                <List heading="What We Offer &amp; Compensation (20-30% Above Market)" items={j.benefits} />
               </div>
             </div>
 

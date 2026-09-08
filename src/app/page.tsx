@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JobListings from "@/components/JobListings";
+import { USA_JOBS_LIST } from "@/lib/mockJobs";
 import type { Job } from "@/lib/types";
 import {
   Calendar,
@@ -28,7 +29,8 @@ export default async function HomePage() {
     .eq("status", "published")
     .order("created_at", { ascending: false });
 
-  const openings = (jobs ?? []) as Job[];
+  // Use database jobs if available, otherwise use complete USA openings list
+  const openings = (jobs && jobs.length > 0 ? jobs : USA_JOBS_LIST) as Job[];
 
   return (
     <div className="min-h-screen flex flex-col bg-paper text-ink selection:bg-brass selection:text-paper">
@@ -64,7 +66,7 @@ export default async function HomePage() {
                 className="animate-fade-up mt-8 text-lg sm:text-xl leading-relaxed text-muted max-w-2xl"
                 style={{ animationDelay: "160ms" }}
               >
-                Skip the opaque resume queues. Discover our open positions in engineering, product, and leadership — and schedule a direct conversation with our hiring team in seconds.
+                Skip the opaque resume queues. Discover our open positions across Social Media, Growth Marketing, Creative Design, and Web Engineering — and schedule a direct conversation with our hiring team in seconds.
               </p>
 
               {/* Action Buttons */}
@@ -100,7 +102,7 @@ export default async function HomePage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Globe2 className="w-4 h-4 text-brass" />
-                  <span>Prishtina Hub &amp; Global Remote</span>
+                  <span>New York HQ &amp; USA Remote</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-brass" />
@@ -124,8 +126,8 @@ export default async function HomePage() {
                 <p className="font-mono text-xs uppercase tracking-widest2 text-muted">Candidate Satisfaction</p>
               </div>
               <div className="space-y-1">
-                <p className="font-display text-3xl sm:text-4xl text-ink font-semibold">350+</p>
-                <p className="font-mono text-xs uppercase tracking-widest2 text-muted">Talents Placed</p>
+                <p className="font-display text-3xl sm:text-4xl text-ink font-semibold">450+</p>
+                <p className="font-mono text-xs uppercase tracking-widest2 text-muted">Talents Placed in US</p>
               </div>
               <div className="space-y-1">
                 <p className="font-display text-3xl sm:text-4xl text-brass font-semibold">100%</p>
@@ -169,9 +171,9 @@ export default async function HomePage() {
                 <div className="w-12 h-12 rounded-xl bg-ink/5 flex items-center justify-center text-ink">
                   <Award className="w-6 h-6 text-brass" />
                 </div>
-                <h3 className="font-display text-xl text-ink font-medium">Merit &amp; Transparency</h3>
+                <h3 className="font-display text-xl text-ink font-medium">Top Compensation</h3>
                 <p className="text-sm leading-relaxed text-muted">
-                  Clear role expectations, honest compensation benchmarks, and structured evaluation.
+                  Clear role expectations, 20–30% above-market compensation benchmarks, and transparent equity.
                 </p>
               </div>
 
@@ -180,9 +182,9 @@ export default async function HomePage() {
                 <div className="w-12 h-12 rounded-xl bg-brass/10 flex items-center justify-center text-brass">
                   <Globe2 className="w-6 h-6" />
                 </div>
-                <h3 className="font-display text-xl text-ink font-medium">Global Impact</h3>
+                <h3 className="font-display text-xl text-ink font-medium">Nationwide Reach</h3>
                 <p className="text-sm leading-relaxed text-muted">
-                  Work on international scale projects with collaborative teams from Prishtina and across the globe.
+                  Work on high-impact projects with collaborative teams across the United States and globally.
                 </p>
               </div>
 
@@ -193,7 +195,7 @@ export default async function HomePage() {
                 </div>
                 <h3 className="font-display text-xl text-ink font-medium">Growth &amp; Wellness</h3>
                 <p className="text-sm leading-relaxed text-muted">
-                  Comprehensive health coverage, annual learning budgets, and flexible hybrid scheduling.
+                  Comprehensive 100% health coverage, 401(k) match, and generous remote home office stipends.
                 </p>
               </div>
             </div>
@@ -300,11 +302,11 @@ export default async function HomePage() {
                 </div>
                 <div className="pt-4 border-t rule-hairline flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-ink text-paper flex items-center justify-center font-display font-medium text-xs">
-                    EA
+                    EB
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-ink">Erion A.</p>
-                    <p className="font-mono text-[11px] text-muted">Senior Frontend Engineer</p>
+                    <p className="text-xs font-semibold text-ink">Ethan Brooks</p>
+                    <p className="font-mono text-[11px] text-muted">Senior Frontend Engineer · New York, NY</p>
                   </div>
                 </div>
               </div>
@@ -314,16 +316,16 @@ export default async function HomePage() {
                 <div>
                   <Quote className="w-8 h-8 text-brass/40 mb-4" />
                   <p className="text-sm leading-relaxed text-ink italic">
-                    &ldquo;Northfield values your time as much as their own. The verification process was straightforward, and the conversation was truly focused on engineering craft.&rdquo;
+                    &ldquo;Northfield values your time as much as their own. The verification process was straightforward, and the conversation was truly focused on design craft and product impact.&rdquo;
                   </p>
                 </div>
                 <div className="pt-4 border-t rule-hairline flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-brass text-paper flex items-center justify-center font-display font-medium text-xs">
-                    LK
+                    LH
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-ink">Laura K.</p>
-                    <p className="font-mono text-[11px] text-muted">Product Design Lead</p>
+                    <p className="text-xs font-semibold text-ink">Lauren Hayes</p>
+                    <p className="font-mono text-[11px] text-muted">Product Design Lead · San Francisco, CA</p>
                   </div>
                 </div>
               </div>
@@ -341,8 +343,8 @@ export default async function HomePage() {
                     DB
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-ink">Driton B.</p>
-                    <p className="font-mono text-[11px] text-muted">Fullstack Developer</p>
+                    <p className="text-xs font-semibold text-ink">Daniel Bennett</p>
+                    <p className="font-mono text-[11px] text-muted">Growth Marketing Lead · Austin, TX</p>
                   </div>
                 </div>
               </div>

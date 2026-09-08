@@ -34,8 +34,8 @@ export async function POST(req: NextRequest) {
       const adminEmail = record.admin_email ? ` (${record.admin_email})` : "";
       const timezone = record.timezone || "Unknown";
       const userAgent = record.user_agent ? (record.user_agent.length > 80 ? record.user_agent.substring(0, 80) + "..." : record.user_agent) : "Unknown";
-      const time = new Date(record.created_at || Date.now()).toLocaleTimeString("en-GB", {
-        timeZone: "Europe/Belgrade",
+      const time = new Date(record.created_at || Date.now()).toLocaleTimeString("en-US", {
+        timeZone: "America/New_York",
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
       messageText = `⚡ *Candidate Opened Scheduling Link!*\n\n` +
         `👤 *Interviewer Link:* ${interviewer}${adminEmail}\n` +
-        `🕒 *Time:* ${time} (Belgrade / CEST)\n` +
+        `🕒 *Time:* ${time} (New York / EST)\n` +
         `🌍 *Timezone:* \`${timezone}\`\n` +
         `📱 *Device / Browser:* \`${userAgent}\``;
     } else if (table === "bookings" || body.type === "booking_created") {

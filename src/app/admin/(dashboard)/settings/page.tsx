@@ -62,7 +62,7 @@ export default function AdminSettingsPage() {
         day_start_time: "09:00:00",
         day_end_time: "17:00:00",
         slot_duration_mins: 30,
-        timezone: "Europe/Belgrade",
+        timezone: "America/New_York",
         interviewer_name: user.email?.split("@")[0] || "Recruiting Team",
         interviewer_photo_url: null,
         meeting_type: "Phone Call",
@@ -137,7 +137,7 @@ export default function AdminSettingsPage() {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  const initials = (settings.interviewer_name || "A J")
+  const initials = (settings.interviewer_name || "S J")
     .split(" ")
     .map((w) => w[0])
     .filter(Boolean)
@@ -252,7 +252,7 @@ export default function AdminSettingsPage() {
                 value={settings.interviewer_name}
                 onChange={(e) => setSettings({ ...settings, interviewer_name: e.target.value })}
                 className={inputClass}
-                placeholder="e.g. Alban Jashari"
+                placeholder="e.g. Sarah Jenkins"
               />
             </div>
             <div>

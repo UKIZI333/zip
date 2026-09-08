@@ -11,7 +11,7 @@ export default function Footer() {
           <div className="md:col-span-1 space-y-4">
             <Logo size="md" showTagline />
             <p className="text-xs leading-relaxed text-muted mt-3">
-              Direct, transparent recruitment connecting exceptional candidates with high-impact roles.
+              Direct, transparent recruitment connecting exceptional talent with high-impact US roles.
             </p>
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-mono">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -80,7 +80,7 @@ export default function Footer() {
             <div className="space-y-3 font-mono text-xs text-muted">
               <div className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-brass shrink-0 mt-0.5" />
-                <span>Prishtina, Kosovo &amp; Global Remote</span>
+                <span>444 Madison Ave, New York, NY &amp; US Remote</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-brass shrink-0" />
@@ -90,7 +90,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-brass shrink-0" />
-                <span>Mon – Fri, 09:00 – 17:00 CET</span>
+                <span>Mon – Fri, 09:00 – 17:00 EST</span>
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-muted">
-          <p>© {new Date().getFullYear()} Northfield Recruitment Systems. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Northfield Recruitment Systems USA. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link href="/contact" className="hover:text-ink transition-colors">
               Privacy Notice

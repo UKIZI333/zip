@@ -1061,7 +1061,7 @@ export default function AdminBookingsPage() {
                       {v.admin_email || v.interviewer_name || "Primary Admin"}
                     </span>
                     <span className="text-gray-400 font-mono text-[11px]">
-                      {v.timezone || "Europe/Belgrade"}
+                      {v.timezone || "America/New_York"}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-gray-500">

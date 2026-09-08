@@ -55,18 +55,18 @@ export default function MeetingInfoPanel({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={settings.interviewer_photo_url}
-              alt={settings.interviewer_name || "Alban Jashari"}
+              alt={settings.interviewer_name || "Sarah Jenkins"}
               className="h-11 w-11 rounded-full object-cover border border-gray-200 shadow-xs"
             />
           ) : (
             <div className="h-11 w-11 rounded-full bg-[#0a2540] text-white flex items-center justify-center font-medium text-sm shrink-0 shadow-xs">
-              {initials(settings.interviewer_name || "Alban Jashari")}
+              {initials(settings.interviewer_name || "Sarah Jenkins")}
             </div>
           )}
 
           <div>
             <p className="text-sm font-semibold text-gray-600 leading-tight">
-              {settings.interviewer_name || "Alban Jashari"}
+              {settings.interviewer_name || "Sarah Jenkins"}
             </p>
           </div>
         </div>

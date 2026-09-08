@@ -38,18 +38,18 @@ export default function AboutPage() {
     },
     {
       icon: Globe2,
-      title: "Global Vision, Local Roots",
-      desc: "Headquartered with a vibrant engineering hub in Prishtina and expanding globally, we bridge regional high-caliber talent with international impact.",
+      title: "Nationwide Vision & Impact",
+      desc: "Headquartered in New York with talent hubs spanning Austin, San Francisco, Los Angeles, and remote across the US, we bridge exceptional talent with market-leading opportunity.",
     },
   ];
 
   const perks = [
-    "Competitive, transparent compensation benchmarks",
-    "Comprehensive premium health & dental insurance",
-    "Flexible hybrid schedule with remote-first autonomy",
-    "Annual €2,000 professional growth & learning stipend",
-    "Ergonomic home office equipment budget",
-    "Regular company retreats and collaborative hack weeks",
+    "20%–30% above-market compensation benchmarks",
+    "Comprehensive platinum health, dental & vision insurance (100% covered)",
+    "Flexible hybrid schedule with full remote-first autonomy across the US",
+    "Annual $3,500 professional growth & learning stipend",
+    "$2,500 ergonomic home workstation equipment budget",
+    "401(k) retirement plan with 5% dollar-for-dollar company match",
   ];
 
   return (
@@ -68,7 +68,7 @@ export default function AboutPage() {
                 We believe hiring should be a conversation, not an endurance test.
               </h1>
               <p className="mt-6 text-lg sm:text-xl text-muted leading-relaxed">
-                Northfield is redefining the recruitment journey. We combine streamlined scheduling systems with authentic 1-on-1 human connection to match visionary candidates with world-class opportunities.
+                Northfield is redefining the recruitment journey. We combine streamlined scheduling systems with authentic 1-on-1 human connection to match visionary candidates with premier US opportunities.
               </p>
             </div>
           </div>
@@ -88,13 +88,13 @@ export default function AboutPage() {
               </div>
               <div className="lg:col-span-7 space-y-6 text-muted leading-relaxed text-[15px]">
                 <p>
-                  Traditional recruitment often feels like sending resumes into a void. Candidates wait weeks for automated responses, navigate convoluted scheduling exchanges, and face impersonal evaluation filters.
+                  Traditional recruitment often feels like sending resumes into a black hole. Candidates wait weeks for automated responses, navigate convoluted scheduling emails, and face impersonal evaluation filters.
                 </p>
                 <p>
                   At Northfield, we decided to change the paradigm. We created a modern, synchronized scheduling platform that puts candidates directly in the driver’s seat. If you have the drive and mastery, you can choose a convenient time slot and speak directly with our team.
                 </p>
                 <p>
-                  From our modern hub in Prishtina to our global distributed colleagues, we cultivate an environment where creativity, high agency, and technical excellence thrive.
+                  From our headquarters in New York City to our distributed teammates across Austin, San Francisco, and nationwide, we cultivate an environment where creativity, high agency, and craft thrive.
                 </p>
               </div>
             </div>
@@ -145,7 +145,7 @@ export default function AboutPage() {
                   We invest in our people so they can do their life&rsquo;s best work.
                 </h2>
                 <p className="text-muted text-sm leading-relaxed">
-                  Joining Northfield means stepping into an ambitious, high-trust environment where you are empowered to make strategic decisions and shape our technological future.
+                  Joining Northfield means stepping into an ambitious, high-trust environment where you are empowered to make strategic decisions, lead impactful campaigns, and earn top-of-market compensation.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4">
@@ -168,19 +168,19 @@ export default function AboutPage() {
                       <Globe2 className="w-5 h-5 text-brass" />
                     </div>
                     <div>
-                      <h4 className="font-display text-lg text-ink font-semibold">Prishtina Hub &amp; Global Remote</h4>
-                      <p className="font-mono text-xs text-muted">Bulevardi Nënë Tereza, Prishtina</p>
+                      <h4 className="font-display text-lg text-ink font-semibold">New York HQ &amp; Nationwide Remote</h4>
+                      <p className="font-mono text-xs text-muted">444 Madison Avenue, New York, NY 10022</p>
                     </div>
                   </div>
 
                   <p className="text-sm leading-relaxed text-muted">
-                    Our central office is located in the heart of Prishtina, equipped with modern collaborative work zones, quiet focus pods, and high-speed infrastructure. We support a hybrid culture giving you flexibility where you work best.
+                    Our flagship headquarters is located in Midtown Manhattan, complemented by creative hubs in Austin, Los Angeles, and San Francisco. We support a flexible, high-trust culture giving you the freedom to work from anywhere in the United States.
                   </p>
 
                   <div className="pt-4 border-t rule-hairline flex flex-wrap gap-4 font-mono text-xs text-muted">
-                    <span>🏢 Hybrid &amp; Remote Friendly</span>
-                    <span>☕ Specialty Coffee Bar</span>
-                    <span>⚡ Ultrafast Fiber Net</span>
+                    <span>🏢 Nationwide &amp; Remote Friendly</span>
+                    <span>🗽 Manhattan Flagship Office</span>
+                    <span>⚡ 401(k) Match &amp; Platinum Health</span>
                   </div>
                 </div>
               </div>
