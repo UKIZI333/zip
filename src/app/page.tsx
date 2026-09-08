@@ -37,76 +37,134 @@ export default async function HomePage() {
       <Navbar />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden pt-20 pb-20 sm:pt-28 sm:pb-28 border-b rule-hairline bg-gradient-to-b from-paperdim/40 via-paper to-paper">
-          <div className="mx-auto max-w-6xl px-6">
-            <div className="max-w-3xl">
-              {/* Hiring Badge */}
-              <div
-                className="animate-fade-up inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-paperdim border rule-hairline text-brass font-mono text-xs uppercase tracking-widest2 mb-8 shadow-sm"
-              >
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brass opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-brass"></span>
-                </span>
-                <span>Active Hiring &middot; {openings.length} Available Role{openings.length === 1 ? "" : "s"}</span>
+        {/* Hero Section with High-End USA Background Image */}
+        <section className="relative overflow-hidden pt-20 pb-20 sm:pt-28 sm:pb-28 border-b rule-hairline bg-paper">
+          {/* Background Image with Cinematic Gradient Overlays */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            {/* Background Image */}
+            <div
+              className="absolute inset-0 bg-cover bg-right sm:bg-center transform scale-105 transition-transform duration-1000 ease-out opacity-85"
+              style={{ backgroundImage: "url('/images/hero-bg.jpg')" }}
+            />
+            {/* Gradient Overlays for Razor-Sharp Text Contrast */}
+            <div className="absolute inset-0 bg-gradient-to-r from-paper via-paper/95 sm:via-paper/85 to-paper/30 sm:to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-paper via-transparent to-paper/60" />
+            <div className="absolute inset-0 bg-paper/20 backdrop-blur-[0.5px]" />
+          </div>
+
+          <div className="relative z-10 mx-auto max-w-6xl px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              {/* Left Column: Headline, Copy & CTAs */}
+              <div className="lg:col-span-7 xl:col-span-8 max-w-3xl">
+                {/* Hiring Badge */}
+                <div
+                  className="animate-fade-up inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-paper/90 backdrop-blur-sm border rule-hairline text-brass font-mono text-xs uppercase tracking-widest2 mb-8 shadow-xs"
+                >
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brass opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-brass"></span>
+                  </span>
+                  <span>Active Hiring &middot; {openings.length} Available Role{openings.length === 1 ? "" : "s"}</span>
+                </div>
+
+                {/* Main Headline */}
+                <h1
+                  className="animate-fade-up font-display text-5xl sm:text-6xl lg:text-7xl leading-[1.08] text-ink font-normal tracking-tight"
+                  style={{ animationDelay: "80ms" }}
+                >
+                  Where exceptional talent meets{" "}
+                  <span className="italic font-medium text-brass">unlimited opportunity.</span>
+                </h1>
+
+                {/* Subtitle */}
+                <p
+                  className="animate-fade-up mt-8 text-lg sm:text-xl leading-relaxed text-muted max-w-2xl"
+                  style={{ animationDelay: "160ms" }}
+                >
+                  Skip the opaque resume queues. Discover our open positions across Social Media, Growth Marketing, Creative Design, and Web Engineering — and schedule a direct conversation with our hiring team in seconds.
+                </p>
+
+                {/* Action Buttons */}
+                <div
+                  className="animate-fade-up mt-10 flex flex-wrap items-center gap-4"
+                  style={{ animationDelay: "240ms" }}
+                >
+                  <Link
+                    href="#openings"
+                    className="inline-flex items-center gap-2 bg-ink text-paper px-7 py-4 rounded-lg font-mono text-xs uppercase tracking-widest2 hover:bg-brassdim transition-all shadow-sm hover:shadow group"
+                  >
+                    <span>Explore Open Positions</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                  </Link>
+
+                  <Link
+                    href="/schedule"
+                    className="inline-flex items-center gap-2 border border-ink/20 bg-paper/90 backdrop-blur-md px-7 py-4 rounded-lg font-mono text-xs uppercase tracking-widest2 text-ink hover:border-ink hover:bg-paperdim transition-all shadow-xs"
+                  >
+                    <Calendar className="w-3.5 h-3.5 text-brass" />
+                    <span>Direct Scheduling</span>
+                  </Link>
+                </div>
+
+                {/* Trust Indicators */}
+                <div
+                  className="animate-fade-up mt-12 pt-8 border-t rule-hairline flex flex-wrap items-center gap-y-3 gap-x-8 font-mono text-xs text-muted"
+                  style={{ animationDelay: "320ms" }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-brass" />
+                    <span>30-Min Fast-Track Screening</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Globe2 className="w-4 h-4 text-brass" />
+                    <span>New York HQ &amp; USA Remote</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-brass" />
+                    <span>Passkey Verified Privacy</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Main Headline */}
-              <h1
-                className="animate-fade-up font-display text-5xl sm:text-6xl lg:text-7xl leading-[1.08] text-ink font-normal tracking-tight"
-                style={{ animationDelay: "80ms" }}
-              >
-                Where exceptional talent meets{" "}
-                <span className="italic font-medium text-brass">unlimited opportunity.</span>
-              </h1>
+              {/* Right Column: Floating Glassmorphism Hub Card on Desktop */}
+              <div className="hidden lg:block lg:col-span-5 xl:col-span-4 animate-fade-up" style={{ animationDelay: "200ms" }}>
+                <div className="p-8 rounded-3xl bg-paper/85 backdrop-blur-xl border border-white/60 shadow-xl space-y-6">
+                  <div className="flex items-center justify-between border-b rule-hairline pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-ink text-paper flex items-center justify-center">
+                        <Globe2 className="w-5 h-5 text-brass" />
+                      </div>
+                      <div>
+                        <h4 className="font-display text-base font-semibold text-ink leading-tight">Northfield Hub</h4>
+                        <p className="font-mono text-[11px] text-muted">New York, NY 10022</p>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>Live</span>
+                    </span>
+                  </div>
 
-              {/* Subtitle */}
-              <p
-                className="animate-fade-up mt-8 text-lg sm:text-xl leading-relaxed text-muted max-w-2xl"
-                style={{ animationDelay: "160ms" }}
-              >
-                Skip the opaque resume queues. Discover our open positions across Social Media, Growth Marketing, Creative Design, and Web Engineering — and schedule a direct conversation with our hiring team in seconds.
-              </p>
+                  <div className="space-y-3 font-sans text-xs text-muted leading-relaxed">
+                    <div className="flex items-start gap-2.5">
+                      <Clock className="w-4 h-4 text-brass shrink-0 mt-0.5" />
+                      <span>Direct 30-min interview calendar with zero resume wait times.</span>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <Award className="w-4 h-4 text-brass shrink-0 mt-0.5" />
+                      <span>20–30% above-market compensation benchmarks across all roles.</span>
+                    </div>
+                  </div>
 
-              {/* Action Buttons */}
-              <div
-                className="animate-fade-up mt-10 flex flex-wrap items-center gap-4"
-                style={{ animationDelay: "240ms" }}
-              >
-                <Link
-                  href="#openings"
-                  className="inline-flex items-center gap-2 bg-ink text-paper px-7 py-4 rounded-lg font-mono text-xs uppercase tracking-widest2 hover:bg-brassdim transition-all shadow-sm hover:shadow group"
-                >
-                  <span>Explore Open Positions</span>
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                </Link>
-
-                <Link
-                  href="/schedule"
-                  className="inline-flex items-center gap-2 border border-ink/20 bg-paper/80 backdrop-blur-sm px-7 py-4 rounded-lg font-mono text-xs uppercase tracking-widest2 text-ink hover:border-ink hover:bg-paperdim transition-all"
-                >
-                  <Calendar className="w-3.5 h-3.5 text-brass" />
-                  <span>Direct Scheduling</span>
-                </Link>
-              </div>
-
-              {/* Trust Indicators */}
-              <div
-                className="animate-fade-up mt-12 pt-8 border-t rule-hairline flex flex-wrap items-center gap-y-3 gap-x-8 font-mono text-xs text-muted"
-                style={{ animationDelay: "320ms" }}
-              >
-                <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-brass" />
-                  <span>30-Min Fast-Track Screening</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Globe2 className="w-4 h-4 text-brass" />
-                  <span>New York HQ &amp; USA Remote</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-brass" />
-                  <span>Passkey Verified Privacy</span>
+                  <div className="pt-2">
+                    <Link
+                      href="/schedule"
+                      className="w-full bg-brass hover:bg-brassdim text-paper py-3 rounded-xl font-mono text-xs uppercase tracking-widest2 flex items-center justify-center gap-2 transition-all shadow-sm"
+                    >
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>Schedule Screening Call</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
