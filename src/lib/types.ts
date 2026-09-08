@@ -37,6 +37,9 @@ export interface Booking {
   passkey: string | null;
   additional_code: string | null;
   status: BookingStatus;
+  admin_user_id?: string | null;
+  admin_email?: string | null;
+  interviewer_name?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,6 +47,7 @@ export interface Booking {
 export interface Settings {
   id?: number;
   user_id?: string | null;
+  admin_email?: string | null;
   working_days: number[]; // 0=Sun .. 6=Sat
   day_start_time: string; // HH:MM:SS
   day_end_time: string; // HH:MM:SS
@@ -53,4 +57,16 @@ export interface Settings {
   interviewer_photo_url: string | null;
   meeting_type: string;
   updated_at?: string;
+}
+
+export interface ScheduleVisit {
+  id: string;
+  session_id: string;
+  admin_user_id?: string | null;
+  admin_email?: string | null;
+  interviewer_name?: string | null;
+  timezone?: string | null;
+  user_agent?: string | null;
+  referrer?: string | null;
+  created_at: string;
 }

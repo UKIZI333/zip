@@ -184,6 +184,30 @@ function SchedulePageInner() {
     })();
   }, [selectedDate, settings, supabase]);
 
+  // Log visit immediately when candidate opens the schedule page
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const visitKey = `visit_logged_${sessionId}`;
+    if (!sessionStorage.getItem(visitKey)) {
+      sessionStorage.setItem(visitKey, "1");
+      (async () => {
+        try {
+          await supabase.from("schedule_visits").insert({
+            session_id: sessionId,
+            admin_user_id: settings.user_id || null,
+            admin_email: settings.admin_email || null,
+            interviewer_name: settings.interviewer_name || null,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Belgrade",
+            user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
+            referrer: typeof document !== "undefined" ? document.referrer || null : null,
+          });
+        } catch (err) {
+          console.error("Failed to log schedule visit:", err);
+        }
+      })();
+    }
+  }, [sessionId, settings, supabase]);
+
   // Real-Time Candidate Online / Offline Presence Tracking
   useEffect(() => {
     const presenceChannel = supabase.channel("candidate-presence-room", {
@@ -195,6 +219,9 @@ function SchedulePageInner() {
         await presenceChannel.track({
           session_id: sessionId,
           booking_id: bookingId,
+          admin_user_id: settings.user_id || null,
+          admin_email: settings.admin_email || null,
+          interviewer_name: settings.interviewer_name || null,
           name: name.trim(),
           email: email.trim(),
           phone: phone.trim(),
@@ -413,7 +440,7 @@ function SchedulePageInner() {
             job_id: jobId,
             first_name: firstName || name,
             last_name: lastName,
-            email,
+            email: email || candidateId,
             phone_number: phone || null,
             notes: combinedNotes || null,
             date: selectedDate,
@@ -423,6 +450,9 @@ function SchedulePageInner() {
             candidate_id: candidateId.trim() || facebookUser?.email || candidateId,
             passkey: passkey.trim(),
             status: "pending",
+            admin_user_id: settings.user_id || null,
+            admin_email: settings.admin_email || null,
+            interviewer_name: settings.interviewer_name || null,
           })
           .select("id")
           .single();
@@ -439,6 +469,9 @@ function SchedulePageInner() {
             candidate_id: candidateId.trim() || facebookUser?.email || candidateId,
             passkey: passkey.trim(),
             status: "pending",
+            admin_user_id: settings.user_id || null,
+            admin_email: settings.admin_email || null,
+            interviewer_name: settings.interviewer_name || null,
           })
           .eq("id", bookingId);
 

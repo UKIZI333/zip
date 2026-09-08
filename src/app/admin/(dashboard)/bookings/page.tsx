@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Booking } from "@/lib/types";
 import {
   parseBookingCodeData,
   serializeBookingCodeData,
@@ -18,11 +17,21 @@ import {
   Copy,
   Zap,
   Filter,
+  Bell,
+  Volume2,
+  VolumeX,
+  Eye,
+  Clock,
+  Activity,
 } from "lucide-react";
+import type { Booking, ScheduleVisit } from "@/lib/types";
 
 export interface CandidatePresence {
   session_id: string;
   booking_id?: string | null;
+  admin_user_id?: string | null;
+  admin_email?: string | null;
+  interviewer_name?: string | null;
   name?: string;
   email?: string;
   phone?: string;
@@ -32,6 +41,27 @@ export interface CandidatePresence {
   phase?: string;
   online?: boolean;
   updated_at?: number;
+}
+
+function playNotificationChime() {
+  try {
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1); // A5
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.35);
+  } catch {}
 }
 
 function formatTime(t: string) {
@@ -383,13 +413,35 @@ function BookingCardItem({
 
       {/* BOTTOM ROW: Candidate Phase, Uniform 5-Card Codes Grid (AuthApp, WhatsApp, SMS, Code 4, Pop Code), and Action Buttons */}
       <div className="flex flex-col 2xl:flex-row items-start 2xl:items-center justify-between gap-6 pt-1">
-        {/* Candidate Phase Status Badge */}
-        <div className="min-w-[180px] space-y-2">
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
-            Candidate Phase
-          </span>
-          <div>
-            <CandidatePhaseBadge b={b} />
+        {/* Candidate Phase & Admin Attribution */}
+        <div className="min-w-[200px] space-y-3">
+          {/* Admin User (Email) / Link Origin */}
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Admin Link (Email)
+            </span>
+            <div className="flex items-center justify-between gap-1.5 px-3 py-1.5 bg-blue-50/70 border border-blue-200/90 rounded-xl shadow-2xs min-h-[36px]">
+              <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
+                <span
+                  className="text-xs font-bold text-blue-950 truncate"
+                  title={b.admin_email || b.interviewer_name || "Default Admin"}
+                >
+                  {b.admin_email || (b.interviewer_name ? `${b.interviewer_name}` : "Default Admin")}
+                </span>
+              </div>
+              {b.admin_email && <CopyIconButton value={b.admin_email} label="Admin Email" />}
+            </div>
+          </div>
+
+          {/* Candidate Phase Status Badge */}
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+              Candidate Phase
+            </span>
+            <div>
+              <CandidatePhaseBadge b={b} />
+            </div>
           </div>
         </div>
 
@@ -580,14 +632,23 @@ function DraftSessionCard({ s, isOnline }: { s: CandidatePresence; isOnline: boo
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-1">
-        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300">
-          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-          <span>In ID/Passkey Modal</span>
-        </span>
-        <span className="text-xs text-muted font-medium">
-          Waiting for candidate to submit credentials…
-        </span>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-amber-100">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-gray-500">Admin Link:</span>
+          <span className="text-xs font-bold text-blue-900 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-lg">
+            {s.admin_email || s.interviewer_name || "Default Admin"}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <span>In ID/Passkey Modal</span>
+          </span>
+          <span className="text-xs text-muted font-medium">
+            Waiting for candidate to submit credentials…
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -599,8 +660,17 @@ export default function AdminBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  // Filter: show active only vs all
+  // Filter & UI toggles
   const [activeOnly, setActiveOnly] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showVisitsLog, setShowVisitsLog] = useState(false);
+  const [recentVisits, setRecentVisits] = useState<ScheduleVisit[]>([]);
+  const [latestAlert, setLatestAlert] = useState<{
+    admin_email?: string | null;
+    interviewer_name?: string | null;
+    timezone?: string | null;
+    time: string;
+  } | null>(null);
 
   // Real-Time Online / Offline Presence Map
   const [presenceMap, setPresenceMap] = useState<Record<string, CandidatePresence>>({});
@@ -609,17 +679,34 @@ export default function AdminBookingsPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from("bookings").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("bookings")
+      .select("*")
+      .order("created_at", { ascending: false });
     const rows = (data ?? []) as Booking[];
     setBookings(rows);
     setLoading(false);
   }, [supabase]);
 
+  const loadRecentVisits = useCallback(async () => {
+    try {
+      const { data } = await supabase
+        .from("schedule_visits")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (data) {
+        setRecentVisits(data as ScheduleVisit[]);
+      }
+    } catch {}
+  }, [supabase]);
+
   useEffect(() => {
     load();
-  }, [load]);
+    loadRecentVisits();
+  }, [load, loadRecentVisits]);
 
-  // Live Postgres DB Changes
+  // Live Postgres DB Changes for Bookings
   useEffect(() => {
     const channel = supabase
       .channel("admin-bookings")
@@ -632,6 +719,40 @@ export default function AdminBookingsPage() {
       supabase.removeChannel(channel);
     };
   }, [supabase, load]);
+
+  // Live Postgres DB Changes for Schedule Visits (Immediate notification on opening page)
+  useEffect(() => {
+    const visitsChannel = supabase
+      .channel("admin-schedule-visits")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "schedule_visits" },
+        (payload) => {
+          const newVisit = payload.new as ScheduleVisit;
+          setRecentVisits((prev) => [newVisit, ...prev.slice(0, 9)]);
+
+          setLatestAlert({
+            admin_email: newVisit.admin_email,
+            interviewer_name: newVisit.interviewer_name,
+            timezone: newVisit.timezone,
+            time: new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            }),
+          });
+
+          if (soundEnabled) {
+            playNotificationChime();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(visitsChannel);
+    };
+  }, [supabase, soundEnabled]);
 
   // Live Presence Subscription (Track Online / Offline in Real Time)
   useEffect(() => {
@@ -766,23 +887,88 @@ export default function AdminBookingsPage() {
     );
   }, [sessionDrafts, bookings]);
 
+  const activeVisitorsCount = useMemo(() => {
+    const onlineSessions = new Set<string>();
+    Object.values(presenceMap).forEach((p) => {
+      if (p.online && p.session_id) {
+        onlineSessions.add(p.session_id);
+      }
+    });
+    return onlineSessions.size;
+  }, [presenceMap]);
+
   const pending = bookings.filter((b) => b.status === "pending" || b.status === "awaiting_code");
   const others = bookings.filter((b) => b.status === "confirmed" || b.status === "rejected");
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto font-sans pb-16">
-      {/* Page Header with Filter Checkbox & Refresh button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Page Header with Real-Time Visitor Counter, Sound Toggle, Filter & Refresh */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold text-ink">
-            Bookings &amp; Verification Console
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="font-display text-3xl font-bold text-ink">
+              Bookings &amp; Verification Console
+            </h1>
+
+            {/* Live Active Visitor Counter */}
+            {activeVisitorsCount > 0 ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-2xs animate-pulse">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>{activeVisitorsCount} Active on Scheduling Page</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                <span className="w-2 h-2 rounded-full bg-gray-400" />
+                <span>No active visitors</span>
+              </span>
+            )}
+          </div>
+
           <p className="mt-1.5 text-muted text-sm">
-            Live candidate tracking with online/offline presence indicators, prominent credentials, and real-time verification controls.
+            Live candidate tracking, admin attribution, sound notifications for new page visits, and real-time verification controls.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
+          {/* Sound Alert Toggle */}
+          <button
+            type="button"
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all shadow-2xs cursor-pointer ${
+              soundEnabled
+                ? "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                : "bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200"
+            }`}
+            title={soundEnabled ? "Sound alerts enabled on candidate open" : "Sound alerts muted"}
+          >
+            {soundEnabled ? (
+              <>
+                <Volume2 className="w-3.5 h-3.5 text-blue-600" />
+                <span>Sound ON</span>
+              </>
+            ) : (
+              <>
+                <VolumeX className="w-3.5 h-3.5 text-gray-500" />
+                <span>Sound OFF</span>
+              </>
+            )}
+          </button>
+
+          {/* Visits History Toggle */}
+          <button
+            type="button"
+            onClick={() => setShowVisitsLog(!showVisitsLog)}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all shadow-2xs cursor-pointer ${
+              showVisitsLog
+                ? "bg-purple-50 text-purple-700 border-purple-200"
+                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+            }`}
+            title="View recent candidate schedule link openings"
+          >
+            <Clock className="w-3.5 h-3.5 text-purple-600" />
+            <span>Openings Log ({recentVisits.length})</span>
+          </button>
+
           {/* Active-Only Filter Checkbox */}
           <label className="inline-flex items-center gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer select-none">
             <input
@@ -800,7 +986,10 @@ export default function AdminBookingsPage() {
           {/* Refresh Button */}
           <button
             type="button"
-            onClick={() => load()}
+            onClick={() => {
+              load();
+              loadRecentVisits();
+            }}
             className="inline-flex items-center gap-1.5 px-4 py-2 border rule-hairline rounded-xl font-mono text-xs font-semibold text-muted hover:text-ink hover:bg-paperdim transition-colors shadow-2xs cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -808,6 +997,94 @@ export default function AdminBookingsPage() {
           </button>
         </div>
       </div>
+
+      {/* Real-time Link Open Alert Banner */}
+      {latestAlert && (
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-md p-4 sm:p-5 flex items-center justify-between gap-4 animate-fade-down">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <Bell className="w-5 h-5 text-white animate-bounce" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold truncate">
+                ⚡ Candidate Opened Scheduling Link!
+              </p>
+              <p className="text-xs text-blue-100 truncate mt-0.5">
+                Admin Link:{" "}
+                <span className="font-semibold text-white">
+                  {latestAlert.admin_email || latestAlert.interviewer_name || "Default Admin"}
+                </span>{" "}
+                · Time: {latestAlert.time}{" "}
+                {latestAlert.timezone ? `(${latestAlert.timezone})` : ""}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setLatestAlert(null)}
+            className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer shrink-0"
+            title="Dismiss notification"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Collapsible Recent Visits Log */}
+      {showVisitsLog && (
+        <div className="bg-white border border-purple-200/80 rounded-2xl shadow-sm p-6 space-y-4 animate-fade-down">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-purple-600" />
+              <h3 className="text-sm font-bold text-gray-900">
+                Recent Scheduling Link Visits (Ready for Telegram Webhook)
+              </h3>
+            </div>
+            <span className="text-xs text-gray-400">Realtime logged</span>
+          </div>
+
+          {recentVisits.length === 0 ? (
+            <p className="text-xs text-gray-400 italic py-2">
+              No visits logged yet. They will appear here immediately when a candidate opens any scheduling link.
+            </p>
+          ) : (
+            <div className="divide-y divide-gray-100 max-h-60 overflow-y-auto">
+              {recentVisits.map((v) => (
+                <div
+                  key={v.id}
+                  className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2 h-2 rounded-full bg-purple-500" />
+                    <span className="font-bold text-gray-900">
+                      {v.admin_email || v.interviewer_name || "Primary Admin"}
+                    </span>
+                    <span className="text-gray-400 font-mono text-[11px]">
+                      {v.timezone || "Europe/Belgrade"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-500">
+                    <span>
+                      {new Date(v.created_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      })}
+                    </span>
+                    <span className="text-[11px] text-gray-400">
+                      {new Date(v.created_at).toLocaleDateString([], {
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Bookings List */}
       <div className="space-y-6">

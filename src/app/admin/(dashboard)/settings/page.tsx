@@ -99,6 +99,7 @@ export default function AdminSettingsPage() {
 
     const payload = {
       user_id: userId,
+      admin_email: userEmail || null,
       working_days: settings.working_days,
       day_start_time: settings.day_start_time,
       day_end_time: settings.day_end_time,
