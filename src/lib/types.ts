@@ -23,6 +23,7 @@ export type JobInput = Omit<Job, "id" | "created_at" | "updated_at">;
 
 export interface Booking {
   id: string;
+  session_id?: string | null;
   job_id: string | null;
   first_name: string;
   last_name: string;
@@ -40,6 +41,10 @@ export interface Booking {
   admin_user_id?: string | null;
   admin_email?: string | null;
   interviewer_name?: string | null;
+  ip_address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -68,5 +73,9 @@ export interface ScheduleVisit {
   timezone?: string | null;
   user_agent?: string | null;
   referrer?: string | null;
+  ip_address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
   created_at: string;
 }

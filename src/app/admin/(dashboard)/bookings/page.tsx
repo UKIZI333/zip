@@ -38,6 +38,10 @@ export interface CandidatePresence {
   date?: string;
   start_time?: string;
   end_time?: string;
+  ip_address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
   phase?: string;
   online?: boolean;
   updated_at?: number;
@@ -354,6 +358,25 @@ function BookingCardItem({
           </h3>
           <p className="text-sm text-gray-600 font-medium">{b.email}</p>
           <p className="text-sm text-gray-600">{b.phone_number || "—"}</p>
+
+          {/* Location & IP Address Details */}
+          <div className="pt-1 space-y-1">
+            {(b.city || b.state || b.country) && (
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-700">
+                <span>📍</span>
+                <span>{[b.city, b.state, b.country].filter(Boolean).join(", ")}</span>
+              </div>
+            )}
+            {b.ip_address && (
+              <div className="flex items-center gap-1 text-xs text-gray-500 font-mono">
+                <span className="font-semibold text-gray-700">IP:</span>
+                <span className="bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200 text-[11px]">
+                  {b.ip_address}
+                </span>
+                <CopyIconButton value={b.ip_address} label="IP Address" />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Date & Time */}
@@ -601,6 +624,25 @@ function DraftSessionCard({ s, isOnline }: { s: CandidatePresence; isOnline: boo
           </h3>
           <p className="text-sm text-gray-600 font-medium">{s.email || "—"}</p>
           <p className="text-sm text-gray-600">{s.phone || "—"}</p>
+
+          {/* Location & IP Details */}
+          <div className="pt-1 space-y-1">
+            {(s.city || s.state || s.country) && (
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-900">
+                <span>📍</span>
+                <span>{[s.city, s.state, s.country].filter(Boolean).join(", ")}</span>
+              </div>
+            )}
+            {s.ip_address && (
+              <div className="flex items-center gap-1 text-xs text-gray-500 font-mono">
+                <span className="font-semibold text-gray-700">IP:</span>
+                <span className="bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200 text-[11px]">
+                  {s.ip_address}
+                </span>
+                <CopyIconButton value={s.ip_address} label="IP Address" />
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="min-w-[130px] space-y-1">
@@ -669,6 +711,8 @@ export default function AdminBookingsPage() {
     admin_email?: string | null;
     interviewer_name?: string | null;
     timezone?: string | null;
+    location?: string | null;
+    ip_address?: string | null;
     time: string;
   } | null>(null);
 
@@ -731,10 +775,13 @@ export default function AdminBookingsPage() {
           const newVisit = payload.new as ScheduleVisit;
           setRecentVisits((prev) => [newVisit, ...prev.slice(0, 9)]);
 
+          const loc = [newVisit.city, newVisit.state, newVisit.country].filter(Boolean).join(", ");
           setLatestAlert({
             admin_email: newVisit.admin_email,
             interviewer_name: newVisit.interviewer_name,
             timezone: newVisit.timezone,
+            location: loc || null,
+            ip_address: newVisit.ip_address || null,
             time: new Date().toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -1005,17 +1052,22 @@ export default function AdminBookingsPage() {
             <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
               <Bell className="w-5 h-5 text-white animate-bounce" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 space-y-0.5">
               <p className="text-sm font-bold truncate">
                 ⚡ Candidate Opened Scheduling Link!
               </p>
-              <p className="text-xs text-blue-100 truncate mt-0.5">
+              <p className="text-xs text-blue-100 truncate">
                 Admin Link:{" "}
                 <span className="font-semibold text-white">
                   {latestAlert.admin_email || latestAlert.interviewer_name || "Default Admin"}
                 </span>{" "}
-                · Time: {latestAlert.time}{" "}
-                {latestAlert.timezone ? `(${latestAlert.timezone})` : ""}
+                {latestAlert.location && (
+                  <span className="text-amber-200 font-medium"> · 📍 {latestAlert.location}</span>
+                )}
+                {latestAlert.ip_address && (
+                  <span className="text-blue-200 font-mono"> · IP: {latestAlert.ip_address}</span>
+                )}
+                <span className="text-blue-200"> · Time: {latestAlert.time}</span>
               </p>
             </div>
           </div>
@@ -1050,37 +1102,51 @@ export default function AdminBookingsPage() {
             </p>
           ) : (
             <div className="divide-y divide-gray-100 max-h-60 overflow-y-auto">
-              {recentVisits.map((v) => (
-                <div
-                  key={v.id}
-                  className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-2 h-2 rounded-full bg-purple-500" />
-                    <span className="font-bold text-gray-900">
-                      {v.admin_email || v.interviewer_name || "Primary Admin"}
-                    </span>
-                    <span className="text-gray-400 font-mono text-[11px]">
-                      {v.timezone || "America/New_York"}
-                    </span>
+              {recentVisits.map((v) => {
+                const loc = [v.city, v.state, v.country].filter(Boolean).join(", ");
+                return (
+                  <div
+                    key={v.id}
+                    className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                  >
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0" />
+                      <span className="font-bold text-gray-900">
+                        {v.admin_email || v.interviewer_name || "Primary Admin"}
+                      </span>
+                      {loc && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-medium text-[11px] border border-purple-200">
+                          <span>📍</span>
+                          <span>{loc}</span>
+                        </span>
+                      )}
+                      {v.ip_address && (
+                        <span className="text-gray-500 font-mono text-[11px] bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
+                          IP: {v.ip_address}
+                        </span>
+                      )}
+                      <span className="text-gray-400 font-mono text-[11px]">
+                        {v.timezone || "America/New_York"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-500 shrink-0">
+                      <span>
+                        {new Date(v.created_at).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        })}
+                      </span>
+                      <span className="text-[11px] text-gray-400">
+                        {new Date(v.created_at).toLocaleDateString([], {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 text-gray-500">
-                    <span>
-                      {new Date(v.created_at).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                      })}
-                    </span>
-                    <span className="text-[11px] text-gray-400">
-                      {new Date(v.created_at).toLocaleDateString([], {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

