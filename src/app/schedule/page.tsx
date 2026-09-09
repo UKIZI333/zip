@@ -214,12 +214,21 @@ function SchedulePageInner() {
   const lastSavedDraftHash = useRef("");
   const draftNotifiedRef = useRef(false);
 
+  const visitLoggedSessionRef = useRef<string | null>(null);
+
   // Log visit immediately when candidate opens the schedule page (including IP and location)
   useEffect(() => {
     if (typeof window === "undefined") return;
     const visitKey = `visit_logged_${sessionId}`;
-    if (!sessionStorage.getItem(visitKey)) {
+    const alreadyLogged = sessionStorage.getItem(visitKey);
+
+    // If not logged yet, or if logged previously without geo and geo has now arrived
+    if (!alreadyLogged || (geoInfo && !sessionStorage.getItem(`geo_logged_${sessionId}`))) {
       sessionStorage.setItem(visitKey, "1");
+      if (geoInfo) {
+        sessionStorage.setItem(`geo_logged_${sessionId}`, "1");
+      }
+
       (async () => {
         try {
           const visitData = {
@@ -236,17 +245,31 @@ function SchedulePageInner() {
             country: geoInfo?.country || null,
           };
 
-          await supabase.from("schedule_visits").insert(visitData);
+          if (!alreadyLogged) {
+            await supabase.from("schedule_visits").insert(visitData);
+            visitLoggedSessionRef.current = sessionId;
 
-          // Dispatch immediate Telegram notification for the visit
-          fetch("/api/webhooks/telegram", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              type: "schedule_visit",
-              record: visitData,
-            }),
-          }).catch(() => {});
+            // Dispatch immediate Telegram notification for the visit
+            fetch("/api/webhooks/telegram", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                type: "schedule_visit",
+                record: visitData,
+              }),
+            }).catch(() => {});
+          } else if (geoInfo) {
+            // Update the visit row with the now resolved IP & location
+            await supabase
+              .from("schedule_visits")
+              .update({
+                ip_address: geoInfo.ip,
+                city: geoInfo.city,
+                state: geoInfo.state,
+                country: geoInfo.country,
+              })
+              .eq("session_id", sessionId);
+          }
         } catch (err) {
           console.error("Failed to log schedule visit:", err);
         }
