@@ -61,7 +61,7 @@ export default function CornerRibbon() {
             letterSpacing="0.09em"
             fontFamily="system-ui, -apple-system, sans-serif"
           >
-            NORTHFIELD
+            Calendly
           </text>
         </g>
       </svg>

