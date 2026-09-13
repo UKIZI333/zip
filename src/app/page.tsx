@@ -98,11 +98,10 @@ export default async function HomePage() {
                   </Link>
 
                   <Link
-                    href="/schedule"
+                    href="/contact"
                     className="inline-flex items-center gap-2 border border-ink/20 bg-paper/90 backdrop-blur-md px-7 py-4 rounded-lg font-mono text-xs uppercase tracking-widest2 text-ink hover:border-ink hover:bg-paperdim transition-all shadow-xs"
                   >
-                    <Calendar className="w-3.5 h-3.5 text-brass" />
-                    <span>Direct Scheduling</span>
+                    <span>Contact Talent Team</span>
                   </Link>
                 </div>
 
@@ -113,7 +112,7 @@ export default async function HomePage() {
                 >
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-brass" />
-                    <span>30-Min Fast-Track Screening</span>
+                    <span>Curated 48-Hour Review</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Globe2 className="w-4 h-4 text-brass" />
@@ -121,7 +120,7 @@ export default async function HomePage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-brass" />
-                    <span>Passkey Verified Privacy</span>
+                    <span>Confidential Executive Search</span>
                   </div>
                 </div>
               </div>
@@ -135,34 +134,34 @@ export default async function HomePage() {
                         <Globe2 className="w-5 h-5 text-brass" />
                       </div>
                       <div>
-                        <h4 className="font-display text-base font-semibold text-ink leading-tight">Northfield Hub</h4>
+                        <h4 className="font-display text-base font-semibold text-ink leading-tight">Northfield Executive Search</h4>
                         <p className="font-mono text-[11px] text-muted">New York, NY 10022</p>
                       </div>
                     </div>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>Live</span>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                      <span>Hiring</span>
                     </span>
                   </div>
 
                   <div className="space-y-3 font-sans text-xs text-muted leading-relaxed">
                     <div className="flex items-start gap-2.5">
                       <Clock className="w-4 h-4 text-brass shrink-0 mt-0.5" />
-                      <span>Direct 30-min interview calendar with zero resume wait times.</span>
+                      <span>Curated candidate review with private calendar invitations sent to shortlisted talent.</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <Award className="w-4 h-4 text-brass shrink-0 mt-0.5" />
-                      <span>20–30% above-market compensation benchmarks across all roles.</span>
+                      <span>20–30% above-market compensation benchmarks across all US roles.</span>
                     </div>
                   </div>
 
                   <div className="pt-2">
                     <Link
-                      href="/schedule"
-                      className="w-full bg-brass hover:bg-brassdim text-paper py-3 rounded-xl font-mono text-xs uppercase tracking-widest2 flex items-center justify-center gap-2 transition-all shadow-sm"
+                      href="#openings"
+                      className="w-full bg-ink hover:bg-brassdim text-paper py-3 rounded-xl font-mono text-xs uppercase tracking-widest2 flex items-center justify-center gap-2 transition-all shadow-sm"
                     >
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span>Schedule Screening Call</span>
+                      <span>Explore Open Roles</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-brass" />
                     </Link>
                   </div>
                 </div>
@@ -176,8 +175,8 @@ export default async function HomePage() {
           <div className="mx-auto max-w-6xl px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center sm:text-left">
               <div className="space-y-1">
-                <p className="font-display text-3xl sm:text-4xl text-ink font-semibold">24 Hours</p>
-                <p className="font-mono text-xs uppercase tracking-widest2 text-muted">Average Response Time</p>
+                <p className="font-display text-3xl sm:text-4xl text-ink font-semibold">48 Hours</p>
+                <p className="font-mono text-xs uppercase tracking-widest2 text-muted">Average Review Time</p>
               </div>
               <div className="space-y-1">
                 <p className="font-display text-3xl sm:text-4xl text-brass font-semibold">98.4%</p>
@@ -188,8 +187,8 @@ export default async function HomePage() {
                 <p className="font-mono text-xs uppercase tracking-widest2 text-muted">Talents Placed in US</p>
               </div>
               <div className="space-y-1">
-                <p className="font-display text-3xl sm:text-4xl text-brass font-semibold">100%</p>
-                <p className="font-mono text-xs uppercase tracking-widest2 text-muted">Direct Recruiter Access</p>
+                <p className="font-display text-3xl sm:text-4xl text-brass font-semibold">20-30%</p>
+                <p className="font-mono text-xs uppercase tracking-widest2 text-muted">Above-Market Packages</p>
               </div>
             </div>
           </div>
@@ -216,11 +215,11 @@ export default async function HomePage() {
               {/* Card 1 */}
               <div className="p-8 rounded-2xl border rule-hairline bg-paper hover:bg-paperdim/40 transition-all hover:shadow-sm space-y-4">
                 <div className="w-12 h-12 rounded-xl bg-brass/10 flex items-center justify-center text-brass">
-                  <Calendar className="w-6 h-6" />
+                  <ShieldCheck className="w-6 h-6" />
                 </div>
-                <h3 className="font-display text-xl text-ink font-medium">Direct Scheduling</h3>
+                <h3 className="font-display text-xl text-ink font-medium">Curated Review</h3>
                 <p className="text-sm leading-relaxed text-muted">
-                  No waiting weeks for back-and-forth emails. Pick a time that suits you on our live calendar.
+                  Every application is personally reviewed by our senior recruitment leads within 48 hours.
                 </p>
               </div>
 
@@ -268,10 +267,10 @@ export default async function HomePage() {
                 Seamless Candidate Journey
               </p>
               <h2 className="font-display text-3xl sm:text-4xl text-ink font-medium">
-                How Our Hiring Flow Works
+                How Our Selection Process Works
               </h2>
               <p className="mt-4 text-sm text-muted">
-                From discovery to your introductory call in four simple, transparent steps.
+                From application review to your introductory interview in four streamlined steps.
               </p>
             </div>
 
@@ -279,36 +278,36 @@ export default async function HomePage() {
               {/* Step 1 */}
               <div className="relative p-6 rounded-xl border rule-hairline bg-paper space-y-3">
                 <span className="font-mono text-xs font-semibold text-brass">STEP 01</span>
-                <h3 className="font-display text-lg text-ink font-medium">Discover Roles</h3>
+                <h3 className="font-display text-lg text-ink font-medium">Explore &amp; Apply</h3>
                 <p className="text-xs leading-relaxed text-muted">
-                  Explore open positions tailored to your skill set and career aspirations.
+                  Review our open positions and submit your profile, portfolio, and CV directly through our portal.
                 </p>
               </div>
 
               {/* Step 2 */}
               <div className="relative p-6 rounded-xl border rule-hairline bg-paper space-y-3">
                 <span className="font-mono text-xs font-semibold text-brass">STEP 02</span>
-                <h3 className="font-display text-lg text-ink font-medium">Choose a Slot</h3>
+                <h3 className="font-display text-lg text-ink font-medium">Talent Review</h3>
                 <p className="text-xs leading-relaxed text-muted">
-                  Select an available 30-minute meeting time on our synchronized interviewer calendar.
+                  Our executive recruitment leads evaluate your background and experience within 48 hours.
                 </p>
               </div>
 
               {/* Step 3 */}
               <div className="relative p-6 rounded-xl border rule-hairline bg-paper space-y-3">
                 <span className="font-mono text-xs font-semibold text-brass">STEP 03</span>
-                <h3 className="font-display text-lg text-ink font-medium">Passkey Verify</h3>
+                <h3 className="font-display text-lg text-ink font-medium">Private Invitation</h3>
                 <p className="text-xs leading-relaxed text-muted">
-                  Provide your candidate ID &amp; passkey for instant, secure authentication and booking lock.
+                  Shortlisted candidates receive an exclusive calendar link to schedule a 1-on-1 screening call.
                 </p>
               </div>
 
               {/* Step 4 */}
               <div className="relative p-6 rounded-xl border rule-hairline bg-paper space-y-3">
                 <span className="font-mono text-xs font-semibold text-brass">STEP 04</span>
-                <h3 className="font-display text-lg text-ink font-medium">1-on-1 Intro</h3>
+                <h3 className="font-display text-lg text-ink font-medium">Direct Placement</h3>
                 <p className="text-xs leading-relaxed text-muted">
-                  Meet our lead interviewer for a structured conversation about goals, culture, and alignment.
+                  Fast-track final interviews, compensation alignment, and smooth onboarding with US teams.
                 </p>
               </div>
             </div>
@@ -345,7 +344,7 @@ export default async function HomePage() {
                 Candidate Stories
               </p>
               <h2 className="font-display text-3xl sm:text-4xl text-ink font-medium">
-                Hear from candidates who experienced our flow
+                Hear from candidates who joined through Northfield
               </h2>
             </div>
 
@@ -355,7 +354,7 @@ export default async function HomePage() {
                 <div>
                   <Quote className="w-8 h-8 text-brass/40 mb-4" />
                   <p className="text-sm leading-relaxed text-ink italic">
-                    &ldquo;The ability to immediately book a slot rather than waiting 2 weeks for an HR email was a breath of fresh air. The whole recruitment experience was exceptionally smooth.&rdquo;
+                    &ldquo;The entire application process was transparent and human. Getting a dedicated invitation link after my resume review made scheduling seamless.&rdquo;
                   </p>
                 </div>
                 <div className="pt-4 border-t rule-hairline flex items-center gap-3">
@@ -374,7 +373,7 @@ export default async function HomePage() {
                 <div>
                   <Quote className="w-8 h-8 text-brass/40 mb-4" />
                   <p className="text-sm leading-relaxed text-ink italic">
-                    &ldquo;Northfield values your time as much as their own. The verification process was straightforward, and the conversation was truly focused on design craft and product impact.&rdquo;
+                    &ldquo;Northfield values your time as much as their own. The screening conversation was deeply focused on design craft, product impact, and real growth.&rdquo;
                   </p>
                 </div>
                 <div className="pt-4 border-t rule-hairline flex items-center gap-3">
@@ -393,7 +392,7 @@ export default async function HomePage() {
                 <div>
                   <Quote className="w-8 h-8 text-brass/40 mb-4" />
                   <p className="text-sm leading-relaxed text-ink italic">
-                    &ldquo;Real-time confirmation and transparent communication gave me immense confidence in Northfield&rsquo;s culture from day one.&rdquo;
+                    &ldquo;Fast feedback, top-tier compensation packages, and crystal-clear communication gave me immense confidence in Northfield&rsquo;s standards.&rdquo;
                   </p>
                 </div>
                 <div className="pt-4 border-t rule-hairline flex items-center gap-3">
@@ -422,19 +421,19 @@ export default async function HomePage() {
                   Ready To Begin?
                 </span>
                 <h2 className="font-display text-3xl sm:text-5xl leading-tight font-medium text-paper">
-                  Your next career breakthrough is one conversation away.
+                  Your next career breakthrough starts here.
                 </h2>
                 <p className="text-paper/70 text-base sm:text-lg leading-relaxed">
-                  Browse our open positions or pick a time directly on our recruitment calendar to meet with our hiring leads.
+                  Browse our open positions across engineering, marketing, and design, and submit your application today.
                 </p>
 
                 <div className="pt-4 flex flex-wrap items-center gap-4">
                   <Link
-                    href="/schedule"
+                    href="#openings"
                     className="inline-flex items-center gap-2 bg-brass hover:bg-brassdim text-paper px-8 py-4 rounded-lg font-mono text-xs uppercase tracking-widest2 transition-all shadow-md"
                   >
-                    <Calendar className="w-4 h-4" />
-                    <span>Book Your Interview Slot</span>
+                    <span>Browse All Open Roles</span>
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                   <Link
                     href="/contact"

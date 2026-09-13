@@ -31,24 +31,24 @@ export default function ContactPage() {
 
   const faqs = [
     {
+      q: "How does the application and interview invitation process work?",
+      a: "When you submit an application with your CV on any open position, our senior recruitment team reviews your credentials within 48 hours. Shortlisted candidates receive a private calendar invitation link directly to their email to schedule their 1-on-1 screening interview.",
+    },
+    {
       q: "How does the Candidate ID and Passkey verification work?",
-      a: "When scheduling an interview, the system prompts you for a Candidate ID and Passkey. This ensures your booking is authenticated and prevents unauthorized duplicate reservations on our live calendar.",
+      a: "When accessing your private interview invitation link, the system verifies your unique Candidate ID and Passkey to ensure your slot is protected and reserved exclusively for you.",
     },
     {
-      q: "What should I prepare for the initial 30-minute meeting?",
+      q: "What should I prepare for the initial 30-minute screening conversation?",
       a: "Our initial screening is a two-way discovery conversation. Be prepared to share key technical or creative accomplishments, your career trajectory, and questions about Northfield's team culture, American clients, and compensation.",
-    },
-    {
-      q: "How do I reschedule or cancel an existing booking?",
-      a: "If an unexpected conflict arises, send a quick note to careers@northfield.com with your original booking details, or use the direct scheduling page to reserve an updated time slot.",
     },
     {
       q: "Do you hire remotely across all US time zones?",
       a: "Yes! While our primary headquarters is in New York, NY, we support flexible, fully remote arrangements for candidates across all US time zones (EST, CST, MST, PST).",
     },
     {
-      q: "What is the typical turnaround time after an interview?",
-      a: "We pride ourselves on speed and respect. You will receive clear, constructive feedback or next-step scheduling from our hiring lead within 24 to 48 business hours.",
+      q: "What is the typical turnaround time after submitting an application?",
+      a: "We pride ourselves on speed and respect. Every application receives feedback or an invitation for an introductory conversation within 24 to 48 business hours.",
     },
   ];
 
@@ -124,22 +124,22 @@ export default function ContactPage() {
                     <p className="text-xs text-muted">444 Madison Avenue · Suite 1800, New York, NY 10022</p>
                   </div>
 
-                  {/* Card 3: Direct Scheduling Shortcut */}
+                  {/* Card 3: Open Positions Shortcut */}
                   <div className="p-6 rounded-2xl border rule-hairline bg-paperdim/50 space-y-3">
                     <div className="flex items-center gap-2 text-brass">
-                      <Calendar className="w-5 h-5" />
+                      <Sparkles className="w-5 h-5" />
                       <span className="font-mono text-xs uppercase tracking-widest2 font-semibold">
-                        Direct Calendar
+                        Open Positions
                       </span>
                     </div>
                     <p className="text-xs text-muted leading-relaxed">
-                      Already have an open position in mind? You can skip email and book directly.
+                      Ready to take the next step in your career? Browse all current roles and submit your application.
                     </p>
                     <Link
-                      href="/schedule"
+                      href="/#openings"
                       className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest2 text-brass hover:underline"
                     >
-                      <span>Open Calendar Booking →</span>
+                      <span>Explore Open Positions →</span>
                     </Link>
                   </div>
                 </div>

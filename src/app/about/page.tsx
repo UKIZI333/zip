@@ -198,7 +198,7 @@ export default function AboutPage() {
               Ready to find your place at Northfield?
             </h2>
             <p className="text-muted text-base max-w-xl mx-auto">
-              Explore our published positions or schedule a direct introductory discussion with our recruiting lead.
+              Explore our published positions across engineering, marketing, and design, and submit your application today.
             </p>
             <div className="pt-4 flex flex-wrap justify-center items-center gap-4">
               <Link
@@ -209,10 +209,10 @@ export default function AboutPage() {
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
               <Link
-                href="/schedule"
+                href="/contact"
                 className="inline-flex items-center gap-2 border border-ink/20 px-8 py-4 rounded-lg font-mono text-xs uppercase tracking-widest2 text-ink hover:border-ink hover:bg-paperdim transition-colors"
               >
-                <span>Schedule a Meeting</span>
+                <span>Contact Recruiting Team</span>
               </Link>
             </div>
           </div>

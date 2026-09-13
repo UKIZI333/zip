@@ -40,9 +40,9 @@ export default function JobRow({ job, index }: { job: Job; index: number }) {
                 {job.employment_type}
               </span>
               <span aria-hidden className="text-rule">·</span>
-              <span className="inline-flex items-center gap-1.5 text-emerald-700">
-                <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                Fast-track Interview
+              <span className="inline-flex items-center gap-1.5 text-blue-700">
+                <Clock className="w-3.5 h-3.5 text-blue-600" />
+                Actively Reviewing
               </span>
             </div>
           </div>
@@ -51,7 +51,7 @@ export default function JobRow({ job, index }: { job: Job; index: number }) {
         {/* Right Side: Action Button */}
         <div className="flex items-center md:self-center shrink-0 pl-10 md:pl-0">
           <span className="inline-flex items-center gap-1.5 border border-ink/20 group-hover:border-ink group-hover:bg-ink group-hover:text-paper px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-widest2 text-ink transition-all duration-200">
-            <span>View &amp; Schedule</span>
+            <span>View Position</span>
             <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </div>

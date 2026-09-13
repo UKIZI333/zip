@@ -51,11 +51,11 @@ export default function Navbar() {
         {/* CTA Actions */}
         <div className="hidden sm:flex items-center gap-4">
           <Link
-            href="/schedule"
+            href="/#openings"
             className="inline-flex items-center gap-2 bg-ink text-paper px-4 py-2.5 rounded-sm font-mono text-xs uppercase tracking-widest2 hover:bg-brassdim transition-colors shadow-sm"
           >
-            <Calendar className="w-3.5 h-3.5 text-brass" />
-            <span>Schedule Interview</span>
+            <span>Explore Positions</span>
+            <ArrowRight className="w-3.5 h-3.5 text-brass" />
           </Link>
         </div>
 
@@ -92,13 +92,12 @@ export default function Navbar() {
 
           <div className="pt-4 border-t rule-hairline">
             <Link
-              href="/schedule"
+              href="/#openings"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-center gap-2 w-full bg-ink text-paper py-3 rounded-sm font-mono text-xs uppercase tracking-widest2 hover:bg-brassdim transition-colors"
             >
-              <Calendar className="w-3.5 h-3.5 text-brass" />
-              <span>Schedule Interview</span>
-              <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              <span>Explore Positions</span>
+              <ArrowRight className="w-3.5 h-3.5 text-brass ml-1" />
             </Link>
           </div>
         </div>

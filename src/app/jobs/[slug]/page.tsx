@@ -3,14 +3,13 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import JobApplyAction from "@/components/JobApplyAction";
 import { USA_JOBS_LIST } from "@/lib/mockJobs";
 import type { Job } from "@/lib/types";
 import {
-  Calendar,
   MapPin,
   Briefcase,
   Clock,
-  ArrowRight,
   Sparkles,
   ShieldCheck,
   CheckCircle2,
@@ -73,9 +72,9 @@ export default async function JobDetailPage({ params }: { params: { slug: string
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider bg-brass/10 text-brass font-semibold">
               {j.department}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono bg-emerald-50 text-emerald-800 border border-emerald-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Actively Interviewing
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono bg-blue-50 text-blue-800 border border-blue-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+              Accepting Applications
             </span>
           </div>
 
@@ -96,12 +95,12 @@ export default async function JobDetailPage({ params }: { params: { slug: string
             <span aria-hidden className="text-rule">·</span>
             <span className="inline-flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-brass" />
-              30-min Fast-Track Screening
+              Curated Review Process
             </span>
           </div>
         </section>
 
-        {/* Content & Scheduling Action */}
+        {/* Content & Application Action */}
         <section className="mx-auto max-w-4xl px-6 py-10 border-t rule-hairline">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Left: Job Details */}
@@ -124,48 +123,16 @@ export default async function JobDetailPage({ params }: { params: { slug: string
 
             {/* Right: Sticky Action Card */}
             <div className="lg:col-span-4">
-              <div className="sticky top-24 p-6 rounded-2xl border rule-hairline bg-paperdim/40 space-y-6 shadow-sm">
-                <div>
-                  <h3 className="font-display text-xl text-ink font-semibold">
-                    Ready to Apply?
-                  </h3>
-                  <p className="text-xs text-muted mt-2 leading-relaxed">
-                    Select a time on our live calendar to speak directly with our recruitment lead.
-                  </p>
-                </div>
-
-                <div className="space-y-2.5 pt-2 border-t rule-hairline text-xs font-mono text-muted">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-brass" />
-                    <span>Instant calendar confirmation</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-brass" />
-                    <span>Verified passkey access</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-brass" />
-                    <span>30-minute structured chat</span>
-                  </div>
-                </div>
-
-                <Link
-                  href={`/schedule?job=${j.slug}`}
-                  className="w-full bg-ink hover:bg-brassdim text-paper py-3.5 rounded-lg font-mono text-xs uppercase tracking-widest2 flex items-center justify-center gap-2 transition-colors shadow-sm"
-                >
-                  <Calendar className="w-4 h-4 text-brass" />
-                  <span>Schedule Interview</span>
-                </Link>
-
-                <div className="text-center">
-                  <Link
-                    href="/contact"
-                    className="text-[11px] font-mono text-muted hover:text-ink transition-colors"
-                  >
-                    Have questions first? Contact Us
-                  </Link>
-                </div>
-              </div>
+              <JobApplyAction
+                job={{
+                  id: j.id,
+                  title: j.title,
+                  slug: j.slug,
+                  department: j.department,
+                  location: j.location,
+                  compensation: j.benefits?.[0] || "Top-Tier Compensation",
+                }}
+              />
             </div>
           </div>
         </section>

@@ -13,9 +13,9 @@ export default function Footer() {
             <p className="text-xs leading-relaxed text-muted mt-3">
               Direct, transparent recruitment connecting exceptional talent with high-impact US roles.
             </p>
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-mono">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Live Booking Active</span>
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-[11px] font-mono">
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+              <span>Executive Search Active</span>
             </div>
           </div>
 
@@ -41,8 +41,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/schedule" className="hover:text-brass transition-colors flex items-center gap-1 font-medium">
-                  Direct Scheduling <ArrowUpRight className="w-3 h-3" />
+                <Link href="/contact" className="hover:text-ink transition-colors">
+                  Candidate Inquiries
                 </Link>
               </li>
             </ul>
