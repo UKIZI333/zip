@@ -84,8 +84,8 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-brass shrink-0" />
-                <a href="mailto:careers@northfield.com" className="hover:text-ink transition-colors">
-                  careers@northfield.com
+                <a href="mailto:careers@northfieldcareers.com" className="hover:text-ink transition-colors">
+                  careers@northfieldcareers.com
                 </a>
               </div>
               <div className="flex items-center gap-2">

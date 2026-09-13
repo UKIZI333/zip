@@ -108,7 +108,7 @@ export default function ContactPage() {
                         Recruitment Email
                       </span>
                     </div>
-                    <p className="text-sm text-ink font-medium">careers@northfield.com</p>
+                    <p className="text-sm text-ink font-medium">careers@northfieldcareers.com</p>
                     <p className="text-xs text-muted">Direct candidate inquiries &amp; feedback</p>
                   </div>
 

@@ -34,7 +34,7 @@ export default function AdminListPage() {
   const [supabase] = useState(() => createClient());
   const [items, setItems] = useState<AdminLinkItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentUserEmail, setCurrentUserEmail] = useState<string>("admin@northfield.com");
+  const [currentUserEmail, setCurrentUserEmail] = useState<string>("admin@northfieldcareers.com");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Filters & Search
