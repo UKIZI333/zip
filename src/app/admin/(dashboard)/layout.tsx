@@ -28,6 +28,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <Link href="/admin/bookings" className="px-3 py-2 rounded-sm text-muted hover:text-ink hover:bg-paperdim transition-colors">
               Bookings
             </Link>
+            <Link href="/admin/list" className="px-3 py-2 rounded-sm text-muted hover:text-ink hover:bg-paperdim transition-colors">
+              List
+            </Link>
             <Link href="/admin/settings" className="px-3 py-2 rounded-sm text-muted hover:text-ink hover:bg-paperdim transition-colors">
               Settings
             </Link>
@@ -37,6 +40,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Link href="/admin" className="text-muted hover:text-ink">Overview</Link>
           <Link href="/admin/jobs" className="text-muted hover:text-ink">Jobs</Link>
           <Link href="/admin/bookings" className="text-muted hover:text-ink">Bookings</Link>
+          <Link href="/admin/list" className="text-muted hover:text-ink">List</Link>
           <Link href="/admin/settings" className="text-muted hover:text-ink">Settings</Link>
         </div>
         <div className="hidden sm:block mt-auto pt-10">

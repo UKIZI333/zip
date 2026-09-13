@@ -79,3 +79,15 @@ export interface ScheduleVisit {
   country?: string | null;
   created_at: string;
 }
+
+export interface AdminLinkItem {
+  id: string;
+  name: string;
+  company: string;
+  link: string;
+  agent: string;
+  user_id?: string | null;
+  created_at: string;
+  updated_at?: string;
+}
+
