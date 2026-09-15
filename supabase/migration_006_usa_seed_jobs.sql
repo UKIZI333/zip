@@ -8,7 +8,7 @@ update public.settings
 set 
   timezone = 'America/New_York',
   interviewer_name = case 
-    when interviewer_name in ('Alban Jashari', 'Recruiting Team', '') then 'Sarah Jenkins' 
+    when interviewer_name in ('Recruiting Team', '') then 'Sarah Jenkins' 
     else interviewer_name 
   end
 where id = 1;
