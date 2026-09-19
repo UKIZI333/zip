@@ -1001,14 +1001,6 @@ function SchedulePageInner() {
                 <p className="mt-3 text-sm text-gray-700 font-normal">{email}</p>
                 <p className="mt-1 text-xs text-gray-500 font-normal">{phone}</p>
               </div>
-              <div className="mt-8">
-                <Link
-                  href="/"
-                  className="text-xs font-semibold uppercase tracking-wider text-[#0069ff] hover:underline"
-                >
-                  ← Back to careers site
-                </Link>
-              </div>
             </div>
           )}
         </main>
