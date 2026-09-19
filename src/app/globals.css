@@ -20,9 +20,11 @@ body {
   color: #F7F5F1;
 }
 
-/* respect reduced-motion preferences */
+/* respect reduced-motion preferences except essential progress spinners */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *:not(.animate-spin):not(.force-spin),
+  *:not(.animate-spin):not(.force-spin)::before,
+  *:not(.animate-spin):not(.force-spin)::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -32,6 +34,19 @@ body {
 
 .rule-hairline {
   border-color: #E1DCD1;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.force-spin {
+  animation: spin 0.85s linear infinite !important;
 }
 
 @keyframes fade-up {
