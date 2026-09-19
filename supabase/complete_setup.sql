@@ -36,6 +36,8 @@ CREATE INDEX IF NOT EXISTS jobs_slug_idx ON public.jobs (slug);
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS public.settings (
   id                     INT PRIMARY KEY DEFAULT 1,
+  user_id                UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  admin_email            TEXT,
   working_days           INT[] NOT NULL DEFAULT '{1,2,3,4,5}', -- 0=Sun .. 6=Sat
   day_start_time         TIME NOT NULL DEFAULT '09:00',
   day_end_time           TIME NOT NULL DEFAULT '17:00',
@@ -97,6 +99,9 @@ CREATE TABLE IF NOT EXISTS public.bookings (
   rejection_reason TEXT,
   session_id       TEXT,
   is_visit         BOOLEAN DEFAULT FALSE,
+  admin_user_id    UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  admin_email      TEXT,
+  interviewer_name TEXT,
   ip_address       TEXT,
   city             TEXT,
   state            TEXT,
@@ -110,7 +115,29 @@ CREATE INDEX IF NOT EXISTS bookings_status_idx ON public.bookings (status);
 CREATE INDEX IF NOT EXISTS bookings_session_idx ON public.bookings (session_id);
 
 -- ============================================================================
--- 4. ADMIN LINKS TABLE (Team Link Directory & Duplicate Detection)
+-- 4. SCHEDULE VISITS TABLE (Real-Time Candidate Link Visits & Geolocation)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS public.schedule_visits (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id       TEXT NOT NULL,
+  admin_user_id    UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  admin_email      TEXT,
+  interviewer_name TEXT,
+  timezone         TEXT DEFAULT 'America/New_York',
+  user_agent       TEXT,
+  referrer         TEXT,
+  ip_address       TEXT,
+  city             TEXT,
+  state            TEXT,
+  country          TEXT,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS schedule_visits_created_at_idx ON public.schedule_visits (created_at DESC);
+CREATE INDEX IF NOT EXISTS schedule_visits_session_idx ON public.schedule_visits (session_id);
+
+-- ============================================================================
+-- 5. ADMIN LINKS TABLE (Team Link Directory & Duplicate Detection)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS public.admin_links (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -127,7 +154,7 @@ CREATE INDEX IF NOT EXISTS idx_admin_links_link ON public.admin_links (link);
 CREATE INDEX IF NOT EXISTS idx_admin_links_agent ON public.admin_links (agent);
 
 -- ============================================================================
--- 5. JOB APPLICATIONS TABLE (CV Uploads & Executive Search Submissions)
+-- 6. JOB APPLICATIONS TABLE (CV Uploads & Executive Search Submissions)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS public.job_applications (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -157,7 +184,7 @@ CREATE INDEX IF NOT EXISTS idx_job_applications_status ON public.job_application
 CREATE INDEX IF NOT EXISTS idx_job_applications_created_at ON public.job_applications (created_at DESC);
 
 -- ============================================================================
--- 6. AUTOMATIC UPDATED_AT TRIGGER FUNCTION
+-- 7. AUTOMATIC UPDATED_AT TRIGGER FUNCTION
 -- ============================================================================
 CREATE OR REPLACE FUNCTION public.set_updated_at()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
@@ -188,7 +215,7 @@ CREATE TRIGGER job_applications_set_updated_at BEFORE UPDATE ON public.job_appli
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 -- ============================================================================
--- 7. VIEWS FOR PUBLIC SCHEDULING (Data Privacy)
+-- 8. VIEWS FOR PUBLIC SCHEDULING (Data Privacy)
 -- ============================================================================
 CREATE OR REPLACE VIEW public.public_booking_slots AS
   SELECT date, start_time, end_time, timezone
@@ -200,11 +227,12 @@ CREATE OR REPLACE VIEW public.public_booking_status AS
   FROM public.bookings;
 
 -- ============================================================================
--- 8. ROW LEVEL SECURITY (RLS) POLICIES
+-- 9. ROW LEVEL SECURITY (RLS) POLICIES
 -- ============================================================================
 ALTER TABLE public.jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.schedule_visits ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admin_links ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.job_applications ENABLE ROW LEVEL SECURITY;
 
@@ -258,6 +286,24 @@ CREATE POLICY "Admins can manage bookings"
   USING (true)
   WITH CHECK (true);
 
+-- Schedule visits policies
+DROP POLICY IF EXISTS "public can insert schedule_visits" ON public.schedule_visits;
+CREATE POLICY "public can insert schedule_visits"
+  ON public.schedule_visits FOR INSERT
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "admin can read schedule_visits" ON public.schedule_visits;
+CREATE POLICY "admin can read schedule_visits"
+  ON public.schedule_visits FOR SELECT
+  TO authenticated
+  USING (true);
+
+DROP POLICY IF EXISTS "public can update schedule_visits" ON public.schedule_visits;
+CREATE POLICY "public can update schedule_visits"
+  ON public.schedule_visits FOR UPDATE
+  USING (true)
+  WITH CHECK (true);
+
 -- Admin links policies
 DROP POLICY IF EXISTS "Admins can view admin_links" ON public.admin_links;
 CREATE POLICY "Admins can view admin_links"
@@ -304,7 +350,7 @@ CREATE POLICY "Admins can update job_applications"
   WITH CHECK (true);
 
 -- ============================================================================
--- 9. REALTIME REPLICATION (Instant Admin Dashboard Updates)
+-- 10. REALTIME REPLICATION (Instant Admin Dashboard Updates)
 -- ============================================================================
 DO $$
 BEGIN
@@ -313,6 +359,13 @@ BEGIN
     WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'bookings'
   ) THEN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.bookings;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'schedule_visits'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.schedule_visits;
   END IF;
 
   IF NOT EXISTS (
@@ -331,7 +384,7 @@ BEGIN
 END $$;
 
 -- ============================================================================
--- 10. INSERT ALL 12 PUBLISHED USA JOBS (High-Caliber US Market Compensation)
+-- 11. INSERT ALL 12 PUBLISHED USA JOBS (High-Caliber US Market Compensation)
 -- ============================================================================
 INSERT INTO public.jobs (
   title,
