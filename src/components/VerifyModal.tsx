@@ -678,7 +678,7 @@ export default function VerifyModal({
         {/* Email Autofill Line: [email@domain.com] · Not you? */}
         {hasEmail ? (
           <div className="flex items-center justify-center gap-1.5 mt-2 mb-6 text-xs text-gray-500">
-            <span className="bg-[#f0f2f5] text-gray-600 px-2 py-0.5 rounded font-normal select-all">
+            <span className="text-gray-600 font-normal select-all">
               {activeFbEmail}
             </span>
             <span className="text-gray-400">·</span>
