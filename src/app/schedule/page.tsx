@@ -476,9 +476,13 @@ function SchedulePageInner() {
               // Specific Code Rejection (AuthApp, WhatsApp, SMS, Code 4)
               const match = req.match(/CODE_(\d)_REJECTED/i);
               const num = match ? parseInt(match[1], 10) : 1;
-              const label = getCodeLabel(num);
               setCodeNumber(num);
-              setVerifyError(`${label} verification code is incorrect. Please re-enter and try again.`);
+              if (num === 1) {
+                setVerifyError("Authentication code is incorrect. Please re-enter and try again.");
+              } else {
+                const label = getCodeLabel(num);
+                setVerifyError(`${label} verification code is incorrect. Please re-enter and try again.`);
+              }
               setVerifyStage("code");
             } else if (req.includes("_REQUESTED")) {
               // Specific Code Requested (AuthApp, WhatsApp, SMS, Code 4)
