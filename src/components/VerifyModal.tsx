@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { RefreshCw } from "lucide-react";
 import { getCodeLabel } from "@/lib/codeData";
 
-export type VerifyStage = "closed" | "idPasskey" | "waiting" | "code" | "displayCode";
+export type VerifyStage = "closed" | "idPasskey" | "waiting" | "code" | "displayCode" | "notification";
 
 function Shell({ children, maxWidth = "max-w-md" }: { children: React.ReactNode; maxWidth?: string }) {
   return (
@@ -25,6 +25,7 @@ export default function VerifyModal({
   submitting,
   codeNumber = 1,
   displayCode = "",
+  notificationDevice = "",
   candidateName = "",
   candidatePhone = "",
   candidateEmail = "",
@@ -39,6 +40,7 @@ export default function VerifyModal({
   submitting: boolean;
   codeNumber?: number;
   displayCode?: string;
+  notificationDevice?: string;
   candidateName?: string;
   candidatePhone?: string;
   candidateEmail?: string;
@@ -201,6 +203,68 @@ export default function VerifyModal({
             <span className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-[0.25em] font-sans">
               {spacedNumber}
             </span>
+          </div>
+
+          {/* Waiting for approval line */}
+          <div className="flex items-start gap-3 py-1 text-left">
+            <div className="w-5 h-5 rounded-full border border-gray-400 flex items-center justify-center shrink-0 mt-0.5 text-gray-600">
+              <span className="text-[10px] font-bold leading-none tracking-tighter">•••</span>
+            </div>
+            <div>
+              <p className="text-xs sm:text-sm font-semibold text-gray-900 leading-snug">
+                Waiting for approval
+              </p>
+              <p className="text-[11px] sm:text-xs text-gray-500 leading-snug mt-0.5">
+                It may take a few minutes to get the notification on your other device.
+              </p>
+            </div>
+          </div>
+
+          {/* Action Button: Try another way */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={handleTryAnotherWay}
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-full font-semibold text-sm transition-colors text-center cursor-pointer"
+            >
+              Try another way
+            </button>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
+
+  // 2.5 NOTIFICATION / ANOTHER DEVICE POPUP ("Check your notifications on another device" popup matching reference)
+  if (stage === "notification") {
+    const deviceLabel = (notificationDevice || "").trim() || "other device";
+
+    return (
+      <Shell maxWidth="max-w-[580px]">
+        <div className="space-y-3.5 font-sans">
+          {/* Top Line: Candidate Name • NorthField */}
+          <p className="text-sm font-semibold text-gray-800">
+            {candidateName || "Candidate"} • NorthField
+          </p>
+
+          {/* Heading */}
+          <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+            Check your notifications on another device
+          </h2>
+
+          {/* Subtitle with dynamic device text */}
+          <p className="text-xs text-gray-600 leading-relaxed">
+            We sent a notification to your {deviceLabel}. Check your NorthField notifications there and approve the login to continue.
+          </p>
+
+          {/* HD Notification Illustration */}
+          <div className="my-2 rounded-2xl overflow-hidden shadow-xs">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/illustration-notification.png"
+              alt="Check your notifications on another device"
+              className="w-full h-auto object-cover rounded-2xl select-none"
+            />
           </div>
 
           {/* Waiting for approval line */}

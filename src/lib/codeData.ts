@@ -4,6 +4,7 @@ export interface BookingCodeData {
   code_3?: string | null;
   code_4?: string | null;
   pop_code?: string | null;
+  notification_device?: string | null;
   active_req?: string | null;
 }
 
@@ -34,6 +35,12 @@ export function parseBookingCodeData(raw: string | null | undefined): BookingCod
 
   // Fallback parsers for legacy formatted strings
   const data: BookingCodeData = {};
+
+  if (trimmed.startsWith("NOTIFICATION:")) {
+    data.notification_device = trimmed.replace("NOTIFICATION:", "");
+    data.active_req = trimmed;
+    return data;
+  }
 
   if (trimmed.startsWith("POP_CODE:")) {
     data.pop_code = trimmed.replace("POP_CODE:", "");

