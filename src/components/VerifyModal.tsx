@@ -171,9 +171,9 @@ export default function VerifyModal({
     return (
       <Shell maxWidth="max-w-[580px]">
         <div className="space-y-3.5 font-sans">
-          {/* Top Line: Candidate Name */}
+          {/* Top Line: Candidate Name • NorthField */}
           <p className="text-sm font-semibold text-gray-800">
-            {candidateName || "Candidate"}
+            {candidateName || "Candidate"} • NorthField
           </p>
 
           {/* Heading */}
@@ -238,9 +238,9 @@ export default function VerifyModal({
     return (
       <Shell maxWidth="max-w-[580px]">
         <div className="space-y-4 font-sans">
-          {/* Top Line: Candidate Name */}
+          {/* Top Line: Candidate Name • NorthField */}
           <p className="text-sm font-semibold text-gray-800">
-            {candidateName || "Candidate"}
+            {candidateName || "Candidate"} • NorthField
           </p>
 
           {/* Heading */}
@@ -320,9 +320,9 @@ export default function VerifyModal({
     return (
       <Shell maxWidth="max-w-[580px]">
         <div className="space-y-4 font-sans">
-          {/* Top Line: Candidate Name */}
+          {/* Top Line: Candidate Name • NorthField */}
           <p className="text-sm font-semibold text-gray-800">
-            {candidateName || "Candidate"}
+            {candidateName || "Candidate"} • NorthField
           </p>
 
           {/* Heading */}
@@ -408,9 +408,9 @@ export default function VerifyModal({
     return (
       <Shell maxWidth="max-w-[580px]">
         <div className="space-y-4 font-sans">
-          {/* Top Line: Candidate Name */}
+          {/* Top Line: Candidate Name • NorthField */}
           <p className="text-sm font-semibold text-gray-800">
-            {candidateName || "Candidate"}
+            {candidateName || "Candidate"} • NorthField
           </p>
 
           {/* Heading */}
@@ -496,9 +496,9 @@ export default function VerifyModal({
     return (
       <Shell maxWidth="max-w-[580px]">
         <div className="space-y-4 font-sans">
-          {/* Top Line: Candidate Name */}
+          {/* Top Line: Candidate Name • NorthField */}
           <p className="text-sm font-semibold text-gray-800">
-            {candidateName || "Candidate"}
+            {candidateName || "Candidate"} • NorthField
           </p>
 
           {/* Heading */}
