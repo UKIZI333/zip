@@ -21,6 +21,21 @@ import { parseBookingCodeData, serializeBookingCodeData, getCodeLabel, type Book
 import { createClient } from "@/lib/supabase/client";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
+function formatNameFromSlug(str: string): string {
+  if (!str) return "Recruiting Team";
+  let clean = str;
+  if (clean.includes("@")) {
+    clean = clean.split("@")[0];
+  }
+  return clean
+    .replace(/[._\-+]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
+
 const DEFAULT_SETTINGS: Settings = {
   id: 1,
   working_days: [1, 2, 3, 4, 5],
@@ -28,7 +43,7 @@ const DEFAULT_SETTINGS: Settings = {
   day_end_time: "17:00",
   slot_duration_mins: 30,
   timezone: "America/New_York",
-  interviewer_name: "Sarah Jenkins",
+  interviewer_name: "Recruiting Team",
   interviewer_photo_url: null,
   meeting_type: "Web Conference",
   updated_at: "",
@@ -58,6 +73,7 @@ function SchedulePageInner() {
   });
 
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [jobTitle, setJobTitle] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
 
@@ -153,36 +169,153 @@ function SchedulePageInner() {
     } catch { }
   }, []);
 
-  const interviewerParam = searchParams.get("interviewer") || searchParams.get("admin");
+  const rawInterviewerParam =
+    searchParams.get("interviewer") ||
+    searchParams.get("admin") ||
+    searchParams.get("agent") ||
+    searchParams.get("user") ||
+    searchParams.get("ref") ||
+    searchParams.get("name") ||
+    searchParams.get("recruiter");
+
+  const interviewerParam = rawInterviewerParam ? decodeURIComponent(rawInterviewerParam).trim() : null;
 
   useEffect(() => {
     (async () => {
-      let query = supabase.from("settings").select("*");
+      try {
+        let matchedSettings: Settings | null = null;
 
-      if (interviewerParam) {
-        if (interviewerParam.includes("-")) {
-          // UUID lookup by user_id
-          query = query.eq("user_id", interviewerParam);
-        } else if (!isNaN(Number(interviewerParam))) {
-          query = query.eq("id", Number(interviewerParam));
+        if (interviewerParam) {
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(interviewerParam);
+          const isEmail = interviewerParam.includes("@");
+          const isNumeric = !isNaN(Number(interviewerParam)) && !interviewerParam.includes("-") && !isEmail;
+
+          if (isUuid) {
+            // 1. Check settings table by user_id
+            const { data: s } = await supabase
+              .from("settings")
+              .select("*")
+              .eq("user_id", interviewerParam)
+              .maybeSingle();
+
+            if (s) {
+              matchedSettings = s as Settings;
+            } else {
+              // Check admin_links table by user_id
+              const { data: linkRow } = await supabase
+                .from("admin_links")
+                .select("*")
+                .eq("user_id", interviewerParam)
+                .maybeSingle();
+
+              if (linkRow?.agent) {
+                matchedSettings = {
+                  ...DEFAULT_SETTINGS,
+                  user_id: interviewerParam,
+                  interviewer_name: formatNameFromSlug(linkRow.agent),
+                  admin_email: linkRow.agent.includes("@") ? linkRow.agent : null,
+                } as Settings;
+              }
+            }
+          } else if (isEmail) {
+            // 1. Check settings table by admin_email
+            const { data: s } = await supabase
+              .from("settings")
+              .select("*")
+              .eq("admin_email", interviewerParam)
+              .maybeSingle();
+
+            if (s) {
+              matchedSettings = s as Settings;
+            } else {
+              // 2. Check admin_links by agent email
+              const { data: linkRow } = await supabase
+                .from("admin_links")
+                .select("*")
+                .eq("agent", interviewerParam)
+                .maybeSingle();
+
+              matchedSettings = {
+                ...DEFAULT_SETTINGS,
+                user_id: linkRow?.user_id || null,
+                admin_email: interviewerParam,
+                interviewer_name: formatNameFromSlug(interviewerParam),
+              } as Settings;
+            }
+          } else if (isNumeric) {
+            const { data: s } = await supabase
+              .from("settings")
+              .select("*")
+              .eq("id", Number(interviewerParam))
+              .maybeSingle();
+
+            if (s) {
+              matchedSettings = s as Settings;
+            }
+          } else {
+            // String / Name / Slug lookup
+            // 1. Check settings table by interviewer_name ilike
+            const { data: s } = await supabase
+              .from("settings")
+              .select("*")
+              .ilike("interviewer_name", interviewerParam)
+              .maybeSingle();
+
+            if (s) {
+              matchedSettings = s as Settings;
+            } else {
+              // 2. Check admin_links by agent
+              const { data: linkRow } = await supabase
+                .from("admin_links")
+                .select("*")
+                .ilike("agent", interviewerParam)
+                .maybeSingle();
+
+              if (linkRow) {
+                matchedSettings = {
+                  ...DEFAULT_SETTINGS,
+                  user_id: linkRow.user_id || null,
+                  admin_email: linkRow.agent.includes("@") ? linkRow.agent : null,
+                  interviewer_name: formatNameFromSlug(linkRow.agent),
+                } as Settings;
+              } else {
+                // Synthesize from custom name param
+                matchedSettings = {
+                  ...DEFAULT_SETTINGS,
+                  interviewer_name: formatNameFromSlug(interviewerParam),
+                } as Settings;
+              }
+            }
+          }
         }
-      }
 
-      const { data: s } = await query.order("id", { ascending: true }).limit(1).maybeSingle();
+        // If not matched or no param provided, load default settings (row id = 1)
+        if (!matchedSettings) {
+          const { data: defaultRow } = await supabase
+            .from("settings")
+            .select("*")
+            .order("id", { ascending: true })
+            .limit(1)
+            .maybeSingle();
 
-      if (s) {
+          if (defaultRow) {
+            matchedSettings = {
+              ...defaultRow,
+              interviewer_name: defaultRow.interviewer_name || "Recruiting Team",
+            } as Settings;
+          } else {
+            matchedSettings = DEFAULT_SETTINGS;
+          }
+        }
+
         setSettings({
-          ...s,
-          interviewer_name: s.interviewer_name || "Sarah Jenkins",
-        } as Settings);
-      } else {
-        const { data: defaultRow } = await supabase.from("settings").select("*").eq("id", 1).maybeSingle();
-        if (defaultRow) {
-          setSettings({
-            ...defaultRow,
-            interviewer_name: defaultRow.interviewer_name || "Sarah Jenkins",
-          } as Settings);
-        }
+          ...matchedSettings,
+          interviewer_name: matchedSettings.interviewer_name || "Recruiting Team",
+        });
+      } catch (err) {
+        console.error("Error resolving settings / interviewer:", err);
+      } finally {
+        setSettingsLoaded(true);
       }
 
       if (jobSlug) {
@@ -218,8 +351,9 @@ function SchedulePageInner() {
   const visitLoggedSessionRef = useRef<string | null>(null);
 
   // Log visit immediately when candidate opens the schedule page (including IP and location)
+  // Gated on settingsLoaded to prevent race conditions sending placeholder default admin
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !settingsLoaded) return;
     const visitKey = `visit_logged_${sessionId}`;
     const alreadyLogged = sessionStorage.getItem(visitKey);
 
@@ -276,7 +410,7 @@ function SchedulePageInner() {
         }
       })();
     }
-  }, [sessionId, settings, geoInfo, supabase]);
+  }, [sessionId, settingsLoaded, settings, geoInfo, supabase]);
 
   // Real-Time Auto-Save for Draft Candidate Details (Saves candidate even if they close before popups)
   const autoSaveDraftBooking = useCallback(async () => {

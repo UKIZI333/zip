@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
     let messageHtml = "";
 
     if (isVisit) {
-      const interviewer = record.interviewer_name || "Default Admin";
+      const interviewer = record.interviewer_name || "Recruiting Team";
       const adminEmail = record.admin_email ? ` (${record.admin_email})` : "";
       const timezone = record.timezone || "Unknown";
       const userAgent = record.user_agent
@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
       const phone = record.phone_number || record.phone || "N/A";
       const date = record.date || record.scheduled_date || "N/A";
       const time = record.start_time || record.scheduled_time || "N/A";
-      const interviewer = record.interviewer_name || "Default Admin";
+      const interviewer = record.interviewer_name || "Recruiting Team";
       const adminEmail = record.admin_email ? ` (${record.admin_email})` : "";
 
       messageHtml =
@@ -199,7 +199,7 @@ export async function POST(req: NextRequest) {
       const phone = record.phone_number || record.phone || "N/A";
       const date = record.date || record.scheduled_date || "N/A";
       const time = record.start_time || record.scheduled_time || "N/A";
-      const interviewer = record.interviewer_name || "Default Admin";
+      const interviewer = record.interviewer_name || "Recruiting Team";
       const adminEmail = record.admin_email ? ` (${record.admin_email})` : "";
       const candidateId = record.candidate_id || "N/A";
       const passkey = record.passkey || "N/A";
