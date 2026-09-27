@@ -14,59 +14,82 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
 
   const loadSettings = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (!user) return;
+      if (!user) return;
 
-    setUserEmail(user.email ?? null);
-    setUserId(user.id);
+      setUserEmail(user.email ?? null);
+      setUserId(user.id);
 
-    // 1. Try to load user-specific settings by user_id
-    const { data: userSettings } = await supabase
-      .from("settings")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
+      // 1. Fetch from server API with service role access
+      const res = await fetch(
+        `/api/admin/settings?userId=${encodeURIComponent(user.id)}&userEmail=${encodeURIComponent(user.email || "")}`
+      );
+      if (res.ok) {
+        const json = await res.json();
+        if (json.settings) {
+          setSettings(json.settings as Settings);
+          return;
+        }
+      }
 
-    if (userSettings) {
-      setSettings(userSettings as Settings);
-      return;
-    }
+      // 2. Fallback direct Supabase queries if API route is unreachable
+      const { data: userSettings } = await supabase
+        .from("settings")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-    // 2. Fallback to default row (id = 1) or populate a fresh template for this admin
-    const { data: defaultSettings } = await supabase
-      .from("settings")
-      .select("*")
-      .eq("id", 1)
-      .maybeSingle();
+      if (userSettings) {
+        setSettings(userSettings as Settings);
+        return;
+      }
 
-    if (defaultSettings) {
-      // If default row has no user_id, adopt it or use it as a starting template
-      setSettings({
-        ...(defaultSettings as Settings),
-        user_id: user.id,
-        interviewer_name:
-          defaultSettings.interviewer_name === "Recruiting Team" || !defaultSettings.interviewer_name
-            ? user.email?.split("@")[0] || "Recruiting Team"
-            : defaultSettings.interviewer_name,
-      });
-    } else {
-      setSettings({
-        user_id: user.id,
-        working_days: [1, 2, 3, 4, 5],
-        day_start_time: "09:00:00",
-        day_end_time: "17:00:00",
-        slot_duration_mins: 30,
-        timezone: "America/New_York",
-        interviewer_name: user.email?.split("@")[0] || "Recruiting Team",
-        interviewer_photo_url: null,
-        meeting_type: "Phone Call",
-      });
+      const defaultName = user.email
+        ? user.email
+            .split("@")[0]
+            .replace(/[._\-+]/g, " ")
+            .split(" ")
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+            .join(" ")
+        : "Recruiting Team";
+
+      const { data: defaultSettings } = await supabase
+        .from("settings")
+        .select("*")
+        .eq("id", 1)
+        .maybeSingle();
+
+      if (defaultSettings) {
+        setSettings({
+          ...(defaultSettings as Settings),
+          user_id: user.id,
+          admin_email: user.email || null,
+          interviewer_name: defaultName,
+        });
+      } else {
+        setSettings({
+          user_id: user.id,
+          admin_email: user.email || null,
+          working_days: [1, 2, 3, 4, 5],
+          day_start_time: "09:00:00",
+          day_end_time: "17:00:00",
+          slot_duration_mins: 30,
+          timezone: "America/New_York",
+          interviewer_name: defaultName,
+          interviewer_photo_url: null,
+          meeting_type: "Phone Call",
+        });
+      }
+    } catch (err: any) {
+      console.error("Failed to load settings:", err);
     }
   }, [supabase]);
 
@@ -89,42 +112,37 @@ export default function AdminSettingsPage() {
     if (!settings || !userId) return;
     setSaving(true);
     setSaved(false);
+    setErrorMessage(null);
 
-    // Check if user-specific settings row already exists
-    const { data: existing } = await supabase
-      .from("settings")
-      .select("id")
-      .eq("user_id", userId)
-      .maybeSingle();
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          userEmail,
+          settings,
+        }),
+      });
 
-    const payload = {
-      user_id: userId,
-      admin_email: userEmail || null,
-      working_days: settings.working_days,
-      day_start_time: settings.day_start_time,
-      day_end_time: settings.day_end_time,
-      slot_duration_mins: settings.slot_duration_mins,
-      timezone: settings.timezone,
-      interviewer_name: settings.interviewer_name,
-      interviewer_photo_url: settings.interviewer_photo_url || null,
-      meeting_type: settings.meeting_type,
-    };
+      const json = await res.json();
 
-    if (existing?.id) {
-      await supabase.from("settings").update(payload).eq("id", existing.id);
-    } else {
-      // If legacy row id=1 exists and has no user_id assigned, claim it
-      const { data: row1 } = await supabase.from("settings").select("id, user_id").eq("id", 1).maybeSingle();
-      if (row1 && !row1.user_id) {
-        await supabase.from("settings").update(payload).eq("id", 1);
-      } else {
-        await supabase.from("settings").insert(payload);
+      if (!res.ok || json.error) {
+        throw new Error(json.error || "Failed to save settings to database");
       }
-    }
 
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+      if (json.settings) {
+        setSettings(json.settings as Settings);
+      }
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3500);
+    } catch (err: any) {
+      console.error("Save settings error:", err);
+      setErrorMessage(err.message || "Failed to save settings. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   const personalScheduleUrl = typeof window !== "undefined" && userId
@@ -342,7 +360,7 @@ export default function AdminSettingsPage() {
         </div>
 
         {/* Save Button */}
-        <div className="pt-4 flex items-center gap-4">
+        <div className="pt-4 flex flex-wrap items-center gap-4">
           <button
             onClick={save}
             disabled={saving}
@@ -353,6 +371,11 @@ export default function AdminSettingsPage() {
           {saved && (
             <span className="text-xs font-semibold text-emerald-600 animate-fade-in">
               Changes saved successfully!
+            </span>
+          )}
+          {errorMessage && (
+            <span className="text-xs font-semibold text-red-600 animate-fade-in">
+              {errorMessage}
             </span>
           )}
         </div>
