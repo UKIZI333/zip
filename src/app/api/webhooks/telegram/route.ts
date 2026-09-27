@@ -103,12 +103,24 @@ export async function POST(req: NextRequest) {
     }
 
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    const rawChatId = process.env.TELEGRAM_CHAT_ID;
 
-    if (!botToken || !chatId) {
+    if (!botToken || !rawChatId) {
       console.warn("Telegram Bot Token or Chat ID not configured in environment variables.");
       return NextResponse.json(
         { message: "Telegram credentials not configured on server, notification skipped" },
+        { status: 200 }
+      );
+    }
+
+    const chatIds = rawChatId
+      .split(/[,\s]+/)
+      .map((id) => id.trim())
+      .filter(Boolean);
+
+    if (chatIds.length === 0) {
+      return NextResponse.json(
+        { message: "No valid Telegram chat IDs found" },
         { status: 200 }
       );
     }
@@ -209,28 +221,27 @@ export async function POST(req: NextRequest) {
       )}</pre>`;
     }
 
-    // 3. Send message via Telegram Bot API
-    const telegramRes = await fetch(
-      `https://api.telegram.org/bot${botToken}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: messageHtml,
-          parse_mode: "HTML",
-        }),
-      }
+    // 3. Send message via Telegram Bot API to all configured chat IDs (User + Group)
+    const sendResults = await Promise.allSettled(
+      chatIds.map(async (targetChatId) => {
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: targetChatId,
+            text: messageHtml,
+            parse_mode: "HTML",
+          }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          console.error(`Telegram API error for chat_id ${targetChatId}:`, data);
+        }
+        return data;
+      })
     );
 
-    const telegramData = await telegramRes.json();
-
-    if (!telegramData.ok) {
-      console.error("Telegram API error:", telegramData);
-      return NextResponse.json({ error: telegramData.description }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true, message_id: telegramData.result?.message_id });
+    return NextResponse.json({ success: true, count: chatIds.length, results: sendResults });
   } catch (err: any) {
     console.error("Webhook processing error:", err);
     return NextResponse.json({ error: err.message || "Internal Server Error" }, { status: 500 });

