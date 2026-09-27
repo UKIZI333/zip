@@ -138,8 +138,60 @@ export default function AdminSettingsPage() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3500);
     } catch (err: any) {
-      console.error("Save settings error:", err);
-      setErrorMessage(err.message || "Failed to save settings. Please try again.");
+      console.warn("API save failed, attempting direct Supabase write:", err);
+
+      try {
+        const payload = {
+          user_id: userId,
+          admin_email: userEmail || null,
+          working_days: settings.working_days,
+          day_start_time: settings.day_start_time,
+          day_end_time: settings.day_end_time,
+          slot_duration_mins: settings.slot_duration_mins,
+          timezone: settings.timezone,
+          interviewer_name: settings.interviewer_name,
+          interviewer_photo_url: settings.interviewer_photo_url || null,
+          meeting_type: settings.meeting_type,
+        };
+
+        const { data: existing } = await supabase
+          .from("settings")
+          .select("id")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (existing?.id) {
+          const { error: updateErr } = await supabase
+            .from("settings")
+            .update(payload)
+            .eq("id", existing.id);
+          if (updateErr) throw updateErr;
+        } else {
+          const { data: row1 } = await supabase
+            .from("settings")
+            .select("id, user_id")
+            .eq("id", 1)
+            .maybeSingle();
+
+          if (row1 && (!row1.user_id || row1.user_id === userId)) {
+            const { error: claimErr } = await supabase.from("settings").update(payload).eq("id", 1);
+            if (claimErr) throw claimErr;
+          } else {
+            const { error: insertErr } = await supabase.from("settings").insert(payload);
+            if (insertErr) throw insertErr;
+          }
+        }
+
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3500);
+      } catch (fallbackErr: any) {
+        console.error("Direct save error:", fallbackErr);
+        setErrorMessage(
+          fallbackErr.message?.includes("row-level security")
+            ? "Database RLS policy is blocking the save. Please run the SQL snippet in your Supabase SQL Editor to enable admin updates."
+            : fallbackErr.message || err.message || "Failed to save settings. Please try again."
+        );
+      }
     } finally {
       setSaving(false);
     }

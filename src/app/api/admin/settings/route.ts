@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createClient as createDirectClient } from "@supabase/supabase-js";
 
 function formatNameFromEmail(email?: string | null): string {
   if (!email) return "Recruiting Team";
@@ -13,10 +14,15 @@ function formatNameFromEmail(email?: string | null): string {
     .join(" ");
 }
 
-function getSupabaseAdmin() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://vqtfcdudbrnfukwsglpq.supabase.co";
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-  return createClient(supabaseUrl, supabaseKey);
+function getSupabase() {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (serviceKey) {
+    return createDirectClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || "https://vqtfcdudbrnfukwsglpq.supabase.co",
+      serviceKey
+    );
+  }
+  return createServerClient();
 }
 
 // GET /api/admin/settings?userId=...&userEmail=...
@@ -30,7 +36,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Missing userId or userEmail parameter" }, { status: 400 });
     }
 
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabase();
 
     // 1. Try to find settings by user_id
     let matchedSettings = null;
@@ -101,7 +107,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing userId or userEmail" }, { status: 400 });
     }
 
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabase();
 
     const payload = {
       user_id: userId || null,
