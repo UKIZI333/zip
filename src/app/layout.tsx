@@ -29,7 +29,12 @@ export const metadata: Metadata = {
   description:
     "Discover open positions in engineering, design, and operations, and schedule a direct 1-on-1 interview on our recruitment calendar.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
   },
 };
 
