@@ -14,6 +14,7 @@ export interface Job {
   responsibilities: string[];
   requirements: string[];
   benefits: string[];
+  compensation?: string;
   status: JobStatus;
   created_at: string;
   updated_at: string;

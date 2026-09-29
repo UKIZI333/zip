@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
+import { Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-
-const display = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-display",
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-});
 
 const sans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 const mono = IBM_Plex_Mono({
@@ -23,11 +16,11 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Northfield Careers — Fast-Track Recruitment & Interview Scheduling",
-    template: "%s | Northfield Careers",
+    default: "Northfield Ireland | Job Search, Careers & Hiring",
+    template: "%s | Northfield Ireland",
   },
   description:
-    "Discover open positions in engineering, design, and operations, and schedule a direct 1-on-1 interview on our recruitment calendar.",
+    "Search for jobs hiring in your area using Northfield's job search engine - the best way to find a job. Find jobs hiring near you and apply with just 1 click.",
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
@@ -40,8 +33,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable} scroll-smooth`}>
-      <body className="font-sans antialiased bg-paper text-ink selection:bg-brass selection:text-paper min-h-screen font-normal">
+    <html lang="en-IE" className={`${sans.variable} ${mono.variable} scroll-smooth`}>
+      <body className="font-sans antialiased bg-[#F2F4F4] text-[#002325] selection:bg-[#45DB61] selection:text-[#002325] min-h-screen">
         {children}
       </body>
     </html>

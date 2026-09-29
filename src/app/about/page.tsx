@@ -203,7 +203,7 @@ export default function AboutPage() {
             <div className="pt-4 flex flex-wrap justify-center items-center gap-4">
               <Link
                 href="/#openings"
-                className="inline-flex items-center gap-2 bg-ink text-paper px-8 py-4 rounded-lg font-mono text-xs uppercase tracking-widest2 hover:bg-brassdim transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 bg-[#45DB61] hover:bg-[#26c744] text-[#002325] px-8 py-4 rounded-xl font-bold text-sm transition-all shadow-sm"
               >
                 <span>View Open Positions</span>
                 <ArrowRight className="w-3.5 h-3.5" />

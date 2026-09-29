@@ -51,10 +51,10 @@ export default function JobApplyAction({ job }: JobApplyActionProps) {
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="w-full bg-ink hover:bg-brassdim text-paper py-3.5 rounded-lg font-mono text-xs uppercase tracking-widest2 flex items-center justify-center gap-2 transition-colors shadow-sm cursor-pointer group"
+          className="w-full bg-[#45DB61] hover:bg-[#26c744] text-[#002325] py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow cursor-pointer"
         >
-          <FileText className="w-4 h-4 text-brass group-hover:scale-110 transition-transform" />
-          <span>Apply with CV</span>
+          <FileText className="w-4 h-4 text-[#002325]" />
+          <span>Apply with CV (1-Click)</span>
         </button>
 
         <div className="text-center">
