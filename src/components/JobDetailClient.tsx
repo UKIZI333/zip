@@ -25,8 +25,6 @@ export default function JobDetailClient({
 }: JobDetailClientProps) {
   const router = useRouter();
   const [applyModalOpen, setApplyModalOpen] = useState(false);
-  const [employerDropdownOpen, setEmployerDropdownOpen] = useState(false);
-  const employerDropdownRef = useRef<HTMLDivElement>(null);
 
   const [searchKeywords, setSearchKeywords] = useState("");
   const [searchLocation, setSearchLocation] = useState("Pristina");
@@ -39,20 +37,6 @@ export default function JobDetailClient({
   const [alertKeywords, setAlertKeywords] = useState("");
   const [alertLocation, setAlertLocation] = useState("Pristina");
   const [alertCreated, setAlertCreated] = useState(false);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        employerDropdownRef.current &&
-        !employerDropdownRef.current.contains(event.target as Node)
-      ) {
-        setEmployerDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const distanceOptions = [
     "5 Kilometres",
@@ -152,51 +136,11 @@ export default function JobDetailClient({
           1. TOP NAVBAR (<nav class="navbar navbar-default"> Exactly Aligned with Card)
          ========================================================================= */}
       <header className="sticky top-0 z-40 w-full bg-[#002325] text-white border-b border-[#013437]">
-        <div className="max-w-[1170px] mx-auto px-4 sm:px-6 h-[84px] flex items-center justify-between">
+        <div className="max-w-[1170px] mx-auto px-4 sm:px-6 h-[84px] flex items-center">
           
           {/* Navbar Header (Logo aligned exactly with left edge of Main Card) */}
           <div className="flex items-center">
             <Logo size="md" theme="dark" showTagline={false} />
-          </div>
-
-          {/* Right: Employers Dropdown matching inspect code */}
-          <div className="relative" ref={employerDropdownRef}>
-            <button
-              type="button"
-              onClick={() => setEmployerDropdownOpen(!employerDropdownOpen)}
-              className="inline-flex items-center gap-2 py-2 px-3 rounded text-white/90 hover:text-white hover:bg-white/10 transition-colors focus:outline-none"
-              aria-expanded={employerDropdownOpen}
-              aria-label="employer-login"
-            >
-              {/* Employers building SVG (#employers) */}
-              <svg className="w-3.5 h-4 fill-current text-[#45DB61]" viewBox="0 0 14 17">
-                <path fillRule="evenodd" d="M1 2h12v15H1V2zm5 12.256A.25.25 0 0 1 6.245 14h1.51a.25.25 0 0 1 .245.256V17H6v-2.744zm-3-10A.25.25 0 0 1 3.245 4h1.51A.25.25 0 0 1 5 4.256v2.488A.25.25 0 0 1 4.755 7h-1.51A.25.25 0 0 1 3 6.744V4.256zm3 0A.25.25 0 0 1 6.245 4h1.51A.25.25 0 0 1 8 4.256v2.488A.25.25 0 0 1 7.755 7h-1.51A.25.25 0 0 1 6 6.744V4.256zm3 0A.25.25 0 0 1 9.245 4h1.51a.25.25 0 0 1 .245.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 9 6.744V4.256zm-6 5A.25.25 0 0 1 3.245 9h1.51A.25.25 0 0 1 5 9.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 3 11.744V9.256zm3 0A.25.25 0 0 1 6.245 9h1.51A.25.25 0 0 1 8 9.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 6 11.744V9.256zm3 0A.25.25 0 0 1 9.245 9h1.51a.25.25 0 0 1 .245.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 9 11.744V9.256zM.379.484A.673.673 0 0 1 .994 0h12.012c.273 0 .548.214.615.484L14 2H0L.379.484z" />
-              </svg>
-              <span className="text-sm font-medium">Employers</span>
-              {/* Arrow down SVG (#arrow-down) */}
-              <svg className={`w-2.5 h-2 fill-current transition-transform duration-200 ${employerDropdownOpen ? "rotate-180" : ""}`} viewBox="0 0 9.9 6.4">
-                <path d="M4.9 3.5L1.4 0 0 1.4l4.2 4.2.7.7 4.9-4.9L8.5 0 4.9 3.5z" />
-              </svg>
-            </button>
-
-            {employerDropdownOpen && (
-              <div className="absolute right-0 mt-1 w-52 rounded bg-white text-[#002325] shadow-lg border border-[#DEE1E3] py-1.5 z-50 animate-fade-up">
-                <Link
-                  href="/admin/login"
-                  onClick={() => setEmployerDropdownOpen(false)}
-                  className="block px-4 py-2 text-sm hover:bg-[#F2F4F4] transition-colors"
-                >
-                  Log In
-                </Link>
-                <Link
-                  href="/contact"
-                  onClick={() => setEmployerDropdownOpen(false)}
-                  className="block px-4 py-2 text-sm hover:bg-[#F2F4F4] transition-colors font-medium text-[#005745]"
-                >
-                  Create Employer Account
-                </Link>
-              </div>
-            )}
           </div>
 
         </div>
