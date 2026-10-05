@@ -32,9 +32,13 @@ export default async function JobDetailPage({ params }: { params: { slug: string
     .eq("status", "published")
     .order("created_at", { ascending: false });
 
-  const allJobs = (dbJobs && dbJobs.length > 0 ? dbJobs : USA_JOBS_LIST) as Job[];
-
-  const resolvedJob = allJobs.find((j) => j.slug === params.slug);
+  const dbList = (dbJobs || []) as Job[];
+  const combinedMap = new Map<string, Job>();
+  USA_JOBS_LIST.forEach((j) => combinedMap.set(j.slug, j));
+  dbList.forEach((j) => combinedMap.set(j.slug, j));
+  
+  const allJobs = Array.from(combinedMap.values());
+  const resolvedJob = combinedMap.get(params.slug);
 
   if (!resolvedJob) notFound();
 

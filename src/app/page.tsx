@@ -20,8 +20,11 @@ export default async function HomePage() {
     .eq("status", "published")
     .order("created_at", { ascending: false });
 
-  // Use database jobs if available, otherwise use complete openings list
-  const openings = (jobs && jobs.length > 0 ? jobs : USA_JOBS_LIST) as Job[];
+  const dbList = (jobs || []) as Job[];
+  const combinedMap = new Map<string, Job>();
+  USA_JOBS_LIST.forEach((j) => combinedMap.set(j.slug, j));
+  dbList.forEach((j) => combinedMap.set(j.slug, j));
+  const openings = Array.from(combinedMap.values());
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F2F4F4] text-[#002325]">
