@@ -16,11 +16,11 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Northfield Ireland | Job Search, Careers & Hiring",
-    template: "%s | Northfield Ireland",
+    default: "ZipRecruiter Ireland | Job Search, Careers & Hiring",
+    template: "%s | ZipRecruiter Ireland",
   },
   description:
-    "Search for jobs hiring in your area using Northfield's job search engine - the best way to find a job. Find jobs hiring near you and apply with just 1 click.",
+    "Search for jobs hiring in your area using ZipRecruiter job search engine - the best way to find a job. Find jobs hiring near you and apply with just 1 click.",
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },

@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const title = job?.title || USA_JOBS_LIST.find((j) => j.slug === params.slug)?.title || "Job Details";
 
   return {
-    title: `${title} | Northfield Ireland`,
-    description: `Apply for ${title} at Northfield. View job responsibilities, qualifications, and submit your application with 1 click.`,
+    title: `${title} | ZipRecruiter`,
+    description: `Apply for ${title} at ZipRecruiter. View job responsibilities, qualifications, and submit your application with 1 click.`,
   };
 }
 
@@ -35,7 +35,7 @@ export default async function JobDetailPage({ params }: { params: { slug: string
   const combinedMap = new Map<string, Job>();
   USA_JOBS_LIST.forEach((j) => combinedMap.set(j.slug, j));
   dbList.forEach((j) => combinedMap.set(j.slug, j));
-  
+
   const allJobs = Array.from(combinedMap.values());
   const resolvedJob = combinedMap.get(params.slug);
 
