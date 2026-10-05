@@ -149,12 +149,12 @@ export default function JobDetailClient({
     <div className="has-stickyNav jobs-show min-h-screen bg-[#F2F4F4] text-[#002325]">
       
       {/* =========================================================================
-          1. TOP NAVBAR (<nav class="navbar navbar-default"> exact inspect code)
+          1. TOP NAVBAR (<nav class="navbar navbar-default"> TALLER 84px Header Bar)
          ========================================================================= */}
       <header className="sticky top-0 z-40 w-full bg-[#002325] text-white border-b border-[#013437]">
-        <div className="max-w-[1140px] mx-auto px-4 sm:px-6 h-[68px] flex items-center justify-between">
+        <div className="max-w-[1140px] mx-auto px-4 sm:px-6 h-[84px] flex items-center justify-between">
           
-          {/* Navbar Header (Logo) */}
+          {/* Navbar Header (Logo with ample vertical breathing room) */}
           <div className="flex items-center">
             <Logo size="md" theme="dark" showTagline={false} />
           </div>
@@ -169,7 +169,7 @@ export default function JobDetailClient({
               aria-label="employer-login"
             >
               {/* Employers building SVG from inspect code (#employers) */}
-              <svg className="w-3.5 h-4 fill-current text-[#45DB61]" viewBox="0 0 14 17">
+              <svg className="w-4 h-4.5 fill-current text-[#45DB61]" viewBox="0 0 14 17">
                 <path fillRule="evenodd" d="M1 2h12v15H1V2zm5 12.256A.25.25 0 0 1 6.245 14h1.51a.25.25 0 0 1 .245.256V17H6v-2.744zm-3-10A.25.25 0 0 1 3.245 4h1.51A.25.25 0 0 1 5 4.256v2.488A.25.25 0 0 1 4.755 7h-1.51A.25.25 0 0 1 3 6.744V4.256zm3 0A.25.25 0 0 1 6.245 4h1.51A.25.25 0 0 1 8 4.256v2.488A.25.25 0 0 1 7.755 7h-1.51A.25.25 0 0 1 6 6.744V4.256zm3 0A.25.25 0 0 1 9.245 4h1.51a.25.25 0 0 1 .245.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 9 6.744V4.256zm-6 5A.25.25 0 0 1 3.245 9h1.51A.25.25 0 0 1 5 9.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 3 11.744V9.256zm3 0A.25.25 0 0 1 6.245 9h1.51A.25.25 0 0 1 8 9.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 6 11.744V9.256zm3 0A.25.25 0 0 1 9.245 9h1.51a.25.25 0 0 1 .245.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 9 11.744V9.256zM.379.484A.673.673 0 0 1 .994 0h12.012c.273 0 .548.214.615.484L14 2H0L.379.484z" />
               </svg>
               <span className="text-sm font-medium">Employers</span>
@@ -203,17 +203,17 @@ export default function JobDetailClient({
       </header>
 
       {/* =========================================================================
-          2. SEARCH BAR SUBHEADER (<section class="results-hero">)
+          2. SEARCH BAR SUBHEADER (<section class="results-hero"> FULL WIDTH & 50px TALL)
          ========================================================================= */}
-      <section className="results-hero w-full bg-white border-b border-[#DEE1E3] py-3 px-4 shadow-2xs">
+      <section className="results-hero w-full bg-white border-b border-[#DEE1E3] py-3.5 px-4 shadow-2xs">
         <div className="max-w-[1140px] mx-auto">
           <form
             onSubmit={handleSearchSubmit}
-            className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 max-w-[860px] mx-auto"
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full"
           >
-            {/* Keywords input */}
+            {/* Keywords input (Large 50px input) */}
             <div className="relative flex-1">
-              <svg className="w-4 h-4 text-[#5D6770] fill-current absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 32 32">
+              <svg className="w-4.5 h-4.5 text-[#5D6770] fill-current absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 32 32">
                 <path d="M30.976 28.608l-9.984-9.984a11.16 11.16 0 0 0 2.24-6.72c0-6.272-5.056-11.328-11.328-11.328S.512 5.632.512 11.904 5.568 23.232 11.84 23.232c2.496 0 4.8-.832 6.72-2.24l9.984 9.984c.256.256.704.448 1.152.448s.768-.192 1.088-.32l.128-.128c.704-.64.704-1.728.064-2.368zM11.84 19.776c-4.352 0-7.872-3.52-7.872-7.872s3.52-7.872 7.872-7.872c4.416 0 7.872 3.456 7.872 7.872 0 4.288-3.52 7.872-7.872 7.872z" />
               </svg>
               <input
@@ -221,13 +221,13 @@ export default function JobDetailClient({
                 placeholder="Keywords"
                 value={searchKeywords}
                 onChange={(e) => setSearchKeywords(e.target.value)}
-                className="w-full h-10.5 pl-10 pr-8 text-sm text-[#002325] placeholder:text-[#5D6770] bg-white border border-[#DEE1E3] rounded-[4px] outline-none focus:border-[#45DB61]"
+                className="w-full h-[50px] pl-11 pr-9 text-[15px] text-[#002325] placeholder:text-[#5D6770] bg-white border border-[#DEE1E3] rounded-[4px] outline-none focus:border-[#45DB61]"
               />
               {searchKeywords && (
                 <button
                   type="button"
                   onClick={() => setSearchKeywords("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5D6770] hover:text-[#002325]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5D6770] hover:text-[#002325]"
                   aria-label="Clear Keywords"
                 >
                   <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 15.6 15.6">
@@ -237,9 +237,9 @@ export default function JobDetailClient({
               )}
             </div>
 
-            {/* Location input with clear button */}
+            {/* Location input with clear button (Large 50px input) */}
             <div className="relative flex-1">
-              <svg className="w-3.5 h-4 text-[#5D6770] fill-current absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 14 20">
+              <svg className="w-4 h-4.5 text-[#5D6770] fill-current absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 14 20">
                 <path d="M7 0C3.1 0 0 3.1 0 7c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5C5.6 9.5 4.5 8.4 4.5 7S5.6 4.5 7 4.5 9.5 5.6 9.5 7 8.4 9.5 7 9.5z" />
               </svg>
               <input
@@ -247,13 +247,13 @@ export default function JobDetailClient({
                 placeholder="Location"
                 value={searchLocation}
                 onChange={(e) => setSearchLocation(e.target.value)}
-                className="w-full h-10.5 pl-10 pr-8 text-sm text-[#002325] placeholder:text-[#5D6770] bg-white border border-[#DEE1E3] rounded-[4px] outline-none focus:border-[#45DB61]"
+                className="w-full h-[50px] pl-11 pr-9 text-[15px] text-[#002325] placeholder:text-[#5D6770] bg-white border border-[#DEE1E3] rounded-[4px] outline-none focus:border-[#45DB61]"
               />
               {searchLocation && (
                 <button
                   type="button"
                   onClick={() => setSearchLocation("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5D6770] hover:text-[#002325]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5D6770] hover:text-[#002325]"
                   aria-label="Clear Location"
                 >
                   <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 15.6 15.6">
@@ -263,15 +263,16 @@ export default function JobDetailClient({
               )}
             </div>
 
-            {/* Distance Dropdown */}
+            {/* Distance Dropdown (Exact Target/Crosshairs GPS icon from ZipRecruiter #location symbol) */}
             <div className="relative shrink-0">
               <button
                 type="button"
                 onClick={() => setDistanceOpen(!distanceOpen)}
-                className="w-full sm:w-auto h-10.5 px-3.5 bg-white border border-[#DEE1E3] rounded-[4px] text-sm text-[#002325] flex items-center justify-between gap-2.5 outline-none hover:border-[#5D6770]"
+                className="w-full sm:w-auto h-[50px] px-4 bg-white border border-[#DEE1E3] rounded-[4px] text-[15px] text-[#002325] flex items-center justify-between gap-3 outline-none hover:border-[#5D6770]"
               >
-                <div className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-[#5D6770] fill-current" viewBox="0 0 20 20">
+                <div className="flex items-center gap-2">
+                  {/* Exact ZipRecruiter target GPS crosshair icon from SVG #location */}
+                  <svg className="w-4.5 h-4.5 text-[#5D6770] fill-current shrink-0" viewBox="0 0 20 20">
                     <path d="M10 16c3.3 0 6-2.7 6-6s-2.7-6-6-6-6 2.7-6 6 2.7 6 6 6zm0 2c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" />
                     <path d="M9 0h2v6H9V0zm5 11V9h6v2h-6zm-5 3h2v6H9v-6zm-9-3V9h6v2H0z" />
                   </svg>
@@ -305,10 +306,10 @@ export default function JobDetailClient({
               )}
             </div>
 
-            {/* Search Button (btn-success btn-lg) */}
+            {/* Search Button (btn-success btn-lg 50px tall) */}
             <button
               type="submit"
-              className="h-10.5 px-6.5 bg-[#45DB61] hover:bg-[#26c744] text-[#002325] font-bold text-sm rounded-[4px] transition-colors shrink-0 shadow-2xs"
+              className="h-[50px] px-8 bg-[#45DB61] hover:bg-[#26c744] text-[#002325] font-bold text-[16px] rounded-[4px] transition-colors shrink-0 shadow-2xs"
             >
               Search
             </button>
@@ -317,13 +318,13 @@ export default function JobDetailClient({
       </section>
 
       {/* =========================================================================
-          3. MAIN CONTENT: 2-COLUMN GRID (col-md-9 and col-md-3)
+          3. MAIN CONTENT: 2-COLUMN GRID (Matching ZipRecruiter proportions)
          ========================================================================= */}
       <main id="main" className="page-content max-w-[1140px] mx-auto px-4 sm:px-6 py-6 md:py-8">
         <div className="flex flex-col lg:flex-row gap-6 items-start">
           
           {/* =====================================================================
-              LEFT COLUMN (col-md-9 ~75% width)
+              LEFT COLUMN (col-md-9 ~70-75% width)
              ===================================================================== */}
           <div className="flex-1 min-w-0 space-y-6">
             
@@ -331,13 +332,13 @@ export default function JobDetailClient({
             <div className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-6 sm:p-8 shadow-2xs">
               
               {/* Posted Date */}
-              <div className="text-xs text-[#5D6770] mb-2.5 font-normal">
+              <div className="text-xs text-[#5D6770] mb-2 font-normal">
                 <span>Posted {postedDate}</span>
               </div>
 
               {/* Job Title & Header Intro */}
               <div className="jobDetail-header mb-4">
-                <h1 className="text-2xl sm:text-[28px] md:text-[30px] font-extrabold text-[#002325] tracking-tight leading-[1.2] mb-3">
+                <h1 className="text-[28px] sm:text-[32px] font-extrabold text-[#002325] tracking-tight leading-[1.2] mb-3">
                   {job.title}
                 </h1>
 
@@ -369,20 +370,20 @@ export default function JobDetailClient({
               </div>
 
               {/* Hairline Divider */}
-              <hr className="border-t border-[#DEE1E3] my-6" />
+              <hr className="border-t border-[#DEE1E3] my-5" />
 
-              {/* Job Body */}
-              <div className="job-body text-[15px] leading-[1.65] text-[#2F3639] space-y-4">
+              {/* Job Body (Tighter line-height 1.45, richer bolder text font-[450]) */}
+              <div className="job-body text-[15px] sm:text-[16px] leading-[1.45] text-[#002325] font-[450] space-y-3">
                 <div style={{ textAlign: "justify" }}>
                   {job.short_description || job.description}
                 </div>
 
                 {job.responsibilities && job.responsibilities.length > 0 && (
                   <div>
-                    <p style={{ textAlign: "justify" }}>
-                      <strong>Key Responsibilities</strong>
+                    <p style={{ textAlign: "justify" }} className="font-bold text-[#002325] mt-3 mb-1.5">
+                      Key Responsibilities
                     </p>
-                    <ul className="list-disc pl-5 space-y-2 mt-2" style={{ textAlign: "justify" }}>
+                    <ul className="list-disc pl-5 space-y-1.5" style={{ textAlign: "justify" }}>
                       {job.responsibilities.map((resp, i) => (
                         <li key={i}>{resp}</li>
                       ))}
@@ -392,10 +393,10 @@ export default function JobDetailClient({
 
                 {job.requirements && job.requirements.length > 0 && (
                   <div>
-                    <p style={{ textAlign: "justify" }}>
-                      <strong>Qualifications and Requirements</strong>
+                    <p style={{ textAlign: "justify" }} className="font-bold text-[#002325] mt-3 mb-1.5">
+                      Qualifications and Requirements
                     </p>
-                    <ul className="list-disc pl-5 space-y-2 mt-2" style={{ textAlign: "justify" }}>
+                    <ul className="list-disc pl-5 space-y-1.5" style={{ textAlign: "justify" }}>
                       {job.requirements.map((req, i) => (
                         <li key={i}>{req}</li>
                       ))}
@@ -404,10 +405,10 @@ export default function JobDetailClient({
                 )}
 
                 <div>
-                  <p style={{ textAlign: "justify" }}>
-                    <strong>What the Role Offers</strong>
+                  <p style={{ textAlign: "justify" }} className="font-bold text-[#002325] mt-3 mb-1.5">
+                    What the Role Offers
                   </p>
-                  <ul className="list-disc pl-5 space-y-2 mt-2" style={{ textAlign: "justify" }}>
+                  <ul className="list-disc pl-5 space-y-1.5" style={{ textAlign: "justify" }}>
                     <li>Opportunity to contribute to a new residential service and help shape its culture from the outset.</li>
                     <li>Supportive team environment with access to training and professional development.</li>
                     <li>Meaningful work that makes a positive difference in the lives of young people.</li>
@@ -415,8 +416,8 @@ export default function JobDetailClient({
                 </div>
 
                 <div>
-                  <p style={{ textAlign: "justify" }}>
-                    <strong>Reasonable Adjustments:</strong>
+                  <p style={{ textAlign: "justify" }} className="font-bold text-[#002325] mt-3 mb-1.5">
+                    Reasonable Adjustments:
                   </p>
                   <p style={{ textAlign: "justify" }}>
                     If you consider yourself to have a disability or require any reasonable adjustment during the recruitment process or within the workplace, please highlight this at the earliest opportunity by contacting our team.
@@ -431,11 +432,11 @@ export default function JobDetailClient({
               </div>
 
               {/* Panel Footer (Apply Button) */}
-              <div className="panel-footer mt-8 pt-6 border-t border-[#DEE1E3]">
+              <div className="panel-footer mt-6 pt-5 border-t border-[#DEE1E3]">
                 <button
                   type="button"
                   onClick={() => setApplyModalOpen(true)}
-                  className="apply-button btn btn-success btn-lg h-[46px] px-8 bg-[#45DB61] hover:bg-[#26c744] text-[#002325] font-bold text-base rounded-[4px] transition-colors shadow-2xs cursor-pointer inline-flex items-center justify-center"
+                  className="apply-button btn btn-success btn-lg h-[48px] px-8 bg-[#45DB61] hover:bg-[#26c744] text-[#002325] font-bold text-base rounded-[4px] transition-colors shadow-2xs cursor-pointer inline-flex items-center justify-center"
                 >
                   Apply to this Job
                 </button>
@@ -443,7 +444,7 @@ export default function JobDetailClient({
 
             </div>
 
-            {/* PANEL: JOB ALERTS COMPONENT (<div id="job-alert-component">) */}
+            {/* PANEL: JOB ALERTS COMPONENT */}
             <div id="job-alert-component" className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-6 shadow-2xs">
               <h3 className="text-lg font-bold text-[#002325] mb-4">
                 Sign up for Job Alerts
@@ -498,7 +499,7 @@ export default function JobDetailClient({
               )}
             </div>
 
-            {/* PANEL: LATEST JOBS (<div id="job_list_short">) */}
+            {/* PANEL: LATEST JOBS */}
             <div className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-6 shadow-2xs">
               <h3 className="text-lg font-bold text-[#002325] mb-4">
                 Latest Jobs
@@ -529,80 +530,80 @@ export default function JobDetailClient({
           </div>
 
           {/* =====================================================================
-              RIGHT COLUMN (col-md-3 ~25% width, ~250px Width Matching Picture)
+              RIGHT COLUMN: WIDER SIDEBAR (~320px Width matching original)
              ===================================================================== */}
-          <div className="w-full lg:w-[250px] shrink-0 space-y-4">
+          <div className="w-full lg:w-[320px] shrink-0 space-y-4">
             
             {/* PANEL 1: APPLY TO THIS JOB SIDEBAR */}
-            <div className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-3.5 sm:p-4 shadow-2xs">
+            <div className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-4 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setApplyModalOpen(true)}
-                className="w-full h-11 bg-[#45DB61] hover:bg-[#26c744] active:bg-[#1a862e] text-[#002325] font-bold text-sm rounded-[4px] transition-colors flex items-center justify-center text-center shadow-xs cursor-pointer"
+                className="w-full h-[48px] bg-[#45DB61] hover:bg-[#26c744] active:bg-[#1a862e] text-[#002325] font-bold text-[16px] rounded-[4px] transition-colors flex items-center justify-center text-center shadow-xs cursor-pointer"
               >
                 Apply to this Job
               </button>
             </div>
 
-            {/* PANEL 2: SHARE THIS JOB (Bigger, Exact 4 Square Icons matching picture) */}
-            <div className="panel panel-default panel-expand share-social bg-white border border-[#DEE1E3] rounded-[4px] p-3.5 sm:p-4 shadow-2xs">
-              <h3 className="text-sm font-bold text-[#002325] mb-3">
+            {/* PANEL 2: SHARE THIS JOB (Bigger, 56px Square Icons matching picture) */}
+            <div className="panel panel-default panel-expand share-social bg-white border border-[#DEE1E3] rounded-[4px] p-4 shadow-2xs">
+              <h3 className="text-[15px] font-bold text-[#002325] mb-3.5">
                 Share this Job
               </h3>
               
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center justify-between gap-2.5">
                 
-                {/* Facebook Square Icon (fa-facebook-square 46px square) */}
+                {/* Facebook Square Icon (fa-facebook-square 56px square) */}
                 <button
                   type="button"
                   onClick={() => handleShare("facebook")}
-                  className="w-[46px] h-[46px] bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs"
+                  className="w-14 h-14 bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs"
                   aria-label="Share on Facebook"
                   title="Share on Facebook"
                 >
-                  <svg className="w-5 h-5 fill-current" viewBox="0 0 16 16">
+                  <svg className="w-6 h-6 fill-current" viewBox="0 0 16 16">
                     <path d="M9.5 3H12V0H9.5C7.57 0 6 1.57 6 3.5V5H4v3h2v8h3V8h2.5l.5-3H9V3.5c0-.271.229-.5.5-.5z" />
                   </svg>
                 </button>
 
-                {/* LinkedIn Square Icon (fa-linkedin-square 46px square) */}
+                {/* LinkedIn Square Icon (fa-linkedin-square 56px square) */}
                 <button
                   type="button"
                   onClick={() => handleShare("linkedin")}
-                  className="w-[46px] h-[46px] bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs"
+                  className="w-14 h-14 bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs"
                   aria-label="Share on LinkedIn"
                   title="Share on LinkedIn"
                 >
-                  <svg className="w-5 h-5 fill-current" viewBox="0 0 16 16">
+                  <svg className="w-6 h-6 fill-current" viewBox="0 0 16 16">
                     <path d="M6 6h2.767v1.418h.04C9.192 6.727 10.134 6 11.539 6 14.46 6 15 7.818 15 10.183V15h-2.885v-4.27c0-1.018-.021-2.329-1.5-2.329-1.502 0-1.732 1.109-1.732 2.255V15H6V6zM1 6h3v9H1V6zM4 3.5a1.5 1.5 0 1 1-3.001-.001A1.5 1.5 0 0 1 4 3.5z" />
                   </svg>
                 </button>
 
-                {/* Twitter/X Square Icon (twitter-square 46px square) */}
+                {/* Twitter/X Square Icon (twitter-square 56px square) */}
                 <button
                   type="button"
                   onClick={() => handleShare("twitter")}
-                  className="w-[46px] h-[46px] bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs"
+                  className="w-14 h-14 bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs"
                   aria-label="Share on X"
                   title="Share on X"
                 >
-                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <svg className="w-5.5 h-5.5 fill-current" viewBox="0 0 24 24">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                   </svg>
                 </button>
 
-                {/* RSS Square Icon (fa-rss-square 46px square) */}
+                {/* RSS Square Icon (fa-rss-square 56px square) */}
                 <button
                   type="button"
                   onClick={() => handleShare("rss")}
-                  className="w-[46px] h-[46px] bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs relative"
+                  className="w-14 h-14 bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs relative"
                   aria-label="RSS Feed"
                   title="Copy link / RSS"
                 >
                   {copiedLink ? (
-                    <Check className="w-5 h-5 text-[#45DB61]" />
+                    <Check className="w-6 h-6 text-[#45DB61]" />
                   ) : (
-                    <svg className="w-5 h-5 fill-current" viewBox="0 0 100 100">
+                    <svg className="w-6 h-6 fill-current" viewBox="0 0 100 100">
                       <circle cx="24.512" cy="75.486" r="8.997" />
                       <path d="M15.519 39.506v11.992c18.186 0 32.983 14.797 32.983 32.984h11.994c0-24.8-20.182-44.976-44.977-44.976z" />
                       <path d="M15.519 15.518v11.994c31.413 0 56.968 25.556 56.968 56.971h11.995c-.001-38.027-30.936-68.965-68.963-68.965z" />
@@ -619,8 +620,8 @@ export default function JobDetailClient({
             </div>
 
             {/* PANEL 3: MORE FROM COMPANY (<div id="other_employer_jobs">) */}
-            <div id="other_employer_jobs" className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-3.5 sm:p-4 shadow-2xs">
-              <h3 className="text-sm font-bold text-[#002325] mb-3 pb-2 border-b border-[#DEE1E3]">
+            <div id="other_employer_jobs" className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-4 shadow-2xs">
+              <h3 className="text-[15px] font-bold text-[#002325] mb-3 pb-2 border-b border-[#DEE1E3]">
                 More from {companyName}
               </h3>
               <div className="divide-y divide-[#DEE1E3]">
@@ -628,15 +629,15 @@ export default function JobDetailClient({
                   <div key={i} className="py-2.5 first:pt-0 last:pb-0 space-y-0.5">
                     <Link
                       href={`/jobs/${job.slug}`}
-                      className="text-xs font-bold text-[#002325] hover:text-[#005745] underline leading-tight block"
+                      className="text-[13px] font-bold text-[#002325] hover:text-[#005745] underline leading-tight block"
                     >
                       {mJob.title}
                     </Link>
-                    <p className="text-[11px] text-[#5D6770] font-medium">
+                    <p className="text-xs text-[#5D6770] font-medium">
                       {companyName}
                     </p>
-                    <p className="text-[11px] text-[#5D6770] flex items-center gap-1">
-                      <svg className="w-2.5 h-3 text-[#5D6770] fill-current" viewBox="0 0 14 20">
+                    <p className="text-xs text-[#5D6770] flex items-center gap-1">
+                      <svg className="w-3 h-3.5 text-[#5D6770] fill-current" viewBox="0 0 14 20">
                         <path d="M7 0C3.1 0 0 3.1 0 7c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5C5.6 9.5 4.5 8.4 4.5 7S5.6 4.5 7 4.5 9.5 5.6 9.5 7 8.4 9.5 7 9.5z" />
                       </svg>
                       <span className="truncate">{mJob.location}</span>
@@ -647,8 +648,8 @@ export default function JobDetailClient({
             </div>
 
             {/* PANEL 4: SIMILAR JOBS (<div id="similar_jobs">) */}
-            <div id="similar_jobs" className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-3.5 sm:p-4 shadow-2xs">
-              <h3 className="text-sm font-bold text-[#002325] mb-3 pb-2 border-b border-[#DEE1E3]">
+            <div id="similar_jobs" className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-4 shadow-2xs">
+              <h3 className="text-[15px] font-bold text-[#002325] mb-3 pb-2 border-b border-[#DEE1E3]">
                 Similar Jobs
               </h3>
               <div className="divide-y divide-[#DEE1E3]">
@@ -656,15 +657,15 @@ export default function JobDetailClient({
                   <div key={i} className="py-2.5 first:pt-0 last:pb-0 space-y-0.5">
                     <Link
                       href={`/jobs/${job.slug}`}
-                      className="text-xs font-bold text-[#002325] hover:text-[#005745] underline leading-tight block"
+                      className="text-[13px] font-bold text-[#002325] hover:text-[#005745] underline leading-tight block"
                     >
                       {sJob.title}
                     </Link>
-                    <p className="text-[11px] text-[#5D6770] font-medium">
+                    <p className="text-xs text-[#5D6770] font-medium">
                       {sJob.company}
                     </p>
-                    <p className="text-[11px] text-[#5D6770] flex items-center gap-1">
-                      <svg className="w-2.5 h-3 text-[#5D6770] fill-current" viewBox="0 0 14 20">
+                    <p className="text-xs text-[#5D6770] flex items-center gap-1">
+                      <svg className="w-3 h-3.5 text-[#5D6770] fill-current" viewBox="0 0 14 20">
                         <path d="M7 0C3.1 0 0 3.1 0 7c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5C5.6 9.5 4.5 8.4 4.5 7S5.6 4.5 7 4.5 9.5 5.6 9.5 7 8.4 9.5 7 9.5z" />
                       </svg>
                       <span className="truncate">{sJob.location}</span>
@@ -679,7 +680,7 @@ export default function JobDetailClient({
       </main>
 
       {/* =========================================================================
-          4. UNIVERSAL FOOTER (<footer class="footer"> exact inspect match)
+          4. UNIVERSAL FOOTER
          ========================================================================= */}
       <Footer />
 

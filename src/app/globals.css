@@ -22,7 +22,7 @@
   body {
     font-family: var(--font-aeonik, Aeonik), -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.45;
     color: #002325;
     background-color: #fff;
     -webkit-font-smoothing: antialiased;
