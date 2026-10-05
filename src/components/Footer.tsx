@@ -1,194 +1,198 @@
 import Link from "next/link";
-import Logo from "./Logo";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-[#002325] text-white border-t border-[#013437] pt-16 pb-12">
-      <div className="mx-auto max-w-[1280px] px-6">
+    <footer className="footer bg-white border-t border-[#DEE1E3] pt-10 pb-12 text-[#002325]">
+      <div className="page-container max-w-[1170px] mx-auto px-4 sm:px-6">
+        <h2 className="sr-only">Footer</h2>
         
-        {/* Top Header / Branding in Footer */}
-        <div className="pb-10 border-b border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <Logo size="md" theme="dark" showTagline />
-          <p className="text-sm text-white/70 max-w-md">
-            The smart recruitment platform connecting top talent with exceptional companies in Ireland and internationally.
-          </p>
-        </div>
+        <div className="universal_footer expanded_footer footer_accordion">
+          {/* Primary Footer Navigation (3 Columns matching original ZipRecruiter IE) */}
+          <nav className="primary_footer_nav mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 md:gap-20 max-w-[760px]">
+              
+              {/* Column 1: For Job Seekers */}
+              <div className="nav_group">
+                <h3 className="group_header text-sm font-bold text-[#002325] mb-3">
+                  For Job Seekers
+                </h3>
+                <ul className="space-y-2 text-xs text-[#002325]">
+                  <li className="item">
+                    <Link href="/#openings" className="hover:text-[#005745] hover:underline transition-colors">
+                      Search Jobs
+                    </Link>
+                  </li>
+                  <li className="item">
+                    <Link href="/contact" className="hover:text-[#005745] hover:underline transition-colors">
+                      Create Free Account
+                    </Link>
+                  </li>
+                  <li className="item">
+                    <a href="mailto:support@ziprecruiter.ie" className="hover:text-[#005745] hover:underline transition-colors">
+                      Support
+                    </a>
+                  </li>
+                </ul>
+              </div>
 
-        {/* Primary Footer Navigation Columns matching ZipRecruiter IE */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 py-12 border-b border-white/10">
-          
-          {/* For Job Seekers */}
-          <div>
-            <h3 className="text-base font-bold text-white mb-5 tracking-tight">
-              For Job Seekers
-            </h3>
-            <ul className="space-y-3.5 text-sm text-white/75">
-              <li>
-                <Link href="/#openings" className="hover:text-[#45DB61] transition-colors">
-                  Search Jobs
-                </Link>
-              </li>
-              <li>
-                <Link href="/#openings" className="hover:text-[#45DB61] transition-colors">
-                  Browse Active Openings
-                </Link>
-              </li>
-              <li>
-                <Link href="/schedule" className="hover:text-[#45DB61] transition-colors">
-                  Schedule Candidate Interview
-                </Link>
-              </li>
-              <li>
-                <a href="mailto:support@northfield.ie" className="hover:text-[#45DB61] transition-colors">
-                  Candidate Support
-                </a>
-              </li>
-            </ul>
-          </div>
+              {/* Column 2: Company */}
+              <div className="nav_group company_group">
+                <h3 className="group_header text-sm font-bold text-[#002325] mb-3">
+                  Company
+                </h3>
+                <ul className="space-y-2 text-xs text-[#002325]">
+                  <li className="item">
+                    <Link href="/about" className="hover:text-[#005745] hover:underline transition-colors">
+                      About Us
+                    </Link>
+                  </li>
+                  <li className="item">
+                    <Link href="/about#culture" className="hover:text-[#005745] hover:underline transition-colors">
+                      Corporate Responsibility
+                    </Link>
+                  </li>
+                </ul>
+              </div>
 
-          {/* Company */}
-          <div>
-            <h3 className="text-base font-bold text-white mb-5 tracking-tight">
-              Company
-            </h3>
-            <ul className="space-y-3.5 text-sm text-white/75">
-              <li>
-                <Link href="/about" className="hover:text-[#45DB61] transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/about#culture" className="hover:text-[#45DB61] transition-colors">
-                  Corporate Responsibility
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-[#45DB61] transition-colors">
-                  Employer Partnerships
-                </Link>
-              </li>
-              <li>
-                <Link href="/admin/login" className="hover:text-[#45DB61] transition-colors">
-                  Employer Portal
-                </Link>
-              </li>
-            </ul>
-          </div>
+              {/* Column 3: Contact Us */}
+              <div className="nav_group contact_group">
+                <h3 className="group_header text-sm font-bold text-[#002325] mb-3">
+                  Contact Us
+                </h3>
+                <ul className="space-y-2 text-xs text-[#002325]">
+                  <li className="item">
+                    <a className="email hover:text-[#005745] hover:underline transition-colors" href="mailto:support@ziprecruiter.ie">
+                      Email Us
+                    </a>
+                  </li>
+                  <li className="item">
+                    <a className="phone_number hover:text-[#005745] hover:underline transition-colors" href="tel:+3531800849006">
+                      Call +353 18 0084 9006
+                    </a>
+                  </li>
+                </ul>
+              </div>
 
-          {/* Contact Us */}
-          <div>
-            <h3 className="text-base font-bold text-white mb-5 tracking-tight">
-              Contact Us
-            </h3>
-            <ul className="space-y-3.5 text-sm text-white/75">
+            </div>
+          </nav>
+
+          {/* Social Links Group (Exact SVGs from ZipRecruiter IE inspect code) */}
+          <div className="social_group mb-5">
+            <ul className="social_links flex items-center gap-3">
+              {/* Facebook */}
               <li>
                 <a
-                  href="mailto:support@northfield.ie"
-                  className="hover:text-[#45DB61] transition-colors flex items-center gap-2"
+                  href="https://www.facebook.com/ZipRecruiter"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="inline-block text-[#2F3639] hover:opacity-80 transition-opacity"
+                  aria-label="Facebook"
                 >
-                  <span className="text-[#45DB61] font-bold">Email:</span> support@northfield.ie
+                  <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+                    <title>Facebook</title>
+                    <path
+                      d="M22 12.06C22 6.505 17.523 2 12 2S2 6.504 2 12.06c0 5.023 3.656 9.185 8.437 9.94v-7.03H7.9v-2.91h2.538V9.844c0-2.521 1.493-3.915 3.778-3.915 1.093 0 2.238.197 2.238.197v2.476h-1.262c-1.242 0-1.628.776-1.628 1.572v1.887h2.773l-.443 2.908h-2.33V22C18.344 21.245 22 17.083 22 12.06Z"
+                      fill="#2F3639"
+                    />
+                  </svg>
                 </a>
               </li>
+
+              {/* Twitter / X */}
               <li>
                 <a
-                  href="tel:+3531800849006"
-                  className="hover:text-[#45DB61] transition-colors flex items-center gap-2"
+                  href="https://twitter.com/ziprecruiter/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="inline-block text-[#1C1C1C] hover:opacity-80 transition-opacity"
+                  aria-label="Twitter"
                 >
-                  <span className="text-[#45DB61] font-bold">Phone:</span> +353 18 0084 9006
+                  <svg className="w-[22px] h-[22px]" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+                    <title>Twitter</title>
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M13.115 16.868 3 4h8.011l6.244 7.953 6.67-7.917h4.413l-8.95 10.635L30 28.188h-7.988l-6.76-8.601-7.218 8.577H3.598l9.517-11.296Zm10.062 8.935L7.912 6.384h1.934l15.245 19.42h-1.914Z"
+                      fill="#1C1C1C"
+                    />
+                  </svg>
                 </a>
               </li>
-              <li className="text-xs text-white/60 pt-1 leading-relaxed">
-                Operating Hours: Monday – Friday, 08:30 – 17:30 GMT
+
+              {/* LinkedIn */}
+              <li>
+                <a
+                  href="https://www.linkedin.com/company/ziprecruiter/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="inline-block text-[#2F3639] hover:opacity-80 transition-opacity"
+                  aria-label="LinkedIn"
+                >
+                  <svg className="w-[22px] h-[22px]" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+                    <title>Linkedin</title>
+                    <path
+                      d="M21 4.324v15.353A1.323 1.323 0 0 1 19.677 21H4.324A1.323 1.323 0 0 1 3 19.677V4.324A1.324 1.324 0 0 1 4.324 3h15.353A1.323 1.323 0 0 1 21 4.324ZM8.294 9.882H5.647v8.47h2.647v-8.47Zm.238-2.911a1.525 1.525 0 0 0-1.514-1.536h-.047a1.535 1.535 0 0 0 0 3.07 1.525 1.525 0 0 0 1.561-1.487v-.047Zm9.82 6.236c0-2.546-1.62-3.536-3.229-3.536a3.017 3.017 0 0 0-2.678 1.366h-.074V9.882H9.882v8.47h2.647v-4.504a1.757 1.757 0 0 1 1.589-1.896h.1c.842 0 1.467.53 1.467 1.864v4.537h2.647l.02-5.146Z"
+                      fill="#2F3639"
+                    />
+                  </svg>
+                </a>
+              </li>
+
+              {/* Instagram */}
+              <li>
+                <a
+                  href="https://www.instagram.com/ziprecruiter/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="inline-block text-[#2F3639] hover:opacity-80 transition-opacity"
+                  aria-label="Instagram"
+                >
+                  <svg className="w-[22px] h-[22px]" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+                    <title>Instagram</title>
+                    <rect x="2.25" y="2.25" width="26.833" height="26.833" rx="6" fill="#2F3639" />
+                    <path d="M22.375 10.396a1.438 1.438 0 1 1-2.875 0 1.438 1.438 0 0 1 2.875 0Z" fill="#fff" />
+                    <path fillRule="evenodd" clipRule="evenodd" d="M15.667 20.458a4.792 4.792 0 1 0 0-9.583 4.792 4.792 0 0 0 0 9.583Zm0-1.916a2.875 2.875 0 1 0 0-5.75 2.875 2.875 0 0 0 0 5.75Z" fill="#fff" />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M6.083 15.283c0-3.22 0-4.83.627-6.06A5.75 5.75 0 0 1 9.223 6.71c1.23-.627 2.84-.627 6.06-.627h.767c3.22 0 4.83 0 6.06.627a5.75 5.75 0 0 1 2.513 2.513c.627 1.23.627 2.84.627 6.06v.767c0 3.22 0 4.83-.627 6.06a5.75 5.75 0 0 1-2.513 2.513c-1.23.627-2.84.627-6.06.627h-.767c-3.22 0-4.83 0-6.06-.627A5.75 5.75 0 0 1 6.71 22.11c-.627-1.23-.627-2.84-.627-6.06v-.767ZM15.283 8h.767c1.642 0 2.758.001 3.62.072.84.069 1.27.193 1.57.346a3.833 3.833 0 0 1 1.675 1.675c.153.3.278.73.346 1.57.07.862.072 1.979.072 3.62v.767c0 1.642-.001 2.758-.072 3.62-.068.84-.193 1.27-.346 1.57a3.833 3.833 0 0 1-1.675 1.676c-.3.152-.73.277-1.57.345-.862.07-1.978.072-3.62.072h-.767c-1.641 0-2.758-.001-3.62-.072-.84-.068-1.27-.193-1.57-.345a3.833 3.833 0 0 1-1.675-1.676c-.153-.3-.277-.73-.346-1.57-.07-.862-.072-1.978-.072-3.62v-.767c0-1.641.001-2.758.072-3.62.069-.84.193-1.27.346-1.57a3.833 3.833 0 0 1 1.675-1.675c.3-.153.73-.277 1.57-.346.862-.07 1.979-.072 3.62-.072Z"
+                      fill="#fff"
+                    />
+                  </svg>
+                </a>
               </li>
             </ul>
           </div>
-        </div>
 
-        {/* Social Links Row matching ZipRecruiter IE */}
-        <div className="py-8 border-b border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 text-sm text-white/80">
-            <span className="font-semibold text-white">Connect with Northfield:</span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Facebook */}
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#45DB61] hover:text-[#002325] text-white flex items-center justify-center transition-all"
-              aria-label="Facebook"
-            >
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M22 12.06C22 6.505 17.523 2 12 2S2 6.504 2 12.06c0 5.023 3.656 9.185 8.437 9.94v-7.03H7.9v-2.91h2.538V9.844c0-2.521 1.493-3.915 3.778-3.915 1.093 0 2.238.197 2.238.197v2.476h-1.262c-1.242 0-1.628.776-1.628 1.572v1.887h2.773l-.443 2.908h-2.33V22C18.344 21.245 22 17.083 22 12.06Z" />
-              </svg>
-            </a>
-
-            {/* X / Twitter */}
-            <a
-              href="https://twitter.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#45DB61] hover:text-[#002325] text-white flex items-center justify-center transition-all"
-              aria-label="Twitter"
-            >
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-            </a>
-
-            {/* LinkedIn */}
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#45DB61] hover:text-[#002325] text-white flex items-center justify-center transition-all"
-              aria-label="LinkedIn"
-            >
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
-              </svg>
-            </a>
-
-            {/* Instagram */}
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#45DB61] hover:text-[#002325] text-white flex items-center justify-center transition-all"
-              aria-label="Instagram"
-            >
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-              </svg>
-            </a>
-          </div>
-        </div>
-
-        {/* Secondary Policy Navigation & Legal notice */}
-        <div className="pt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-xs text-white/60">
-          <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <Link href="/about" className="hover:text-white transition-colors">
+          {/* Secondary Footer Nav: Policies */}
+          <nav className="secondary_footer_nav flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#002325] mb-4">
+            <Link href="/about" className="hover:text-[#005745] hover:underline transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/about" className="hover:text-white transition-colors">
+            <Link href="/about" className="hover:text-[#005745] hover:underline transition-colors">
               Terms of Use
             </Link>
-            <Link href="/about" className="hover:text-white transition-colors">
+            <Link href="/about" className="hover:text-[#005745] hover:underline transition-colors">
               Cookie Policy
             </Link>
-            <Link href="/about" className="hover:text-white transition-colors">
+            <Link href="/about" className="hover:text-[#005745] hover:underline transition-colors">
               Job Posting Rules
             </Link>
           </nav>
 
-          <div className="space-y-1 text-left md:text-right">
-            <p>Northfield, Inc. c/o, MCF Legal Technology Solutions Limited, Riverside one, Sir John Rogerson&apos;s Quay, Dublin 2, D02 X576, Ireland</p>
-            <p className="text-white/40">Northfield, Inc. © {currentYear} All Rights Reserved Worldwide</p>
+          {/* Secondary Footer Nav: Legal Notice & Copyright */}
+          <div className="secondary_footer_nav text-[11px] text-[#5D6770] space-y-0.5 leading-relaxed">
+            <p className="legal">
+              ZipRecruiter, Inc. c/o, MCF Legal Technology Solutions Limited, Riverside one, Sir John Rogerson&apos;s Quay, Dublin 2, D02 X576, Ireland
+            </p>
+            <p className="legal">
+              ZipRecruiter, Inc. © {currentYear} All Rights Reserved Worldwide
+            </p>
           </div>
         </div>
+
       </div>
     </footer>
   );
