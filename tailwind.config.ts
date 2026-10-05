@@ -28,8 +28,8 @@ const config: Config = {
         zrgray:   "#f6f7f8",
       },
       fontFamily: {
-        display: ["Inter", "-apple-system", "BlinkMacSystemFont", "\"Segoe UI\"", "Roboto", "\"Helvetica Neue\"", "Arial", "sans-serif"],
-        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "\"Segoe UI\"", "Roboto", "\"Helvetica Neue\"", "Arial", "sans-serif"],
+        display: ["var(--font-aeonik, Aeonik)", "-apple-system", "BlinkMacSystemFont", "\"Helvetica Neue\"", "Arial", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "sans-serif"],
+        sans: ["var(--font-aeonik, Aeonik)", "-apple-system", "BlinkMacSystemFont", "\"Helvetica Neue\"", "Arial", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "sans-serif"],
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       letterSpacing: {

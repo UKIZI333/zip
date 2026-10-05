@@ -2,6 +2,37 @@ import type { Job } from "./types";
 
 export const USA_JOBS_LIST: Job[] = [
   {
+    id: "102_768010_7978319003",
+    title: "Social Care Worker - Children's Residential",
+    slug: "social-care-worker-childrens-residential",
+    location: "Wicklow, Ireland",
+    department: "Social Care",
+    employment_type: "Full Time",
+    short_description: "Support young people in a residential care setting based in Wicklow, Ireland. Deliver high-quality, person-centred care.",
+    description: `Liquid Personnel is seeking committed and compassionate Social Care Workers to support young people in a residential care setting based in Wicklow, Ireland. This role focuses on delivering high-quality, person-centred support that promotes safety, stability, emotional wellbeing, and positive life outcomes. You will help create a nurturing environment and play a key role in enabling young people to thrive.`,
+    responsibilities: [
+      "Provide consistent, person-centred care and support to young people in line with their individual care plans.",
+      "Promote independence, education, emotional well-being, and positive social development.",
+      "Work collaboratively within a trauma-informed, values-led team to deliver therapeutic care approaches.",
+      "Contribute to maintaining a safe, stable, and supportive residential environment.",
+      "Build trusting relationships with young people and encourage engagement in daily routines and activities.",
+      "Participate in shift work, including evenings, weekends, and sleep-in duties, as required."
+    ],
+    requirements: [
+      "Level 7 qualification or higher in Applied Social Care or a related discipline (CORU-approved or eligible).",
+      "Full, clean manual driving licence.",
+      "Willingness to work a flexible rota, including sleepovers and unsocial hours."
+    ],
+    benefits: [
+      "Competitive Salary: €38,000 – €46,000 / year + Sleepover Allowance",
+      "Comprehensive employee assistance and wellness programme",
+      "Ongoing professional training and CORU continuous development support"
+    ],
+    status: "published",
+    created_at: "2026-09-28T09:00:00.000Z",
+    updated_at: "2026-09-28T09:00:00.000Z",
+  },
+  {
     id: "195_389961_12855",
     title: "Senior BMS Design Engineer",
     slug: "senior-bms-design-engineer",
