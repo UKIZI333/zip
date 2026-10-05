@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import Footer from "@/components/Footer";
 import JobDetailClient from "@/components/JobDetailClient";
 import { USA_JOBS_LIST } from "@/lib/mockJobs";
 import type { Job } from "@/lib/types";
@@ -53,15 +52,10 @@ export default async function JobDetailPage({ params }: { params: { slug: string
     .slice(2, 7);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F2F4F4]">
-      <main className="flex-1">
-        <JobDetailClient
-          job={resolvedJob}
-          moreJobs={moreJobs}
-          similarJobs={similarJobs}
-        />
-      </main>
-      <Footer />
-    </div>
+    <JobDetailClient
+      job={resolvedJob}
+      moreJobs={moreJobs}
+      similarJobs={similarJobs}
+    />
   );
 }

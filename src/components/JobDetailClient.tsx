@@ -1,19 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Logo from "./Logo";
 import ApplyModal from "./ApplyModal";
+import Footer from "./Footer";
 import type { Job } from "@/lib/types";
 import {
-  Search,
-  MapPin,
-  Navigation,
-  ChevronDown,
-  X,
-  Hourglass,
   Check,
+  Mail,
 } from "lucide-react";
 
 interface JobDetailClientProps {
@@ -29,11 +25,34 @@ export default function JobDetailClient({
 }: JobDetailClientProps) {
   const router = useRouter();
   const [applyModalOpen, setApplyModalOpen] = useState(false);
+  const [employerDropdownOpen, setEmployerDropdownOpen] = useState(false);
+  const employerDropdownRef = useRef<HTMLDivElement>(null);
+
   const [searchKeywords, setSearchKeywords] = useState("");
   const [searchLocation, setSearchLocation] = useState("Pristina");
   const [distanceOpen, setDistanceOpen] = useState(false);
   const [selectedDistance, setSelectedDistance] = useState("Distance");
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Job alert state
+  const [alertEmail, setAlertEmail] = useState("");
+  const [alertKeywords, setAlertKeywords] = useState("");
+  const [alertLocation, setAlertLocation] = useState("Pristina");
+  const [alertCreated, setAlertCreated] = useState(false);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        employerDropdownRef.current &&
+        !employerDropdownRef.current.contains(event.target as Node)
+      ) {
+        setEmployerDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const distanceOptions = [
     "5 Kilometres",
@@ -47,6 +66,16 @@ export default function JobDetailClient({
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     router.push(`/#openings`);
+  };
+
+  const handleAlertSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!alertEmail) return;
+    setAlertCreated(true);
+    setTimeout(() => {
+      setAlertCreated(false);
+      setAlertEmail("");
+    }, 4000);
   };
 
   const handleShare = (network: string) => {
@@ -66,7 +95,7 @@ export default function JobDetailClient({
       );
     } else if (network === "twitter") {
       window.open(
-        `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+        `https://x.com/intent/post?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
         "_blank"
       );
     } else {
@@ -76,7 +105,6 @@ export default function JobDetailClient({
     }
   };
 
-  // Format posted date
   const postedDate = job.created_at
     ? new Date(job.created_at).toLocaleDateString("en-GB", {
         day: "numeric",
@@ -85,31 +113,99 @@ export default function JobDetailClient({
       })
     : "28 September, 2026";
 
-  const companyName = job.department?.includes("Social") ? "Liquid Personnel" : "Northfield";
+  const companyName = job.department?.includes("Social")
+    ? "Liquid Personnel"
+    : "Northfield";
   const referenceId = job.id || "102_768010_7978319003";
 
+  // Real "More from Company" list from inspect code
+  const companyJobsList = [
+    { title: "Social Care Worker", location: "Laois", slug: "social-care-worker-laois" },
+    { title: "Social Care Worker", location: "Wexford", slug: "social-care-worker-wexford" },
+    { title: "Social Care Worker", location: "Athlone", slug: "social-care-worker-athlone" },
+    { title: "Social Care Leader", location: "Cavan", slug: "social-care-leader-cavan" },
+    { title: "Deputy Manager - Children's Residential", location: "Cavan", slug: "deputy-manager-childrens-residential-cavan" },
+  ];
+
+  // Real "Similar Jobs" list from inspect code
+  const similarJobsList = [
+    { title: "Social Care Worker - Children's Residential", company: "Liquid Personnel", location: "Limerick" },
+    { title: "Social Care Worker - Children's Residential Services", company: "TTM Healthcare Solutions", location: "Monaghan, Monaghan" },
+    { title: "Social Care Worker - Children's Residential - Mainstream - Limerick", company: "TTM Healthcare Solutions", location: "Limerick, Limerick" },
+    { title: "Social Care Worker - Children's Residential Services - Mainstream", company: "TTM Healthcare Solutions", location: "Donegal, Donegal" },
+    { title: "Children's Residential Social Care Worker", company: "Liquid Personnel", location: "Cork" },
+  ];
+
+  // Real "Latest Jobs" list from inspect code
+  const latestJobsList = [
+    { title: "Senior Civil Engineer", company: "Uniting Holding", location: "Dublin, L, IE" },
+    { title: "Clinical Nurse Specialist - Oncology", company: "Hollybank Trustees Ltd", location: "Lucan, L, IE" },
+    { title: "VP of Delivery", company: "Teleperformance", location: "Swords, L, IE" },
+    { title: "Quality Expert Reviewer - French Speaker", company: "Teleperformance", location: "D03, L, IE" },
+    { title: "Principal Engineer - Water", company: "Fehily Timoney & Company Ltd.", location: "Carlow, L, IE" },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#F2F4F4] text-[#002325]">
+    <div className="has-stickyNav jobs-show min-h-screen bg-[#F2F4F4] text-[#002325]">
       
       {/* =========================================================================
-          1. TOP NAVBAR (Taller / Widther Dark Spruce Header Bar matching ZipRecruiter)
+          1. TOP NAVBAR (<nav class="navbar navbar-default"> exact inspect code)
          ========================================================================= */}
-      <header className="w-full bg-[#002325] text-white h-24 flex items-center px-6 sm:px-12 border-b border-[#013437] sticky top-0 z-40">
-        <div className="max-w-[1140px] w-full mx-auto flex items-center justify-between">
-          <Logo size="md" theme="dark" showTagline={false} />
-          <Link
-            href="/#openings"
-            className="text-xs sm:text-sm text-white/80 hover:text-[#45DB61] font-medium transition-colors"
-          >
-            ← Back to Job Search
-          </Link>
+      <header className="sticky top-0 z-40 w-full bg-[#002325] text-white border-b border-[#013437]">
+        <div className="max-w-[1140px] mx-auto px-4 sm:px-6 h-[68px] flex items-center justify-between">
+          
+          {/* Navbar Header (Logo) */}
+          <div className="flex items-center">
+            <Logo size="md" theme="dark" showTagline={false} />
+          </div>
+
+          {/* Right: Employers Dropdown matching inspect code */}
+          <div className="relative" ref={employerDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setEmployerDropdownOpen(!employerDropdownOpen)}
+              className="inline-flex items-center gap-2 py-2 px-3 rounded text-white/90 hover:text-white hover:bg-white/10 transition-colors focus:outline-none"
+              aria-expanded={employerDropdownOpen}
+              aria-label="employer-login"
+            >
+              {/* Employers building SVG from inspect code (#employers) */}
+              <svg className="w-3.5 h-4 fill-current text-[#45DB61]" viewBox="0 0 14 17">
+                <path fillRule="evenodd" d="M1 2h12v15H1V2zm5 12.256A.25.25 0 0 1 6.245 14h1.51a.25.25 0 0 1 .245.256V17H6v-2.744zm-3-10A.25.25 0 0 1 3.245 4h1.51A.25.25 0 0 1 5 4.256v2.488A.25.25 0 0 1 4.755 7h-1.51A.25.25 0 0 1 3 6.744V4.256zm3 0A.25.25 0 0 1 6.245 4h1.51A.25.25 0 0 1 8 4.256v2.488A.25.25 0 0 1 7.755 7h-1.51A.25.25 0 0 1 6 6.744V4.256zm3 0A.25.25 0 0 1 9.245 4h1.51a.25.25 0 0 1 .245.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 9 6.744V4.256zm-6 5A.25.25 0 0 1 3.245 9h1.51A.25.25 0 0 1 5 9.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 3 11.744V9.256zm3 0A.25.25 0 0 1 6.245 9h1.51A.25.25 0 0 1 8 9.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 6 11.744V9.256zm3 0A.25.25 0 0 1 9.245 9h1.51a.25.25 0 0 1 .245.256v2.488a.25.25 0 0 1-.245.256h-1.51A.25.25 0 0 1 9 11.744V9.256zM.379.484A.673.673 0 0 1 .994 0h12.012c.273 0 .548.214.615.484L14 2H0L.379.484z" />
+              </svg>
+              <span className="text-sm font-medium">Employers</span>
+              {/* Arrow down SVG (#arrow-down) */}
+              <svg className={`w-2.5 h-2 fill-current transition-transform duration-200 ${employerDropdownOpen ? "rotate-180" : ""}`} viewBox="0 0 9.9 6.4">
+                <path d="M4.9 3.5L1.4 0 0 1.4l4.2 4.2.7.7 4.9-4.9L8.5 0 4.9 3.5z" />
+              </svg>
+            </button>
+
+            {employerDropdownOpen && (
+              <div className="absolute right-0 mt-1 w-52 rounded bg-white text-[#002325] shadow-lg border border-[#DEE1E3] py-1.5 z-50 animate-fade-up">
+                <Link
+                  href="/admin/login"
+                  onClick={() => setEmployerDropdownOpen(false)}
+                  className="block px-4 py-2 text-sm hover:bg-[#F2F4F4] transition-colors"
+                >
+                  Log In
+                </Link>
+                <Link
+                  href="/contact"
+                  onClick={() => setEmployerDropdownOpen(false)}
+                  className="block px-4 py-2 text-sm hover:bg-[#F2F4F4] transition-colors font-medium text-[#005745]"
+                >
+                  Create Employer Account
+                </Link>
+              </div>
+            )}
+          </div>
+
         </div>
       </header>
 
       {/* =========================================================================
-          2. SEARCH BAR SUBHEADER (White Background Strip Matching Picture)
+          2. SEARCH BAR SUBHEADER (<section class="results-hero">)
          ========================================================================= */}
-      <div className="w-full bg-white border-b border-[#DEE1E3] py-3.5 px-4 shadow-2xs">
+      <section className="results-hero w-full bg-white border-b border-[#DEE1E3] py-3 px-4 shadow-2xs">
         <div className="max-w-[1140px] mx-auto">
           <form
             onSubmit={handleSearchSubmit}
@@ -117,34 +213,52 @@ export default function JobDetailClient({
           >
             {/* Keywords input */}
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-[#5D6770] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <svg className="w-4 h-4 text-[#5D6770] fill-current absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 32 32">
+                <path d="M30.976 28.608l-9.984-9.984a11.16 11.16 0 0 0 2.24-6.72c0-6.272-5.056-11.328-11.328-11.328S.512 5.632.512 11.904 5.568 23.232 11.84 23.232c2.496 0 4.8-.832 6.72-2.24l9.984 9.984c.256.256.704.448 1.152.448s.768-.192 1.088-.32l.128-.128c.704-.64.704-1.728.064-2.368zM11.84 19.776c-4.352 0-7.872-3.52-7.872-7.872s3.52-7.872 7.872-7.872c4.416 0 7.872 3.456 7.872 7.872 0 4.288-3.52 7.872-7.872 7.872z" />
+              </svg>
               <input
                 type="text"
                 placeholder="Keywords"
                 value={searchKeywords}
                 onChange={(e) => setSearchKeywords(e.target.value)}
-                className="w-full h-10.5 pl-10 pr-3 text-sm text-[#002325] placeholder:text-[#5D6770] bg-white border border-[#5D6770]/40 rounded-md outline-none focus:border-[#45DB61]"
+                className="w-full h-10.5 pl-10 pr-8 text-sm text-[#002325] placeholder:text-[#5D6770] bg-white border border-[#DEE1E3] rounded-[4px] outline-none focus:border-[#45DB61]"
               />
+              {searchKeywords && (
+                <button
+                  type="button"
+                  onClick={() => setSearchKeywords("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5D6770] hover:text-[#002325]"
+                  aria-label="Clear Keywords"
+                >
+                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 15.6 15.6">
+                    <path d="M6.4 7.8L0 14.1l1.4 1.4 6.4-6.4 6.4 6.4 1.4-1.4-6.4-6.3 6.4-6.4L14.1 0 7.8 6.4 1.4 0 0 1.4l6.4 6.4z" />
+                  </svg>
+                </button>
+              )}
             </div>
 
             {/* Location input with clear button */}
             <div className="relative flex-1">
-              <MapPin className="w-4 h-4 text-[#5D6770] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <svg className="w-3.5 h-4 text-[#5D6770] fill-current absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 14 20">
+                <path d="M7 0C3.1 0 0 3.1 0 7c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5C5.6 9.5 4.5 8.4 4.5 7S5.6 4.5 7 4.5 9.5 5.6 9.5 7 8.4 9.5 7 9.5z" />
+              </svg>
               <input
                 type="text"
                 placeholder="Location"
                 value={searchLocation}
                 onChange={(e) => setSearchLocation(e.target.value)}
-                className="w-full h-10.5 pl-10 pr-8 text-sm text-[#002325] placeholder:text-[#5D6770] bg-white border border-[#5D6770]/40 rounded-md outline-none focus:border-[#45DB61]"
+                className="w-full h-10.5 pl-10 pr-8 text-sm text-[#002325] placeholder:text-[#5D6770] bg-white border border-[#DEE1E3] rounded-[4px] outline-none focus:border-[#45DB61]"
               />
               {searchLocation && (
                 <button
                   type="button"
                   onClick={() => setSearchLocation("")}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5D6770] hover:text-[#002325]"
-                  aria-label="Clear location"
+                  aria-label="Clear Location"
                 >
-                  <X className="w-4 h-4" />
+                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 15.6 15.6">
+                    <path d="M6.4 7.8L0 14.1l1.4 1.4 6.4-6.4 6.4 6.4 1.4-1.4-6.4-6.3 6.4-6.4L14.1 0 7.8 6.4 1.4 0 0 1.4l6.4 6.4z" />
+                  </svg>
                 </button>
               )}
             </div>
@@ -154,17 +268,22 @@ export default function JobDetailClient({
               <button
                 type="button"
                 onClick={() => setDistanceOpen(!distanceOpen)}
-                className="w-full sm:w-auto h-10.5 px-3.5 bg-white border border-[#5D6770]/40 rounded-md text-sm text-[#002325] flex items-center justify-between gap-2.5 outline-none hover:border-[#5D6770]"
+                className="w-full sm:w-auto h-10.5 px-3.5 bg-white border border-[#DEE1E3] rounded-[4px] text-sm text-[#002325] flex items-center justify-between gap-2.5 outline-none hover:border-[#5D6770]"
               >
                 <div className="flex items-center gap-1.5">
-                  <Navigation className="w-3.5 h-3.5 text-[#5D6770]" />
-                  <span>{selectedDistance}</span>
+                  <svg className="w-4 h-4 text-[#5D6770] fill-current" viewBox="0 0 20 20">
+                    <path d="M10 16c3.3 0 6-2.7 6-6s-2.7-6-6-6-6 2.7-6 6 2.7 6 6 6zm0 2c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" />
+                    <path d="M9 0h2v6H9V0zm5 11V9h6v2h-6zm-5 3h2v6H9v-6zm-9-3V9h6v2H0z" />
+                  </svg>
+                  <span style={{ textTransform: "none" }}>{selectedDistance}</span>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-[#5D6770]" />
+                <svg className="w-2.5 h-2 text-[#5D6770] fill-current" viewBox="0 0 9.9 6.4">
+                  <path d="M4.9 3.5L1.4 0 0 1.4l4.2 4.2.7.7 4.9-4.9L8.5 0 4.9 3.5z" />
+                </svg>
               </button>
 
               {distanceOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-44 bg-white border border-[#DEE1E3] rounded-md shadow-lg py-1.5 z-50">
+                <div className="absolute right-0 top-full mt-1.5 w-44 bg-white border border-[#DEE1E3] rounded-[4px] shadow-lg py-1.5 z-50">
                   {distanceOptions.map((opt) => (
                     <button
                       key={opt}
@@ -186,172 +305,284 @@ export default function JobDetailClient({
               )}
             </div>
 
-            {/* Search Button */}
+            {/* Search Button (btn-success btn-lg) */}
             <button
               type="submit"
-              className="h-10.5 px-6.5 bg-[#45DB61] hover:bg-[#26c744] text-[#002325] font-bold text-sm rounded-md transition-colors shrink-0 shadow-2xs"
+              className="h-10.5 px-6.5 bg-[#45DB61] hover:bg-[#26c744] text-[#002325] font-bold text-sm rounded-[4px] transition-colors shrink-0 shadow-2xs"
             >
               Search
             </button>
           </form>
         </div>
-      </div>
+      </section>
 
       {/* =========================================================================
-          3. MAIN BODY (Exact 2-Column Layout matching Picture: Narrower Side Panel)
+          3. MAIN CONTENT: 2-COLUMN GRID (col-md-9 and col-md-3)
          ========================================================================= */}
-      <main className="max-w-[1140px] mx-auto px-4 sm:px-6 py-6 md:py-8">
+      <main id="main" className="page-content max-w-[1140px] mx-auto px-4 sm:px-6 py-6 md:py-8">
         <div className="flex flex-col lg:flex-row gap-6 items-start">
           
           {/* =====================================================================
-              LEFT COLUMN: MAIN JOB DETAILS CARD (Wider ~76% width)
+              LEFT COLUMN (col-md-9 ~75% width)
              ===================================================================== */}
-          <div className="flex-1 min-w-0 bg-white border border-[#DEE1E3] rounded-lg p-6 sm:p-10 shadow-xs">
+          <div className="flex-1 min-w-0 space-y-6">
             
-            {/* Posted Date */}
-            <p className="text-xs text-[#5D6770] mb-2.5 font-normal">
-              Posted {postedDate}
-            </p>
-
-            {/* Job Title */}
-            <h1 className="text-2xl sm:text-[28px] md:text-[30px] font-extrabold text-[#002325] tracking-tight leading-[1.2] mb-3">
-              {job.title}
-            </h1>
-
-            {/* Company Name (Dark Green / Teal) */}
-            <div className="mb-2">
-              <span className="text-[#005745] font-bold text-base hover:underline cursor-pointer">
-                {companyName}
-              </span>
-            </div>
-
-            {/* Meta Information Line */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#002325] font-medium mb-6">
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-[#002325]" />
-                {job.location}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Hourglass className="w-3.5 h-3.5 text-[#002325]" />
-                {job.employment_type || "Full Time"}
-              </span>
-              <span className="text-[#5D6770]">
-                Reference: {referenceId}
-              </span>
-            </div>
-
-            {/* Horizontal Line */}
-            <hr className="border-t border-[#DEE1E3] my-6" />
-
-            {/* OVERVIEW / DESCRIPTION */}
-            <div className="space-y-3 mb-6">
-              <p className="text-[15px] leading-[1.65] text-[#2F3639]">
-                {job.short_description || job.description}
-              </p>
-            </div>
-
-            {/* RESPONSIBILITIES SECTION */}
-            {job.responsibilities && job.responsibilities.length > 0 && (
-              <div className="space-y-3 mb-6">
-                <h2 className="text-base font-bold text-[#002325]">
-                  Key Responsibilities
-                </h2>
-                <ul className="list-disc pl-5 space-y-2 text-[14px] sm:text-[15px] leading-[1.6] text-[#2F3639]">
-                  {job.responsibilities.map((resp, i) => (
-                    <li key={i}>{resp}</li>
-                  ))}
-                </ul>
+            {/* PANEL: JOB DETAIL MAIN CARD */}
+            <div className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-6 sm:p-8 shadow-2xs">
+              
+              {/* Posted Date */}
+              <div className="text-xs text-[#5D6770] mb-2.5 font-normal">
+                <span>Posted {postedDate}</span>
               </div>
-            )}
 
-            {/* QUALIFICATIONS / REQUIREMENTS SECTION */}
-            {job.requirements && job.requirements.length > 0 && (
-              <div className="space-y-3 mb-6">
-                <h2 className="text-base font-bold text-[#002325]">
-                  Qualifications and Requirements
-                </h2>
-                <ul className="list-disc pl-5 space-y-2 text-[14px] sm:text-[15px] leading-[1.6] text-[#2F3639]">
-                  {job.requirements.map((req, i) => (
-                    <li key={i}>{req}</li>
-                  ))}
-                </ul>
+              {/* Job Title & Header Intro */}
+              <div className="jobDetail-header mb-4">
+                <h1 className="text-2xl sm:text-[28px] md:text-[30px] font-extrabold text-[#002325] tracking-tight leading-[1.2] mb-3">
+                  {job.title}
+                </h1>
+
+                <div className="space-y-1.5">
+                  <div className="text-[#005745] font-bold text-base hover:underline cursor-pointer">
+                    {companyName}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#002325] font-medium">
+                    <span className="flex items-center gap-1.5">
+                      <svg className="w-3.5 h-3.5 fill-current text-[#002325]" viewBox="0 0 14 20">
+                        <path d="M7 0C3.1 0 0 3.1 0 7c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5C5.6 9.5 4.5 8.4 4.5 7S5.6 4.5 7 4.5 9.5 5.6 9.5 7 8.4 9.5 7 9.5z" />
+                      </svg>
+                      {job.location}
+                    </span>
+
+                    <span className="flex items-center gap-1.5 text-[#5D6770]">
+                      <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zM12 11.5L8 7.5V4h8v3.5l-4 4z" />
+                      </svg>
+                      {job.employment_type || "Full Time"}
+                    </span>
+                  </div>
+
+                  <div className="text-xs text-[#5D6770] pt-1">
+                    <span className="font-semibold">Reference:</span> {referenceId}
+                  </div>
+                </div>
               </div>
-            )}
 
-            {/* WHY NORTHFIELD? SECTION */}
-            <div className="space-y-3 pt-2">
-              <h2 className="text-base font-bold text-[#002325]">
-                Why Northfield?
-              </h2>
-              <p className="text-[14px] sm:text-[15px] leading-[1.6] text-[#2F3639]">
-                As an employee-owned company, we are inclusive, committed and driven. Corporate Responsibility and Sustainability are at the heart of our strategy. Candidates enjoy direct communication, rapid 48-hour feedback, and top-tier career advancement opportunities.
-              </p>
+              {/* Hairline Divider */}
+              <hr className="border-t border-[#DEE1E3] my-6" />
+
+              {/* Job Body */}
+              <div className="job-body text-[15px] leading-[1.65] text-[#2F3639] space-y-4">
+                <div style={{ textAlign: "justify" }}>
+                  {job.short_description || job.description}
+                </div>
+
+                {job.responsibilities && job.responsibilities.length > 0 && (
+                  <div>
+                    <p style={{ textAlign: "justify" }}>
+                      <strong>Key Responsibilities</strong>
+                    </p>
+                    <ul className="list-disc pl-5 space-y-2 mt-2" style={{ textAlign: "justify" }}>
+                      {job.responsibilities.map((resp, i) => (
+                        <li key={i}>{resp}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {job.requirements && job.requirements.length > 0 && (
+                  <div>
+                    <p style={{ textAlign: "justify" }}>
+                      <strong>Qualifications and Requirements</strong>
+                    </p>
+                    <ul className="list-disc pl-5 space-y-2 mt-2" style={{ textAlign: "justify" }}>
+                      {job.requirements.map((req, i) => (
+                        <li key={i}>{req}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div>
+                  <p style={{ textAlign: "justify" }}>
+                    <strong>What the Role Offers</strong>
+                  </p>
+                  <ul className="list-disc pl-5 space-y-2 mt-2" style={{ textAlign: "justify" }}>
+                    <li>Opportunity to contribute to a new residential service and help shape its culture from the outset.</li>
+                    <li>Supportive team environment with access to training and professional development.</li>
+                    <li>Meaningful work that makes a positive difference in the lives of young people.</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p style={{ textAlign: "justify" }}>
+                    <strong>Reasonable Adjustments:</strong>
+                  </p>
+                  <p style={{ textAlign: "justify" }}>
+                    If you consider yourself to have a disability or require any reasonable adjustment during the recruitment process or within the workplace, please highlight this at the earliest opportunity by contacting our team.
+                  </p>
+                  <p className="mt-2 text-xs text-[#5D6770]" style={{ textAlign: "justify" }}>
+                    We are unable to support or accept applications from candidates who are residents within the Red or Amber list of the World Health Organisation (WHO) Workforce Support and Safeguard List.
+                  </p>
+                  <p className="mt-2 text-xs text-[#5D6770]">
+                    BH - 202116<br />GH - 36050
+                  </p>
+                </div>
+              </div>
+
+              {/* Panel Footer (Apply Button) */}
+              <div className="panel-footer mt-8 pt-6 border-t border-[#DEE1E3]">
+                <button
+                  type="button"
+                  onClick={() => setApplyModalOpen(true)}
+                  className="apply-button btn btn-success btn-lg h-[46px] px-8 bg-[#45DB61] hover:bg-[#26c744] text-[#002325] font-bold text-base rounded-[4px] transition-colors shadow-2xs cursor-pointer inline-flex items-center justify-center"
+                >
+                  Apply to this Job
+                </button>
+              </div>
+
             </div>
 
-            {/* BOTTOM APPLY BUTTON */}
-            <div className="mt-8 pt-6 border-t border-[#DEE1E3]">
+            {/* PANEL: JOB ALERTS COMPONENT (<div id="job-alert-component">) */}
+            <div id="job-alert-component" className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-6 shadow-2xs">
+              <h3 className="text-lg font-bold text-[#002325] mb-4">
+                Sign up for Job Alerts
+              </h3>
+              
+              {alertCreated ? (
+                <div className="bg-[#45DB61]/20 border border-[#45DB61] text-[#005745] font-bold p-4 rounded-[4px] text-sm animate-fade-up">
+                  ✓ Success! Job alerts configured for {alertEmail}. You will receive instant notifications for new matching roles.
+                </div>
+              ) : (
+                <form onSubmit={handleAlertSubmit} className="space-y-4">
+                  <div>
+                    <input
+                      type="email"
+                      required
+                      placeholder="Email Address"
+                      value={alertEmail}
+                      onChange={(e) => setAlertEmail(e.target.value)}
+                      className="w-full h-10 px-3.5 text-sm text-[#002325] placeholder:text-[#5D6770] bg-white border border-[#DEE1E3] rounded-[4px] outline-none focus:border-[#45DB61]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Keywords"
+                      value={alertKeywords}
+                      onChange={(e) => setAlertKeywords(e.target.value)}
+                      className="w-full h-10 px-3.5 text-sm text-[#002325] placeholder:text-[#5D6770] bg-white border border-[#DEE1E3] rounded-[4px] outline-none focus:border-[#45DB61]"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Location"
+                      value={alertLocation}
+                      onChange={(e) => setAlertLocation(e.target.value)}
+                      className="w-full h-10 px-3.5 text-sm text-[#002325] placeholder:text-[#5D6770] bg-white border border-[#DEE1E3] rounded-[4px] outline-none focus:border-[#45DB61]"
+                    />
+                  </div>
+
+                  <p className="text-[11px] text-[#5D6770] leading-relaxed">
+                    By clicking Create Alert, you agree to the <Link href="/terms" className="text-[#005745] hover:underline">Global Terms of Use Agreement</Link> and acknowledge that you have read and understand the <Link href="/privacy" className="text-[#005745] hover:underline">Global Privacy Policy</Link>.
+                  </p>
+
+                  <button
+                    type="submit"
+                    className="w-full h-11 bg-[#45DB61] hover:bg-[#26c744] text-[#002325] font-bold text-sm rounded-[4px] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+                  >
+                    <Mail className="w-4 h-4" />
+                    Create Alert
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* PANEL: LATEST JOBS (<div id="job_list_short">) */}
+            <div className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-6 shadow-2xs">
+              <h3 className="text-lg font-bold text-[#002325] mb-4">
+                Latest Jobs
+              </h3>
+              <div className="divide-y divide-[#DEE1E3]">
+                {latestJobsList.map((lJob, index) => (
+                  <div key={index} className="py-3 first:pt-0 last:pb-0 space-y-1">
+                    <Link
+                      href="/#openings"
+                      className="text-sm font-bold text-[#002325] hover:text-[#005745] underline leading-snug block"
+                    >
+                      {lJob.title}
+                    </Link>
+                    <p className="text-xs text-[#5D6770] font-medium">
+                      {lJob.company}
+                    </p>
+                    <p className="text-xs text-[#5D6770] flex items-center gap-1">
+                      <svg className="w-3 h-3 text-[#5D6770] fill-current" viewBox="0 0 14 20">
+                        <path d="M7 0C3.1 0 0 3.1 0 7c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5C5.6 9.5 4.5 8.4 4.5 7S5.6 4.5 7 4.5 9.5 5.6 9.5 7 8.4 9.5 7 9.5z" />
+                      </svg>
+                      <span>{lJob.location}</span>
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* =====================================================================
+              RIGHT COLUMN (col-md-3 ~25% width, ~250px Width Matching Picture)
+             ===================================================================== */}
+          <div className="w-full lg:w-[250px] shrink-0 space-y-4">
+            
+            {/* PANEL 1: APPLY TO THIS JOB SIDEBAR */}
+            <div className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-3.5 sm:p-4 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setApplyModalOpen(true)}
-                className="w-full sm:w-auto inline-flex items-center justify-center bg-[#45DB61] hover:bg-[#26c744] text-[#002325] font-bold text-base py-3.5 px-8 rounded-lg transition-all shadow-xs"
+                className="w-full h-11 bg-[#45DB61] hover:bg-[#26c744] active:bg-[#1a862e] text-[#002325] font-bold text-sm rounded-[4px] transition-colors flex items-center justify-center text-center shadow-xs cursor-pointer"
               >
                 Apply to this Job
               </button>
             </div>
-          </div>
 
-          {/* =====================================================================
-              RIGHT COLUMN: NARROWER SIDEBAR CARDS (~250px Width Matching Picture)
-             ===================================================================== */}
-          <div className="w-full lg:w-[250px] shrink-0 space-y-4">
-            
-            {/* BUTTON 1: APPLY TO THIS JOB (Standalone green button directly on background, exactly matching picture) */}
-            <button
-              type="button"
-              onClick={() => setApplyModalOpen(true)}
-              className="w-full h-11 bg-[#45DB61] hover:bg-[#26c744] active:bg-[#1a862e] text-[#002325] font-bold text-sm rounded-lg transition-colors flex items-center justify-center text-center shadow-xs cursor-pointer"
-            >
-              Apply to this Job
-            </button>
-
-            {/* CARD 2: SHARE THIS JOB (Bigger, Exact 4 Square Icons from Picture) */}
-            <div className="bg-white border border-[#DEE1E3] rounded-lg p-3.5 sm:p-4 shadow-xs">
+            {/* PANEL 2: SHARE THIS JOB (Bigger, Exact 4 Square Icons matching picture) */}
+            <div className="panel panel-default panel-expand share-social bg-white border border-[#DEE1E3] rounded-[4px] p-3.5 sm:p-4 shadow-2xs">
               <h3 className="text-sm font-bold text-[#002325] mb-3">
                 Share this Job
               </h3>
+              
               <div className="flex items-center justify-between gap-2">
                 
-                {/* Facebook (Large Square Button with Classic 'f') */}
+                {/* Facebook Square Icon (fa-facebook-square 46px square) */}
                 <button
                   type="button"
                   onClick={() => handleShare("facebook")}
-                  className="w-12 h-12 bg-[#002325] hover:bg-[#013437] text-white rounded-md flex items-center justify-center transition-colors shadow-2xs"
+                  className="w-[46px] h-[46px] bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs"
                   aria-label="Share on Facebook"
                   title="Share on Facebook"
                 >
-                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                    <path d="M14.5 8H17V4h-3.5C10.5 4 9 5.5 9 8.5V11H6v4h3v8h5v-8h3.5l.5-4H14V8.5c0-.6.4-1 .5-1z" />
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 16 16">
+                    <path d="M9.5 3H12V0H9.5C7.57 0 6 1.57 6 3.5V5H4v3h2v8h3V8h2.5l.5-3H9V3.5c0-.271.229-.5.5-.5z" />
                   </svg>
                 </button>
 
-                {/* LinkedIn (Large Square Button with Classic 'in') */}
+                {/* LinkedIn Square Icon (fa-linkedin-square 46px square) */}
                 <button
                   type="button"
                   onClick={() => handleShare("linkedin")}
-                  className="w-12 h-12 bg-[#002325] hover:bg-[#013437] text-white rounded-md flex items-center justify-center transition-colors shadow-2xs"
+                  className="w-[46px] h-[46px] bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs"
                   aria-label="Share on LinkedIn"
                   title="Share on LinkedIn"
                 >
-                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                    <path d="M6.5 9.5H3V21h3.5V9.5zM4.75 4a1.75 1.75 0 100 3.5 1.75 1.75 0 000-3.5zM21 14.5c0-3.5-1.9-5-4.5-5-2.1 0-3 1.2-3.5 2V9.5H9.5V21H13v-6c0-1.6.8-2.5 2-2.5 1.3 0 2 .9 2 2.5v6H21v-6.5z" />
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 16 16">
+                    <path d="M6 6h2.767v1.418h.04C9.192 6.727 10.134 6 11.539 6 14.46 6 15 7.818 15 10.183V15h-2.885v-4.27c0-1.018-.021-2.329-1.5-2.329-1.502 0-1.732 1.109-1.732 2.255V15H6V6zM1 6h3v9H1V6zM4 3.5a1.5 1.5 0 1 1-3.001-.001A1.5 1.5 0 0 1 4 3.5z" />
                   </svg>
                 </button>
 
-                {/* X / Twitter (Large Square Button with '𝕏') */}
+                {/* Twitter/X Square Icon (twitter-square 46px square) */}
                 <button
                   type="button"
                   onClick={() => handleShare("twitter")}
-                  className="w-12 h-12 bg-[#002325] hover:bg-[#013437] text-white rounded-md flex items-center justify-center transition-colors shadow-2xs"
+                  className="w-[46px] h-[46px] bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs"
                   aria-label="Share on X"
                   title="Share on X"
                 >
@@ -360,25 +591,26 @@ export default function JobDetailClient({
                   </svg>
                 </button>
 
-                {/* RSS Feed (Large Square Button with Broadcast Waves) */}
+                {/* RSS Square Icon (fa-rss-square 46px square) */}
                 <button
                   type="button"
                   onClick={() => handleShare("rss")}
-                  className="w-12 h-12 bg-[#002325] hover:bg-[#013437] text-white rounded-md flex items-center justify-center transition-colors shadow-2xs relative"
+                  className="w-[46px] h-[46px] bg-[#002325] hover:bg-[#013437] text-white rounded-[4px] flex items-center justify-center transition-colors shadow-2xs relative"
                   aria-label="RSS Feed"
                   title="Copy link / RSS"
                 >
                   {copiedLink ? (
-                    <Check className="w-6 h-6 text-[#45DB61]" />
+                    <Check className="w-5 h-5 text-[#45DB61]" />
                   ) : (
-                    <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                      <circle cx="5" cy="19" r="2.5" />
-                      <path d="M4 10.5v3.5c4.7 0 8.5 3.8 8.5 8.5h3.5C16 15.9 10.6 10.5 4 10.5z" />
-                      <path d="M4 4v3.5c8.3 0 15 6.7 15 15H22.5C22.5 12.3 14.2 4 4 4z" />
+                    <svg className="w-5 h-5 fill-current" viewBox="0 0 100 100">
+                      <circle cx="24.512" cy="75.486" r="8.997" />
+                      <path d="M15.519 39.506v11.992c18.186 0 32.983 14.797 32.983 32.984h11.994c0-24.8-20.182-44.976-44.977-44.976z" />
+                      <path d="M15.519 15.518v11.994c31.413 0 56.968 25.556 56.968 56.971h11.995c-.001-38.027-30.936-68.965-68.963-68.965z" />
                     </svg>
                   )}
                 </button>
               </div>
+
               {copiedLink && (
                 <p className="text-[11px] text-[#005745] font-semibold mt-2 text-center animate-fade-up">
                   Job link copied!
@@ -386,16 +618,16 @@ export default function JobDetailClient({
               )}
             </div>
 
-            {/* CARD 3: MORE FROM COMPANY */}
-            <div className="bg-white border border-[#DEE1E3] rounded-lg p-3.5 sm:p-4 shadow-xs">
+            {/* PANEL 3: MORE FROM COMPANY (<div id="other_employer_jobs">) */}
+            <div id="other_employer_jobs" className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-3.5 sm:p-4 shadow-2xs">
               <h3 className="text-sm font-bold text-[#002325] mb-3 pb-2 border-b border-[#DEE1E3]">
                 More from {companyName}
               </h3>
               <div className="divide-y divide-[#DEE1E3]">
-                {moreJobs.slice(0, 4).map((mJob) => (
-                  <div key={mJob.id} className="py-2.5 first:pt-0 last:pb-0 space-y-0.5">
+                {companyJobsList.map((mJob, i) => (
+                  <div key={i} className="py-2.5 first:pt-0 last:pb-0 space-y-0.5">
                     <Link
-                      href={`/jobs/${mJob.slug}`}
+                      href={`/jobs/${job.slug}`}
                       className="text-xs font-bold text-[#002325] hover:text-[#005745] underline leading-tight block"
                     >
                       {mJob.title}
@@ -404,7 +636,9 @@ export default function JobDetailClient({
                       {companyName}
                     </p>
                     <p className="text-[11px] text-[#5D6770] flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-[#5D6770] shrink-0" />
+                      <svg className="w-2.5 h-3 text-[#5D6770] fill-current" viewBox="0 0 14 20">
+                        <path d="M7 0C3.1 0 0 3.1 0 7c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5C5.6 9.5 4.5 8.4 4.5 7S5.6 4.5 7 4.5 9.5 5.6 9.5 7 8.4 9.5 7 9.5z" />
+                      </svg>
                       <span className="truncate">{mJob.location}</span>
                     </p>
                   </div>
@@ -412,25 +646,27 @@ export default function JobDetailClient({
               </div>
             </div>
 
-            {/* CARD 4: SIMILAR JOBS */}
-            <div className="bg-white border border-[#DEE1E3] rounded-lg p-3.5 sm:p-4 shadow-xs">
+            {/* PANEL 4: SIMILAR JOBS (<div id="similar_jobs">) */}
+            <div id="similar_jobs" className="panel panel-default panel-expand bg-white border border-[#DEE1E3] rounded-[4px] p-3.5 sm:p-4 shadow-2xs">
               <h3 className="text-sm font-bold text-[#002325] mb-3 pb-2 border-b border-[#DEE1E3]">
                 Similar Jobs
               </h3>
               <div className="divide-y divide-[#DEE1E3]">
-                {similarJobs.slice(0, 4).map((sJob) => (
-                  <div key={sJob.id} className="py-2.5 first:pt-0 last:pb-0 space-y-0.5">
+                {similarJobsList.map((sJob, i) => (
+                  <div key={i} className="py-2.5 first:pt-0 last:pb-0 space-y-0.5">
                     <Link
-                      href={`/jobs/${sJob.slug}`}
+                      href={`/jobs/${job.slug}`}
                       className="text-xs font-bold text-[#002325] hover:text-[#005745] underline leading-tight block"
                     >
                       {sJob.title}
                     </Link>
                     <p className="text-[11px] text-[#5D6770] font-medium">
-                      {sJob.department || "Northfield Partner"}
+                      {sJob.company}
                     </p>
                     <p className="text-[11px] text-[#5D6770] flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-[#5D6770] shrink-0" />
+                      <svg className="w-2.5 h-3 text-[#5D6770] fill-current" viewBox="0 0 14 20">
+                        <path d="M7 0C3.1 0 0 3.1 0 7c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5C5.6 9.5 4.5 8.4 4.5 7S5.6 4.5 7 4.5 9.5 5.6 9.5 7 8.4 9.5 7 9.5z" />
+                      </svg>
                       <span className="truncate">{sJob.location}</span>
                     </p>
                   </div>
@@ -441,6 +677,11 @@ export default function JobDetailClient({
           </div>
         </div>
       </main>
+
+      {/* =========================================================================
+          4. UNIVERSAL FOOTER (<footer class="footer"> exact inspect match)
+         ========================================================================= */}
+      <Footer />
 
       {/* Interactive Application Modal */}
       <ApplyModal
