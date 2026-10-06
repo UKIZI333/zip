@@ -46,9 +46,10 @@ export async function GET(req: NextRequest) {
     }
 
     // Secondary fallback to ipwho.is if still missing
-    if (!city && (!ip || isLocalOrMissing)) {
+    if (!city || city === "Unknown City") {
       try {
-        const altRes = await fetch("https://ipwho.is/", { cache: "no-store" });
+        const altLookupUrl = !isLocalOrMissing && ip ? `https://ipwho.is/${ip}` : "https://ipwho.is/";
+        const altRes = await fetch(altLookupUrl, { cache: "no-store" });
         if (altRes.ok) {
           const altData = await altRes.json();
           if (altData && altData.success !== false) {

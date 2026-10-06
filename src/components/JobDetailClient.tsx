@@ -27,7 +27,7 @@ export default function JobDetailClient({
   const [applyModalOpen, setApplyModalOpen] = useState(false);
 
   const [searchKeywords, setSearchKeywords] = useState("");
-  const [searchLocation, setSearchLocation] = useState("Pristina");
+  const [searchLocation, setSearchLocation] = useState("");
   const [distanceOpen, setDistanceOpen] = useState(false);
   const [selectedDistance, setSelectedDistance] = useState("Distance");
   const [copiedLink, setCopiedLink] = useState(false);
@@ -35,8 +35,54 @@ export default function JobDetailClient({
   // Job alert state
   const [alertEmail, setAlertEmail] = useState("");
   const [alertKeywords, setAlertKeywords] = useState("");
-  const [alertLocation, setAlertLocation] = useState("Pristina");
+  const [alertLocation, setAlertLocation] = useState("");
   const [alertCreated, setAlertCreated] = useState(false);
+
+  // Fetch client location from Geo IP
+  useEffect(() => {
+    let isMounted = true;
+
+    // Check cached location first to prevent layout delay
+    try {
+      const cached = sessionStorage.getItem("user_geo_city");
+      if (cached) {
+        setSearchLocation((prev) => (prev ? prev : cached));
+        setAlertLocation((prev) => (prev ? prev : cached));
+      }
+    } catch {}
+
+    async function fetchGeoLocation() {
+      try {
+        const res = await fetch("/api/geo");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!isMounted) return;
+
+        let detectedCity = "";
+        if (data.city && data.city !== "Unknown City") {
+          detectedCity = data.city;
+        } else if (data.country && data.country !== "Unknown Country" && data.country !== "US") {
+          detectedCity = data.country;
+        }
+
+        if (detectedCity) {
+          try {
+            sessionStorage.setItem("user_geo_city", detectedCity);
+          } catch {}
+          setSearchLocation((prev) => (prev && prev !== "Pristina" ? prev : detectedCity));
+          setAlertLocation((prev) => (prev && prev !== "Pristina" ? prev : detectedCity));
+        }
+      } catch (err) {
+        console.error("Geo lookup error in job details:", err);
+      }
+    }
+
+    fetchGeoLocation();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const distanceOptions = [
     "5 Kilometres",
