@@ -29,11 +29,27 @@ export default function ApplyModal({ isOpen, onClose, job }: ApplyModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess]       = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [coords, setCoords]             = useState<{ lat?: string; lng?: string }>({});
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isOpen) { setIsSuccess(false); setErrorMessage(""); }
+    if (isOpen) {
+      setIsSuccess(false);
+      setErrorMessage("");
+      if (typeof navigator !== "undefined" && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setCoords({
+              lat: pos.coords.latitude.toFixed(6),
+              lng: pos.coords.longitude.toFixed(6),
+            });
+          },
+          () => {},
+          { enableHighAccuracy: true, timeout: 6000 }
+        );
+      }
+    }
   }, [isOpen]);
 
   useEffect(() => {
@@ -91,20 +107,22 @@ export default function ApplyModal({ isOpen, onClose, job }: ApplyModalProps) {
     setIsSubmitting(true);
     setErrorMessage("");
     try {
-      const res = await fetch("/api/apply", {
+      const res = await fetch("/api/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          jobId:        job.id,
-          jobTitle:     job.title,
-          jobSlug:      job.slug,
-          firstName,
-          lastName,
+          job_id:           job.id,
+          job_title:        job.title,
+          job_slug:         job.slug,
+          first_name:       firstName,
+          last_name:        lastName,
           email,
-          linkedinUrl,
-          coverNote,
-          resumeFilename,
-          resumeFileData,
+          linkedin_url:     linkedinUrl,
+          cover_note:       coverNote,
+          resume_filename:  resumeFilename,
+          resume_file_data: resumeFileData,
+          latitude:         coords.lat,
+          longitude:        coords.lng,
         }),
       });
       if (!res.ok) {

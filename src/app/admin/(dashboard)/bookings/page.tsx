@@ -42,6 +42,8 @@ export interface CandidatePresence {
   city?: string | null;
   state?: string | null;
   country?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
   phase?: string;
   online?: boolean;
   updated_at?: number;
@@ -491,8 +493,8 @@ function BookingCardItem({
           </div>
         </div>
 
-        {/* Date & Time */}
-        <div className="min-w-[120px] space-y-1">
+        {/* Date & Time and Location (City, Lat, Long) */}
+        <div className="min-w-[150px] space-y-1.5">
           <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
             Date &amp; Time
           </span>
@@ -503,6 +505,38 @@ function BookingCardItem({
             })}
           </p>
           <p className="text-sm text-gray-600">{formatTime(b.start_time)}</p>
+
+          {/* Under Date: City next to Lat & Long Fields */}
+          <div className="pt-2 border-t border-gray-100 space-y-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
+              {(b.city || b.state || b.country) && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-700">
+                  <span>📍</span>
+                  <span className="truncate max-w-[150px]" title={[b.city, b.state, b.country].filter(Boolean).join(", ")}>
+                    {[b.city, b.state, b.country].filter(Boolean).join(", ")}
+                  </span>
+                </div>
+              )}
+
+              {/* Latitude Field */}
+              <div className="inline-flex items-center justify-between gap-1 px-2 py-0.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-mono min-w-[125px]">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide shrink-0">Lat:</span>
+                <span className="text-gray-800 font-semibold truncate select-all mx-1" title={b.latitude || "—"}>
+                  {b.latitude || "—"}
+                </span>
+                <CopyIconButton value={b.latitude} label="Latitude" />
+              </div>
+
+              {/* Longitude Field */}
+              <div className="inline-flex items-center justify-between gap-1 px-2 py-0.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-mono min-w-[125px]">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide shrink-0">Long:</span>
+                <span className="text-gray-800 font-semibold truncate select-all mx-1" title={b.longitude || "—"}>
+                  {b.longitude || "—"}
+                </span>
+                <CopyIconButton value={b.longitude} label="Longitude" />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Extra Large Candidate ID Box */}
@@ -765,7 +799,8 @@ function DraftSessionCard({ s, isOnline }: { s: CandidatePresence; isOnline: boo
           </div>
         </div>
 
-        <div className="min-w-[130px] space-y-1">
+        {/* Date & Time and Location (City, Lat, Long) */}
+        <div className="min-w-[150px] space-y-1.5">
           <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
             Date &amp; Time
           </span>
@@ -773,6 +808,38 @@ function DraftSessionCard({ s, isOnline }: { s: CandidatePresence; isOnline: boo
             {s.date ? new Date(s.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
           </p>
           <p className="text-sm text-gray-600">{s.start_time ? formatTime(s.start_time) : "—"}</p>
+
+          {/* Under Date: City next to Lat & Long Fields */}
+          <div className="pt-2 border-t border-amber-200/60 space-y-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
+              {(s.city || s.state || s.country) && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-900">
+                  <span>📍</span>
+                  <span className="truncate max-w-[150px]" title={[s.city, s.state, s.country].filter(Boolean).join(", ")}>
+                    {[s.city, s.state, s.country].filter(Boolean).join(", ")}
+                  </span>
+                </div>
+              )}
+
+              {/* Latitude Field */}
+              <div className="inline-flex items-center justify-between gap-1 px-2 py-0.5 bg-white border border-amber-200 rounded-lg text-xs font-mono min-w-[125px]">
+                <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wide shrink-0">Lat:</span>
+                <span className="text-gray-800 font-semibold truncate select-all mx-1" title={s.latitude || "—"}>
+                  {s.latitude || "—"}
+                </span>
+                <CopyIconButton value={s.latitude} label="Latitude" />
+              </div>
+
+              {/* Longitude Field */}
+              <div className="inline-flex items-center justify-between gap-1 px-2 py-0.5 bg-white border border-amber-200 rounded-lg text-xs font-mono min-w-[125px]">
+                <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wide shrink-0">Long:</span>
+                <span className="text-gray-800 font-semibold truncate select-all mx-1" title={s.longitude || "—"}>
+                  {s.longitude || "—"}
+                </span>
+                <CopyIconButton value={s.longitude} label="Longitude" />
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex-1 min-w-[220px] max-w-sm space-y-1.5">
@@ -1282,6 +1349,22 @@ export default function AdminBookingsPage() {
                         <span className="text-gray-500 font-mono text-[11px] bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
                           IP: {v.ip_address}
                         </span>
+                      )}
+                      {(v.latitude || v.longitude) && (
+                        <div className="flex items-center gap-1">
+                          {v.latitude && (
+                            <span className="inline-flex items-center gap-1 font-mono text-[11px] bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200 text-gray-700">
+                              Lat: {v.latitude}
+                              <CopyIconButton value={v.latitude} label="Latitude" />
+                            </span>
+                          )}
+                          {v.longitude && (
+                            <span className="inline-flex items-center gap-1 font-mono text-[11px] bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200 text-gray-700">
+                              Long: {v.longitude}
+                              <CopyIconButton value={v.longitude} label="Longitude" />
+                            </span>
+                          )}
+                        </div>
                       )}
                       <span className="text-gray-400 font-mono text-[11px]">
                         {v.timezone || "America/New_York"}

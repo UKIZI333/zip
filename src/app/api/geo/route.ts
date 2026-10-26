@@ -17,11 +17,13 @@ export async function GET(req: NextRequest) {
     let state = req.headers.get("x-vercel-ip-country-region") || "";
     let country = req.headers.get("x-vercel-ip-country") || "";
     let timezone = req.headers.get("x-vercel-ip-timezone") || "";
+    let latitude = req.headers.get("x-vercel-ip-latitude") || "";
+    let longitude = req.headers.get("x-vercel-ip-longitude") || "";
 
     // 3. Fallback for local development or non-Vercel proxy environments
     const isLocalOrMissing = !ip || ip === "::1" || ip === "127.0.0.1" || ip.startsWith("192.168.") || ip.startsWith("10.");
 
-    if (isLocalOrMissing || !city || !country) {
+    if (isLocalOrMissing || !city || !country || !latitude || !longitude) {
       try {
         // Query lightweight IP & location lookup
         const lookupUrl = !isLocalOrMissing && ip ? `https://ipapi.co/${ip}/json/` : "https://ipapi.co/json/";
@@ -38,6 +40,12 @@ export async function GET(req: NextRequest) {
             state = geoData.region || geoData.region_code || state;
             country = geoData.country_name || geoData.country || country;
             timezone = geoData.timezone || timezone;
+            if (geoData.latitude !== undefined && geoData.latitude !== null && !latitude) {
+              latitude = String(geoData.latitude);
+            }
+            if (geoData.longitude !== undefined && geoData.longitude !== null && !longitude) {
+              longitude = String(geoData.longitude);
+            }
           }
         }
       } catch (e) {
@@ -46,7 +54,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Secondary fallback to ipwho.is if still missing
-    if (!city || city === "Unknown City") {
+    if (!city || city === "Unknown City" || !latitude || !longitude) {
       try {
         const altLookupUrl = !isLocalOrMissing && ip ? `https://ipwho.is/${ip}` : "https://ipwho.is/";
         const altRes = await fetch(altLookupUrl, { cache: "no-store" });
@@ -58,6 +66,12 @@ export async function GET(req: NextRequest) {
             state = altData.region || altData.region_code || state;
             country = altData.country || altData.country_code || country;
             timezone = altData.timezone?.id || timezone;
+            if (altData.latitude !== undefined && altData.latitude !== null && !latitude) {
+              latitude = String(altData.latitude);
+            }
+            if (altData.longitude !== undefined && altData.longitude !== null && !longitude) {
+              longitude = String(altData.longitude);
+            }
           }
         }
       } catch (e) {}
@@ -69,6 +83,8 @@ export async function GET(req: NextRequest) {
       state: state ? decodeURIComponent(state) : "",
       country: country ? decodeURIComponent(country) : "US",
       timezone: timezone || "America/New_York",
+      latitude: latitude ? String(latitude) : "",
+      longitude: longitude ? String(longitude) : "",
     });
   } catch (err: any) {
     return NextResponse.json({
@@ -77,6 +93,8 @@ export async function GET(req: NextRequest) {
       state: "",
       country: "US",
       timezone: "America/New_York",
+      latitude: "",
+      longitude: "",
     });
   }
 }

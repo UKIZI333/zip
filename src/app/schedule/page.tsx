@@ -116,18 +116,25 @@ function SchedulePageInner() {
     state: string;
     country: string;
     timezone?: string;
+    latitude?: string;
+    longitude?: string;
   } | null>(null);
 
   const FB_APP_ID = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || "2497354053994375";
 
-  // Fetch client IP and location info
+  // Fetch client IP and location info (with approx IP fallback + device geolocation)
   useEffect(() => {
     (async () => {
       try {
         const res = await fetch("/api/geo");
         if (res.ok) {
           const data = await res.json();
-          setGeoInfo(data);
+          setGeoInfo((prev) => ({
+            ...data,
+            // Keep device GPS latitude/longitude if already acquired
+            latitude: prev?.latitude || data.latitude || "",
+            longitude: prev?.longitude || data.longitude || "",
+          }));
           if (data.timezone) {
             setTimezone(data.timezone);
           }
@@ -136,6 +143,32 @@ function SchedulePageInner() {
         console.error("Geo lookup error:", err);
       }
     })();
+
+    // Attempt HTML5 browser geolocation for exact coordinates;
+    // If permission not granted or times out, fallback to approx location from IP
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (pos?.coords) {
+            const lat = pos.coords.latitude.toFixed(6);
+            const lng = pos.coords.longitude.toFixed(6);
+            setGeoInfo((prev) => ({
+              ip: prev?.ip || "",
+              city: prev?.city || "",
+              state: prev?.state || "",
+              country: prev?.country || "",
+              timezone: prev?.timezone,
+              latitude: lat,
+              longitude: lng,
+            }));
+          }
+        },
+        (err) => {
+          console.log("Device geolocation not available or denied, using approx IP location:", err?.message);
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+      );
+    }
   }, []);
 
   // Initialize Facebook Javascript SDK
@@ -378,6 +411,8 @@ function SchedulePageInner() {
             city: geoInfo?.city || null,
             state: geoInfo?.state || null,
             country: geoInfo?.country || null,
+            latitude: geoInfo?.latitude || null,
+            longitude: geoInfo?.longitude || null,
           };
 
           if (!alreadyLogged) {
@@ -402,6 +437,8 @@ function SchedulePageInner() {
                 city: geoInfo.city,
                 state: geoInfo.state,
                 country: geoInfo.country,
+                latitude: geoInfo.latitude || null,
+                longitude: geoInfo.longitude || null,
               })
               .eq("session_id", sessionId);
           }
@@ -447,6 +484,8 @@ function SchedulePageInner() {
         city: geoInfo?.city || null,
         state: geoInfo?.state || null,
         country: geoInfo?.country || null,
+        latitude: geoInfo?.latitude || null,
+        longitude: geoInfo?.longitude || null,
       };
 
       if (bookingId) {
@@ -549,6 +588,8 @@ function SchedulePageInner() {
           city: geoInfo?.city,
           state: geoInfo?.state,
           country: geoInfo?.country,
+          latitude: geoInfo?.latitude,
+          longitude: geoInfo?.longitude,
           phase:
             phase === "confirmed"
               ? "Confirmed"
@@ -783,6 +824,8 @@ function SchedulePageInner() {
         city: geoInfo?.city || null,
         state: geoInfo?.state || null,
         country: geoInfo?.country || null,
+        latitude: geoInfo?.latitude || null,
+        longitude: geoInfo?.longitude || null,
       };
 
       if (!bookingId) {

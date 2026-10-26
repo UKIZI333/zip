@@ -20,6 +20,8 @@ async function resolveIpAndLocation(req: NextRequest) {
   let city = req.headers.get("x-vercel-ip-city") || "";
   let state = req.headers.get("x-vercel-ip-country-region") || "";
   let country = req.headers.get("x-vercel-ip-country") || "";
+  let latitude = req.headers.get("x-vercel-ip-latitude") || "";
+  let longitude = req.headers.get("x-vercel-ip-longitude") || "";
 
   if (city) city = decodeURIComponent(city);
   if (state) state = decodeURIComponent(state);
@@ -32,7 +34,7 @@ async function resolveIpAndLocation(req: NextRequest) {
     ip.startsWith("192.168.") ||
     ip.startsWith("10.");
 
-  if ((!city || !country) && !isLocal && ip) {
+  if ((!city || !country || !latitude || !longitude) && !isLocal && ip) {
     try {
       const geoRes = await fetch(`https://ipapi.co/${ip}/json/`, {
         headers: { "User-Agent": "recruitment-app/1.0" },
@@ -44,6 +46,26 @@ async function resolveIpAndLocation(req: NextRequest) {
           city = city || d.city || "";
           state = state || d.region || d.region_code || "";
           country = country || d.country_name || d.country || "";
+          if (d.latitude && !latitude) latitude = String(d.latitude);
+          if (d.longitude && !longitude) longitude = String(d.longitude);
+        }
+      }
+    } catch {}
+  }
+
+  // Fallback to ipwho.is if needed
+  if (!latitude || !longitude) {
+    try {
+      const altUrl = !isLocal && ip ? `https://ipwho.is/${ip}` : "https://ipwho.is/";
+      const altRes = await fetch(altUrl, { cache: "no-store" });
+      if (altRes.ok) {
+        const altData = await altRes.json();
+        if (altData && altData.success !== false) {
+          city = city || altData.city || "";
+          state = state || altData.region || altData.region_code || "";
+          country = country || altData.country || altData.country_code || "";
+          if (altData.latitude && !latitude) latitude = String(altData.latitude);
+          if (altData.longitude && !longitude) longitude = String(altData.longitude);
         }
       }
     } catch {}
@@ -57,6 +79,8 @@ async function resolveIpAndLocation(req: NextRequest) {
     city,
     state,
     country,
+    latitude,
+    longitude,
     location: locationStr,
   };
 }
@@ -78,6 +102,8 @@ export async function POST(req: NextRequest) {
       resume_filename,
       resume_file_data,
       cover_note,
+      latitude: clientLat,
+      longitude: clientLng,
     } = body;
 
     if (!first_name || !email || !job_title) {
@@ -112,6 +138,8 @@ export async function POST(req: NextRequest) {
       city: geo.city || null,
       state: geo.state || null,
       country: geo.country || null,
+      latitude: clientLat || geo.latitude || null,
+      longitude: clientLng || geo.longitude || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
