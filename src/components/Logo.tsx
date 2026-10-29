@@ -24,7 +24,7 @@ export default function Logo({
 
   return (
     <Link
-      href="/"
+      href="https://www.ziprecruiter.com/"
       className={`inline-flex items-center gap-3 group select-none ${className}`}
       aria-label="ZipRecruiter"
     >
@@ -48,7 +48,7 @@ export default function Logo({
             isDark ? "text-white/60 border-white/20" : "text-[#5D6770] border-black/15"
           } border-l pl-2.5 py-0.5 leading-none`}
         >
-          Ireland Careers
+          
         </span>
       )}
     </Link>
